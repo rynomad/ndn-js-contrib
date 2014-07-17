@@ -30,12 +30,6 @@ function csEntry (element, data){
   this.freshnessPeriod = freshnessPeriod
   this.uri = data.name.toUri();
   this.publisherPublicKeyDigest = data.signedInfo.publisher.publisherPublicKeyDigest
-  if (freshnessPeriod){
-    setTimeout(function(){
-      var node = THISNT.lookup(data.name)
-      if (node.csEntry) delete node.csEntry;
-    }, freshnessPeriod );
-  }
   return this;
 }
 
@@ -168,6 +162,7 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
   }
 
 
+
   if (!node.prefix.size() ||(!atMaxSuffix && hasChildren))
     return toChild(node);
   else if (hasMoreSiblings(node))
@@ -185,14 +180,15 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
  *@returns {ContentStore} - for chaining
  */
 ContentStore.prototype.insert = function(element, data){
+  var Entry = this.EntryClass
   var freshness = data.getMetaInfo().getFreshnessPeriod();
   if (freshness){
-    var node = this.nameTree.lookup(entry.name)
-      , entry = new this.EntryClass(element, data);
-    node[this.EntryClass.type] = entry
-    node[this.EntryClass.type].nameTreeNode = node;
+    var node = this.nameTree.lookup(data.name)
+      , entry = new Entry(element, data);
+    node[Entry.type] = entry
+    node[Entry.type].nameTreeNode = node;
     setTimeout(function(){
-      node[this.EntryClass.type].stale(node);
+      if (node[Entry.type]) node[Entry.type].stale(node);
     }, freshness );
   }
   return this;

@@ -15,6 +15,7 @@ NameTree.Node = NameTreeNode;
 
 NameTree.installModules = function(NDN){
   NameTree.Node.installModules(NDN);
+
   ndn = NDN;
 }
 

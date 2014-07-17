@@ -5,7 +5,6 @@ var ContentStore = require("../../src/ContentStore.js")
   , assert = require('chai').assert
 
 NameTree.installModules(ndn);
-ContentStore.installModules(ndn);
 
 var cache = new ContentStore(new NameTree())
 
@@ -18,9 +17,7 @@ describe("csEntry",function(){
 
     d.sign()
     var el = d.wireEncode().buffer
-    console.log(cache.EntryClass)
-    entry = cache.EntryClass(el, d)
-    cache.insert(el, entry)
+    cache.insert(el, d)
     assert(cache.nameTree.lookup(d.name).csEntry.name.equals(d.name))
   })
   it("should be consumed", function(done){
@@ -42,35 +39,36 @@ var aa = new ndn.Data(new ndn.Name("a/aa/c/a"),new ndn.SignedInfo(),"testContent
 aa.signedInfo.setFreshnessPeriod(1000)
 bb.signedInfo.setFreshnessPeriod(1000)
 cc.signedInfo.setFreshnessPeriod(1000)
+dd.signedInfo.setFreshnessPeriod(1000)
 ee.signedInfo.setFreshnessPeriod(1000)
 ff.signedInfo.setFreshnessPeriod(1000)
 gg.signedInfo.setFreshnessPeriod(1000)
 
-cache.insert( aa.wireEncode().buffer, new cache.EntryClass( aa.wireEncode().buffer, aa))
-    .insert( bb.wireEncode().buffer, new cache.EntryClass( bb.wireEncode().buffer, bb))
-    .insert( cc.wireEncode().buffer, new cache.EntryClass( cc.wireEncode().buffer, cc))
-    .insert( dd.wireEncode().buffer, new cache.EntryClass( dd.wireEncode().buffer, dd))
-    .insert( ee.wireEncode().buffer, new cache.EntryClass(ee.wireEncode().buffer, ee))
+cache.insert( aa.wireEncode().buffer, aa)
+    .insert( bb.wireEncode().buffer, bb)
+    .insert( cc.wireEncode().buffer,cc)
+    .insert( dd.wireEncode().buffer, dd)
+    .insert( ee.wireEncode().buffer, ee)
 
-    .insert( ff.wireEncode().buffer, new cache.EntryClass(ff.wireEncode().buffer, ff))
+    .insert( ff.wireEncode().buffer, ff)
 
-    .insert( gg.wireEncode().buffer, new cache.EntryClass(gg.wireEncode().buffer,gg))
+    .insert( gg.wireEncode().buffer, gg)
 
 //console.log(cache.nameTree)
 //console.log(cache.nameTree['/a'].children.length, cache.nameTree['/a'].children.length, cache.nameTree['/a/aa'].children[0].children[0].prefix.toUri())
 describe("ContentStore", function(){
   //console.log(cache.__proto__)
     it("should insert", function(){
-      dd.signedInfo.setFreshnessPeriod(1000)
+
       var el = dd.wireEncode()
-      cache.insert(el.buffer, new cache.EntryClass(el.buffer, dd))
+      cache.insert(el.buffer, dd)
       assert(cache.nameTree.lookup(dd.name).csEntry.name.equals(dd.name))
     })
     it("should find leftmost", function(){
       var inst = new ndn.Interest(new ndn.Name("a"))
       var res = cache.check(inst)
-      console.log(cache.nameTree)
-      console.log(ndn.DataUtils.arraysEqual(res, cc.wireEncode().buffer))
+     // console.log(cache.nameTree)
+      //console.log(ndn.DataUtils.arraysEqual(res, cc.wireEncode().buffer))
       assert.deepEqual(res, cc.wireEncode().buffer)
     })
     it("should find rightMost", function(){

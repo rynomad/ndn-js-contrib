@@ -21,9 +21,9 @@ function PitEntry (element, interest, faceIDorCallback){
   this.interest = interest;
   this.element = element;
   if (typeof faceIDorCallback == "function" )
-    this.callback = faceIDorCallback
+    this.callback = faceIDorCallback;
   else
-    this.faceID
+    this.faceID = faceIDorCallback;
 
 }
 

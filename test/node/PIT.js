@@ -80,7 +80,7 @@ describe("PIT", function(){
     it("should get all matches and return a faceFlag", function(){
 
       var inst = new ndn.Interest(new ndn.Name("a/b/c"))
-      inst.setInterestLifetimeMilliseconds(1);
+      inst.setInterestLifetimeMilliseconds(50);
       var enc = inst.wireEncode()
       inst = new ndn.Interest()
       inst.wireDecode(enc)
@@ -90,6 +90,7 @@ describe("PIT", function(){
       entry.interest.publisherPublicKeyDigest = pubKeyDigest;
       pit.insertPitEntry(entry)
       var returns = pit.lookup(data);
+      console.log(returns)
       assert(returns.faces == 2)
       assert(returns.pitEntries.length == 1)
     })

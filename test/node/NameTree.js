@@ -91,8 +91,7 @@ describe("NameTree.lookup()", function(){
     assert((nameTree.lookup("/lookup/test") instanceof NameTree.Node))
   })
   it("should create non existing node", function(){
-    assert((nameTree.lookup("/lookup/creation/test") instanceof NameTree.Node))
-    console.log("!!!!!!!!!!!!!!!!!",nameTree["/lookup"].children.length)
+    assert((nameTree.lookup("/lookup/creation/test") instanceof NameTree.Node));
     assert((nameTree["/lookup"].children.length == 2));
   })
 })
