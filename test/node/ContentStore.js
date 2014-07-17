@@ -1,6 +1,6 @@
 
-var ContentStore = require("../../lib/ContentStore.js")
-  , NameTree = require("../../lib/NameTree.js")
+var ContentStore = require("../../src/ContentStore.js")
+  , NameTree = require("../../src/NameTree.js")
   , ndn = require('ndn-lib')
   , assert = require('chai').assert
 
