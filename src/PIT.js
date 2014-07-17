@@ -1,9 +1,9 @@
-var binarySearch = require("./binarySearch.js");
-  , PIT = function(){}
+var binarySearch = require("./binarySearch.js")
+  , PIT = function(nameTree){this.nameTree = nameTree; return this;}
 
 
 function pubKeyMatch (ar1, ar2){
-  if (ar1 == null)
+  if (!ar1)
     return true
 
   for(var i = 0; i < ar1.length; i++ ){
@@ -15,12 +15,16 @@ function pubKeyMatch (ar1, ar2){
 
 }
 
-function PitEntry (element, interest, faceID){
+function PitEntry (element, interest, faceIDorCallback){
   this.nonce = interest.nonce;
-  this.faceID = faceID;
   this.uri = interest.name.toUri();
   this.interest = interest;
   this.element = element;
+  if (typeof faceIDorCallback == "function" )
+    this.callback = faceIDorCallback
+  else
+    this.faceID
+
 }
 
 PitEntry.prototype.matches = function(data){
@@ -35,20 +39,18 @@ PitEntry.prototype.matches = function(data){
 
 PitEntry.prototype.consume = function() {
   if (this.nameTreeNode){
-
-    var i = this.nameTreeNode.addPitEntry(this);
-
+    var i = binarySearch(this.nameTreeNode.pitEntries, this, "nonce")
     if (i < 0)
-      return this.nameTreeNode.pitEntries.splice(~i, 1)[0];
+      return this
     else
-      return this.nameTreeNode.pitEntries.splice(i, 1)[0];
+      return this.nameTreeNode.pitEntries.splice(~i, 1)[0];
   } else {
     return this;
   }
 }
 
 
-PIT.PitEntry = PitEntry
+PIT.Entry = PitEntry
 
 PIT.prototype.useNameTree = function(nameTree){
   this.nameTree = nameTree;
@@ -58,8 +60,13 @@ PIT.prototype.useNameTree = function(nameTree){
 PIT.prototype.insertPitEntry = function(pitEntry){
   setTimeout(function(){
     pitEntry.consume();
-  }, pitEntry.interest.getInterestLifeTimeMilliseconds || 10);
-  return this.nameTree.lookup(pitEntry.interest.name).addPitEntry(pitEntry);
+  }, pitEntry.interest.getInterestLifetimeMilliseconds() || 10);
+  var node = this.nameTree.lookup(pitEntry.interest.name)
+  var i = binarySearch(node.pitEntries, pitEntry, "nonce")
+  if (i < 0)
+    pitEntry.nameTreeNode = node;
+    node.pitEntries.splice(~i, 0 ,pitEntry);
+  return this;
 }
 
 PIT.prototype.lookup = function(data, name, matches, faceFlag){

@@ -1,7 +1,7 @@
 {
-  "name": "ndn-NameTree",
+  "name": "ndn-data-structures",
   "version": "0.0.0",
-  "description": "NDN NameTree Class",
+  "description": "data structures for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,7 +19,11 @@
   "author": "Ryan Bennett, Colorado State University",
   "license": "LGPL",
   "bugs": {
-    "url": "https://github.com/rynomad/ndn-NameTree/issues"
+    "url": "https://github.com/rynomad/ndn-DataStructures/issues"
   },
-  "homepage": "https://github.com/rynomad/ndn-NameTree"
+  "homepage": "https://github.com/rynomad/ndn-DataStructures",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-jsdoc": "^0.5.6"
+  }
 }

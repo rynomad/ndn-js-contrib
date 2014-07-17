@@ -1,10 +1,20 @@
-var treeNode = require("./NameTreeNode.js")
+var NameTreeNode = require("./NameTreeNode.js")
   , binaryIndexOf = require("./binarySearch.js")
   , ndn
-  , NameTree = function(){};
+  , debug = require("./debug").NameTree
 
-NameTree.useNDN = function(NDN){
-  node.useNDN(NDN);
+/**Creates an empty NameTree.
+ *@constructor
+ */
+function NameTree (){
+  this.addNode('/');
+  return this;
+}
+
+NameTree.Node = NameTreeNode;
+
+NameTree.installModules = function(NDN){
+  NameTree.Node.installModules(NDN);
   ndn = NDN;
 }
 
@@ -13,35 +23,33 @@ NameTree.useNDN = function(NDN){
  * @param  {Name|String} prefix - the prefix for the new node.
  * @returns {NameTreeNode} node - the NameTree node created.
  */
-NameTree.prototype.addNode = function(prefix, child, final){
+NameTree.prototype.addNode = function(prefix){
   if (typeof prefix == "string")
     prefix = new ndn.Name(prefix);
 
   var self = this[prefix.toUri()];
+  if(self)
+    return self
+  else{
+    self = this[prefix.toUri()] = new NameTree.Node(prefix);
+    while(prefix.size() > 0){
+      var parentPrefix = prefix.getPrefix(-1);
 
-  if (self){
-    if (child)
-      self.addChild(child);
-    if (final)
-      return final;
-    else
-      return this; //node exists
-  } else {
-    self = new node(prefix, this);
-    if (child)
-      self.addChild(child);
-    if (prefix.size() > 0)
-      if (final)
-        return this.addNode(prefix.getPrefix(-1), self, final);
-      else
-        return this.addNode(prefix.getPrefix(-1), self, self)
+      if(!this[parentPrefix.toUri()]){
+        this[parentPrefix.toUri()] = new NameTree.Node(parentPrefix);
+      }
+      this[prefix.toUri()].parent = this[parentPrefix.toUri()];
+      this[parentPrefix.toUri()].addChild(this[prefix.toUri()]);
+      prefix = parentPrefix
+    }
   }
+  return self
 }
 
 /**
  * Delete a node (and all it's children, grandchildren, etc.).
  * @param   {Name|URI} prefix - the name of the node to delete.
- * @returns {NameTree} the nameTre e.
+ * @returns {NameTree} the nameTree.
  */
 NameTree.prototype.removeNode = function(prefix, cycleFinish){
   if (typeof prefix == "string")
@@ -59,9 +67,10 @@ NameTree.prototype.removeNode = function(prefix, cycleFinish){
       return this.removeNode(child.prefix, cycleFinish);
     } else {
       delete this[self.prefix.toUri()];
-      if (cycleFinish.match(prefix))
-        this[self.parent].removeChild(prefix.get(-1))
+      if (cycleFinish.equals(prefix)){
+        self.parent.removeChild(self)
         return this;
+      }
       else
         return this.removeNode(prefix.getPrefix(-1), cycleFinish);
     }
@@ -70,7 +79,7 @@ NameTree.prototype.removeNode = function(prefix, cycleFinish){
 
 /**
  * Perform a lookup on the NameTree and return the proper node, creating it if necessary.
- * @prefix  {Name|URI} the name of the node to lookup.
+ * @param  {Name|URI} prefix the name of the node to lookup.
  * @returns {NameTreeNode} the resulting node.
  */
 NameTree.prototype.lookup = function (prefix) {
@@ -78,20 +87,23 @@ NameTree.prototype.lookup = function (prefix) {
     prefix = new ndn.Name(prefix);
   var node = this[prefix.toUri()];
 
-  (node) ?
+  if (node)
     return node;
-  : return (this.addNode(prefix))
+  else
+    return (this.addNode(prefix));
 }
 
 /**
  * Find the Longest Prefix Match in the NameTree that matches the selector
- * @prefix   {Name|URI} the name to lookup
- * @selector {function} selector function returning boolean if the node fulfills requirements
+ * @param    {Name|URI} prefix the name to lookup
+ * @param    {function} selector predicate function
  * @returns  {NameTreeNode} the longest prefix match.
  */
 NameTree.prototype.findLongestPrefixMatch = function(prefix, selector) {
   if (typeof prefix == "string")
     prefix = new ndn.Name(prefix);
+
+  selector = selector || function(acceptAny){return true};
 
   var match = this[prefix.toUri()]
   if ( match && selector(match))
@@ -111,30 +123,33 @@ NameTree.prototype.findLongestPrefixMatch = function(prefix, selector) {
 NameTree.prototype.findAllMatches = function(prefix, selector){
   if (typeof prefix == "string")
     prefix = new ndn.Name(prefix);
+  selector = selector || function(){return true};
 
   var self = this
     , nextReturn = self[prefix.toUri()]
     , thisReturn
     , iterator = {
       next: function(){
-        if (this.depleted)
+        if (!this.hasNext)
           return null;
         prefix = nextReturn.prefix;
         thisReturn = nextReturn;
-        nextReturn = (thisReturn && selector(thisReturn.parent)) ?
+        nextReturn = (thisReturn && thisReturn.parent && selector(thisReturn.parent)) ?
           thisReturn.parent
         : (prefix.size() > 0) ?
-          self.findLongestPrefixMatch(prefix, selector)
+          self.findLongestPrefixMatch(prefix.getPrefix(-1), selector)
         : null ;
         if (!nextReturn)
-          this.depleted = true
+          this.hasNext = false
+        else
+          this.hasNext = true
 
         return thisReturn;
       }
     }
 
   if (nextReturn && selector(nextReturn)){
-    iterator.depleted == false;
+    iterator.hasNext = true;
     return iterator;
   };
   if (prefix.size() > 0)
