@@ -150,7 +150,7 @@ FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
  */
 
 FIB.prototype.addEntry = function(prefix, nextHops){
-  fibEntry = new FibEntry(prefix, nextHops);
+  var fibEntry = new FibEntry(prefix, nextHops);
 
   var node = this.nameTree.lookup(fibEntry.prefix);
   if (!node.fibEntry){
