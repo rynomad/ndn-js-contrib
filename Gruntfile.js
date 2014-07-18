@@ -12,7 +12,12 @@ module.exports = function(grunt){
     }];
 
   grunt.initConfig({
-
+    browserify: {
+      testDataStructures: {
+        src: "test/node/DataStructures/*.js"
+        , dest: "test/browser/DataStructures/suite.js"
+      }
+    },
     jsdoc : {
       dist : {
         src: ['src/**/*.js'],
@@ -54,23 +59,23 @@ module.exports = function(grunt){
     watch: {
       NameTree: {
         files: ['src/DataStructures/NameTree.js', 'src/DataStructures/NameTreeNode.js', 'test/node/NameTree.js'],
-        tasks: ['jshint:NameTree','mochaTest:NameTree'],
+        tasks: ['jshint:NameTree','mochaTest:NameTree', 'browserify:testDataStructures'],
       },
       ContentStore: {
         files: ['src/DataStructures/ContentStore.js', 'test/node/ContentStore.js'],
-        tasks: ['jshint:ContentStore','mochaTest:ContentStore']
+        tasks: ['jshint:ContentStore','mochaTest:ContentStore', 'browserify:testDataStructures']
       },
       FIB: {
         files: ['src/DataStructures/FIB.js', 'test/node/FIB.js'],
-        tasks: ['jshint:FIB','mochaTest:FIB']
+        tasks: ['jshint:FIB','mochaTest:FIB', 'browserify:testDataStructures']
       },
       PIT: {
         files: ['src/DataStructures/PIT.js', 'test/node/PIT.js'],
-        tasks: ['jshint:PIT','mochaTest:PIT']
+        tasks: ['jshint:PIT','mochaTest:PIT', 'browserify:testDataStructures']
       },
       Interfaces: {
         files: ['src/DataStructures/Interfaces.js', 'test/node/Interfaces.js'],
-        tasks: ['jshint:Interfaces', 'mochaTest:Interfaces']
+        tasks: ['jshint:Interfaces', 'mochaTest:Interfaces' , 'browserify:testDataStructures']
       }
     },
     jshint: {
@@ -94,6 +99,9 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-contrib-watch");
 
+  grunt.loadNpmTasks('grunt-browserify');
+
+  grunt.registerTask("bro", ["browserify:testDataStructures"])
   grunt.registerTask("test", "mochaTest");
   grunt.registerTask("hint", "jshint")
   grunt.registerTask("suite", ["hint", "test"])
