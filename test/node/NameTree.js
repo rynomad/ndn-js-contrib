@@ -1,5 +1,5 @@
 
-var NameTree = require('../../src/NameTree.js')
+var NameTree = require('../../src/DataStructures/NameTree.js')
   , ndn = require('ndn-lib')
   , assert = require('assert')
 

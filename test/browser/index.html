@@ -1,17 +1,15 @@
 <html>
-<script src="assert.js"></script>
-<script src="mocha.js"></script>
+    <script src="lib/assert.js"></script>
+    <script src="lib/mocha.js"></script>
 <script>  mocha.setup('bdd')
 </script>
-<script src="NameTree.js"></script>
-<script src="FIB.js"></script>
-<script src="ContentStore.js"></script>
-<link rel="stylesheet" href="mocha.css" />
+    <script src="transports/MessageChannel.js"></script>
+    <link rel="stylesheet" href="lib/mocha.css" />
 <div id="mocha"><p><a href=".">Index</a></p></div>
 <script>
   onload = function(){
     mocha.checkLeaks();
-    mocha.globals(['mochaResults', 'v']);
+    mocha.globals(['mochaResults', 'testDone', 'face2', 'inst' ]);
     var runner = mocha.run();
 
     var failedTests = [];

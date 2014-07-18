@@ -1,4 +1,4 @@
-var binarySearch = require("./binarySearch.js")
+var binarySearch = require("./../Utility/binarySearch.js")
   , ndn;
 
 

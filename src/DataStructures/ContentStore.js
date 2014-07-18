@@ -1,22 +1,17 @@
-var ndn, THISNT;
-
 var debug = false;
 
 function pubKeyMatch (ar1, ar2){
   if (!ar1){
     return true;
   }
-
   for(var i = 0; i < ar1.length; i++ ){
     if (ar1[i] !== ar2[i]){
       return false;
     }
   }
-
   return true;
 }
 
-csEntry.type = "csEntry";
 
 /** Default EntryClass for ContentStore
  *@constructor
@@ -33,6 +28,11 @@ function csEntry (element, data){
   this.publisherPublicKeyDigest = data.signedInfo.publisher.publisherPublicKeyDigest;
   return this;
 }
+
+/**
+ *@property {String} type a type string describing the type of entry
+ */
+csEntry.type = "csEntry";
 
 /** sync/async getter for the element
  *@private

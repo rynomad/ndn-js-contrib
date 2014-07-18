@@ -1,6 +1,6 @@
-var binarySearch = require("./binarySearch.js")
+var binarySearch = require("./../Utility/binarySearch.js")
   , ndn
-  , debug = require("./debug.js");
+  , debug = require("./../Utility/debug.js");
 
 /**NameTreeNode constructor, NOTE: (typeof URI == "string") && (Name instanceof <a href="https://github.com/named-data/ndn-js/blob/master/js/name.js">ndn.Name</a> )
  *@constructor
@@ -23,8 +23,7 @@ NameTreeNode.installModules = function(NDN){
   ndn = NDN;
 };
 
-/**
- * Add a child node to this one, inserting at the properly sorted index according to canonical namespace rules
+/**Add a child node to this one, inserting at the properly sorted index according to canonical namespace rules
  *@private
  *@param {NameTreeNode | String} child - the node to insert, or the suffix for a new node.
  *@returns {NameTreeNode} the original node
@@ -43,8 +42,7 @@ NameTreeNode.prototype.addChild = function addChild(child){
   return this;
 };
 
-/**
- * remove a child from this node. This won't derefrence the child node, just remove it from the index
+/**Remove a child from this node. This won't derefrence the child node, just remove it from the index
  *@private
  *@param {NameTreeNode | String} child - the node to remove, or the suffix of that node.
  *@returns {NameTreeNode} the original node

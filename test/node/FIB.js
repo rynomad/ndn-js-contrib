@@ -1,6 +1,6 @@
 
-var FIB = require('../../src/FIB.js')
-  , NameTree = require("../../src/NameTree.js")
+var FIB = require('../../src/DataStructures/FIB.js')
+  , NameTree = require("../../src/DataStructures/NameTree.js")
   , ndn = require('ndn-lib')
   , assert = require('assert');
 

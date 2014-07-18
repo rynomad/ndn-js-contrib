@@ -53,23 +53,23 @@ module.exports = function(grunt){
     },
     watch: {
       NameTree: {
-        files: ['src/NameTree.js', 'src/NameTreeNode.js', 'test/node/NameTree.js'],
+        files: ['src/DataStructures/NameTree.js', 'src/DataStructures/NameTreeNode.js', 'test/node/NameTree.js'],
         tasks: ['jshint:NameTree','mochaTest:NameTree'],
       },
       ContentStore: {
-        files: ['src/ContentStore.js', 'test/node/ContentStore.js'],
+        files: ['src/DataStructures/ContentStore.js', 'test/node/ContentStore.js'],
         tasks: ['jshint:ContentStore','mochaTest:ContentStore']
       },
       FIB: {
-        files: ['src/FIB.js', 'test/node/FIB.js'],
+        files: ['src/DataStructures/FIB.js', 'test/node/FIB.js'],
         tasks: ['jshint:FIB','mochaTest:FIB']
       },
       PIT: {
-        files: ['src/PIT.js', 'test/node/PIT.js'],
+        files: ['src/DataStructures/PIT.js', 'test/node/PIT.js'],
         tasks: ['jshint:PIT','mochaTest:PIT']
       },
       Interfaces: {
-        files: ['src/Interfaces.js', 'test/node/Interfaces.js'],
+        files: ['src/DataStructures/Interfaces.js', 'test/node/Interfaces.js'],
         tasks: ['jshint:Interfaces', 'mochaTest:Interfaces']
       }
     },
@@ -80,11 +80,11 @@ module.exports = function(grunt){
         laxcomma: true,
         laxbreak: true
       },
-      NameTree: ['src/NameTreeNode.js', 'src/NameTree.js'],
-      ContentStore: ['src/ContentStore.js'],
-      FIB: ['src/FIB.js'],
-      PIT: ['src/PIT.js'],
-      Interfaces: ['src/Interfaces.js']
+      NameTree: ['src/DataStructures/NameTreeNode.js', 'src/DataStructures/NameTree.js'],
+      ContentStore: ['src/DataStructures/ContentStore.js'],
+      FIB: ['src/DataStructures/FIB.js'],
+      PIT: ['src/DataStructures/PIT.js'],
+      Interfaces: ['src/DataStructures/Interfaces.js']
     }
 
 

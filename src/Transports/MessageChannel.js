@@ -1,3 +1,4 @@
+var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 
 MessageChannelTransport.protocolKey = "messageChannel"
 
@@ -14,30 +15,22 @@ function MessageChannelTransport (port) {
  *@param {Object} face the ndn.Face object that this transport is attached to
  *@param {function} onopenCallback a callback to be performed once the transport is open
  */
-MessageChannelTransport.prototype.connect = function(face, onopenCallback)
+MessageChannelTransport.prototype.connect = function(face, onopenCallback, third)
 {
+  console.log(face, onopenCallback, third)
   this.elementReader = new ElementReader(face);
   var self = this;
   this.port.onmessage = function(ev) {
-    console.log('RecvHandle called on local face', ev);
-
-    if (ev.data == null || ev.data == undefined || ev.data == "") {
-      console.log('INVALID ANSWER');
-    }
-    else if (ev.data instanceof ArrayBuffer) {
-      var bytearray = new Buffer(ev.data);
-      console.log(ev.data)
-      console.log(bytearray)
+    if (ev.data.buffer instanceof ArrayBuffer) {
       try {
-        // Find the end of the binary XML element and call face.onReceivedElement.
-        self.elementReader.onReceivedData(bytearray);
+        self.elementReader.onReceivedData(ev.data);
       } catch (ex) {
         console.log("NDN.ws.onmessage exception: " + ex);
         return;
       }
     }
   };
-  onopenCallback();
+  if (third) {third();} else {onopenCallback();}
 };
 
 /**Send the Uint8Array data.
@@ -45,7 +38,7 @@ MessageChannelTransport.prototype.connect = function(face, onopenCallback)
  */
 MessageChannelTransport.prototype.send = function(element)
 {
-  this.port.postMessage(element, [element]);
+  this.port.postMessage(element);
 };
 
 module.exports = MessageChannelTransport;

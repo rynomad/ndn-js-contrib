@@ -1,6 +1,6 @@
 
-var PIT = require('../../src/PIT.js')
-  , NameTree = require("../../src/NameTree.js")
+var PIT = require('../../src/DataStructures/PIT.js')
+  , NameTree = require("../../src/DataStructures/NameTree.js")
   , ndn = require('ndn-lib')
   , assert = require('chai').assert;
 
