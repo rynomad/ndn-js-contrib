@@ -4,7 +4,7 @@ var PIT = require('../../src/PIT.js')
   , ndn = require('ndn-lib')
   , assert = require('chai').assert;
 
-
+PIT.installNDN(ndn);
 var pubKeyDigest = ndn.globalKeyManager.getKey().publicKeyDigest
 NameTree.installModules(ndn);
 var pit = new PIT(new NameTree());
@@ -66,7 +66,7 @@ describe("PIT", function(){
   describe("PIT.insertPitEntry", function(){
     it("should insert", function(){
       entry.interest.setInterestLifetimeMilliseconds(100)
-      pit.insertPitEntry(entry)
+      pit.insertPitEntry(enc,1)
       assert(pit.nameTree["/a/b"].pitEntries.length > 0)
     })
     it("should auto-consume", function(done){
@@ -88,9 +88,8 @@ describe("PIT", function(){
       var data = new ndn.Data(new ndn.Name("a/b/c/d"), new ndn.SignedInfo(), "test")
       data.signedInfo.setFields()
       entry.interest.publisherPublicKeyDigest = pubKeyDigest;
-      pit.insertPitEntry(entry)
+      pit.insertPitEntry(enc, 1)
       var returns = pit.lookup(data);
-      console.log(returns)
       assert(returns.faces == 2)
       assert(returns.pitEntries.length == 1)
     })

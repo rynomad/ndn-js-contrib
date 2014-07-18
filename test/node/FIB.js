@@ -2,7 +2,7 @@
 var FIB = require('../../src/FIB.js')
   , NameTree = require("../../src/NameTree.js")
   , ndn = require('ndn-lib')
-  , assert = require('assert')
+  , assert = require('assert');
 
 
 FIB.installNDN(ndn);
@@ -11,7 +11,7 @@ NameTree.installModules(ndn);
 var fib = new FIB(new NameTree())
 
 describe('FIB.addEntry()', function(){
-  it('should add without error with object param or class', function(){
+  it('should add without error with all polymorphism', function(){
     var param1= {
       prefix : 'a/b/c',
       nextHops:[
@@ -30,9 +30,10 @@ describe('FIB.addEntry()', function(){
 
     var entry = new FIB.Entry(param1);
 
-    fib.addEntry(entry)
-    fib.addEntry(param2);
-    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 2)
+    fib.addEntry(param1.prefix, param1.nextHops)
+    fib.addEntry(param2.prefix, param2.nextHops)
+    fib.addEntry(param1.prefix, [0,2,3]);
+    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 4)
   })
   it("should ignore existing nextHop with identical faceID", function(){
     var param3 = {
@@ -42,9 +43,9 @@ describe('FIB.addEntry()', function(){
       }]
     }
 
-    fib.addEntry(param3);
+    fib.addEntry(param3.prefix, param3.nextHops);
 
-    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 2)
+    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 4)
   })
 })
 var entry
@@ -69,13 +70,15 @@ describe("FIB.Entry.addNextHop()", function(){
 describe("FIB.findAllNextHops()", function(){
   it("should return a faceFlag with all next Hops, ignoring exclude ", function(){
     var param = {
-      prefix: new ndn.Name("a/")
+      prefix: new ndn.Name("a/b")
       , nextHops: [{
         faceID: 7
       }]
     }
-    fib.addEntry(param);
+    fib.addEntry(param.prefix, [7,1,2]);
+
     var faceFlag = fib.findAllNextHops(new ndn.Name("a/b/c/d"), 0);
-    assert(faceFlag == 130)
+    console.log(faceFlag)
+    assert(faceFlag == 142)
   })
 })

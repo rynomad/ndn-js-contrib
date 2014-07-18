@@ -1,12 +1,12 @@
 var ndn
-  , Faces = []
+  , Face
+  , Faces = [];
 
-function Interfaces(NDN){
+
+function Interfaces(NDN, Subject){
   ndn = NDN;
-  Forwarder = forwarder
 
-  ndn.Face.prototype.onReceivedElement = function(element)
-  {
+  ndn.Face.prototype.onReceivedElement = function(element){
     var decoder = new ndn.TlvDecoder(element);
     if (decoder.peekType(ndn.Tlv.Interest, element.length)) {
       Subject.handleInterest(element, this.faceID);
@@ -18,7 +18,7 @@ function Interfaces(NDN){
 
   ndn.Face.prototype.send = function(element){
     this.transport.send(element);
-  }
+  };
 
   Face = ndn.Face;
 
@@ -27,7 +27,7 @@ function Interfaces(NDN){
 
 Interfaces.prototype.transports = {};
 
-Interfaces.prototype.addTransport = function(Transport) {
+Interfaces.prototype.addTransport = function(Transport){
   this.transports[Transport.protocolKey] = Transport;
 
   if (Transport.Listener && Transport.Listen){
@@ -35,32 +35,35 @@ Interfaces.prototype.addTransport = function(Transport) {
   }
 
   return this;
-}
+};
 
 Interfaces.prototype.newFace = function(protocol, connectionParameters) {
   var self = this;
-  if (!this.transports[protocol])
+  if (!this.transports[protocol]){
     return -1;
-  else {
+  } else {
     Faces.push(
       new Face({
         host   : connectionParameters.host || 1
         , port : connectionParameters.port || 1
-        , getTransport : function(){return new self.transports[protocol](connectionParameters)}
+        , getTransport : function(){return new self.transports[protocol](connectionParameters);}
       })
-    )
-    var id = Faces.length - 1
+    );
+    var id = Faces.length - 1;
     Faces[id].faceID = id;
-    return id
+    return id;
   }
-}
+};
 
 Interfaces.prototype.dispatch = function(element, faceFlag){
   if (faceFlag){
     for (var i = 0; i < Faces.length; i++){
-      if (faceFlag & (1<<i) )
+      if (faceFlag & (1<<i) ){
         Faces[i].send(element);
+      }
     }
   }
-}
+  return this;
+};
+
 module.exports = Faces;
