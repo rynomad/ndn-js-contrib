@@ -4,7 +4,7 @@ var binarySearch = require("./../Utility/binarySearch.js")
 /**A Forwarding Entry
  *@constructor
  *@param {Object|string} prefix - the ndn.Name object representing the prefix for this forwarding entry
- *@param {Array of {Objects|Numbers}} - an array of nextHop objects, each with a "faceID" integer property, or just an array of the faceIDs
+ *@param {Array} - an array of nextHop objects, each with a "faceID" integer property, or just an array of the faceIDs
  *@returns {FibEntry}
  */
 function FibEntry(prefix, nextHops){
@@ -31,7 +31,7 @@ function FibEntry(prefix, nextHops){
 
 /**get all nextHops, excluding a given faceID
  *@param {Number=} excludingFaceID the faceID to exclude
- *@returns {Array of Objects} an array of nextHops
+ *@returns {Array} an array of nextHops
  */
 FibEntry.prototype.getNextHops = function(excludingFaceID){
   if(excludingFaceID !== undefined){

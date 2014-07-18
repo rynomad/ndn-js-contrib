@@ -4,7 +4,7 @@ MessageChannelTransport.protocolKey = "messageChannel"
 
 /**Transport Class for HTML5 MessageChannels
  *@constructor
- *@param {MessageChannel Port} port one end of an HTML MessageChannel
+ *@param {MessageChannel_Port} port one end of an HTML MessageChannel
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
