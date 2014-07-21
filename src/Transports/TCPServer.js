@@ -3,7 +3,9 @@
  * @author: Wentao Shang
  * See COPYING for copyright and distribution information.
  */
-var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
+var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
+  , net = require('net')
+
 
 var TcpServerTransport = function serverTcpTransport(socket)
 {
@@ -13,6 +15,27 @@ var TcpServerTransport = function serverTcpTransport(socket)
   this.connectedHost = null; // Read by Face.
   this.connectedPort = null; // Read by Face.
   this.sock_ready = true
+};
+
+TcpServerTransport.protocolKey = "tcpServer"
+
+/**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
+ *@param {Number=} - port the port for the listener to listen on, default 7474
+ */
+TcpServerTransport.defineListener = function(port){
+  port = port || 7474;
+
+  this.Listener = function (newFace) {
+    this.server = net.createServer(function(socket){
+      socket.on('end', function() {
+        console.log('server disconnected');
+      });
+      newFace("tcpServer", socket)
+    })
+    this.server.listen(port, function(){
+      //console.log('server awaiting connections');
+    })
+  };
 };
 
 TcpServerTransport.prototype.connect = function(face, onopenCallback)
@@ -62,10 +85,7 @@ TcpServerTransport.prototype.connect = function(face, onopenCallback)
 
 };
 
-/**
- * Send data.
- */
-serverTcpTransport.prototype.send = function(/*Buffer*/ data)
+TcpServerTransport.prototype.send = function(/*Buffer*/ data)
 {
   if (this.sock_ready)
   {
@@ -75,13 +95,10 @@ serverTcpTransport.prototype.send = function(/*Buffer*/ data)
     console.log('TCP connection is not established.');
 };
 
-/**
- * Close transport
- */
-serverTcpTransport.prototype.close = function()
+TcpServerTransport.prototype.close = function()
 {
   this.socket.end();
   console.log('TCP connection closed.');
 };
 
-module.exports = serverTcpTransport
+module.exports = TcpServerTransport

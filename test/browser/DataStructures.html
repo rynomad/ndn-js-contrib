@@ -10,9 +10,13 @@
     <div id="mocha"><p><a href=".">Index</a></p></div>
     <script>
         onload = function(){
-
+Object.defineProperty(global, "result", {
+    set : function(value) {
+        throw new Error("SHIT!");
+    }
+})
             mocha.checkLeaks();
-            mocha.globals(['mochaResults', 'v' ]);
+            mocha.globals(['mochaResults', 'v' , "ListenerActive", "result"]);
             var runner = mocha.run();
 
             var failedTests = [];

@@ -79,7 +79,6 @@ describe("FIB.findAllNextHops()", function(){
     fib.addEntry(param.prefix, [7,1,2]);
 
     var faceFlag = fib.findAllNextHops(new ndn.Name("a/b/c/d"), 0);
-    console.log(faceFlag)
     assert(faceFlag == 142)
   })
 })
