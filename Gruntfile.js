@@ -27,56 +27,48 @@ module.exports = function(grunt){
       }
     },
     mochaTest: {
-      NameTree: {
+      DataStructures: {
         options: {
           reporter: 'spec'
           ,clearRequireCache: true
         },
-        src: ['test/node/NameTree.js']
+        src: ['test/node/DataStructures/*.js']
       },
-      ContentStore: {
+      suite: {
         options: {
           reporter: 'spec'
-          , clearRequireCache: true
+          ,clearRequireCache: true
         },
-        src: ['test/node/ContentStore.js']
+        src: ["test/node/suite.js"]
       },
-      PIT: {
-        options: {
-          reporter: 'spec'
-          , clearRequireCache: true
-        },
-        src: ['test/node/PIT.js']
-      },
-      FIB: {
-        options: {
-          reporter: 'spec'
-          , clearRequireCache: true
-        },
-        src: ['test/node/FIB.js']
-      }
     },
     watch: {
       NameTree: {
         files: ['src/DataStructures/NameTree.js', 'src/DataStructures/NameTreeNode.js', 'test/node/NameTree.js'],
-        tasks: ['jshint:NameTree','mochaTest:NameTree', 'browserify:testDataStructures'],
+        tasks: ['jshint:NameTree', 'browserify:testDataStructures','mochaTest:DataStructures']
       },
       ContentStore: {
         files: ['src/DataStructures/ContentStore.js', 'test/node/ContentStore.js'],
-        tasks: ['jshint:ContentStore','mochaTest:ContentStore', 'browserify:testDataStructures']
+        tasks: ['jshint:ContentStore', 'browserify:testDataStructures','mochaTest:DataStructures']
       },
       FIB: {
         files: ['src/DataStructures/FIB.js', 'test/node/FIB.js'],
-        tasks: ['jshint:FIB','mochaTest:FIB', 'browserify:testDataStructures']
+        tasks: ['jshint:FIB', 'browserify:testDataStructures','mochaTest:DataStructures']
       },
       PIT: {
         files: ['src/DataStructures/PIT.js', 'test/node/PIT.js'],
-        tasks: ['jshint:PIT','mochaTest:PIT', 'browserify:testDataStructures']
+        tasks: ['jshint:PIT', 'browserify:testDataStructures','mochaTest:DataStructures']
       },
       Interfaces: {
         files: ['src/DataStructures/Interfaces.js', 'test/node/Interfaces.js'],
-        tasks: ['jshint:Interfaces', 'mochaTest:Interfaces' , 'browserify:testDataStructures']
-      }
+        tasks: ['jshint:Interfaces', 'browserify:testDataStructures','mochaTest:DataStructures']
+      },
+      livereload: {
+        // Here we watch the files the sass task will compile to
+        // These files are sent to the live reload server after sass compiles to them
+        options: { livereload: true },
+        files: ['test/browser/**/*.js'],
+      },
     },
     jshint: {
       options: {
@@ -101,8 +93,8 @@ module.exports = function(grunt){
 
   grunt.loadNpmTasks('grunt-browserify');
 
-  grunt.registerTask("bro", ["browserify:testDataStructures"])
+  grunt.registerTask("brow", ["browserify:testDataStructures"])
   grunt.registerTask("test", "mochaTest");
   grunt.registerTask("hint", "jshint")
-  grunt.registerTask("suite", ["hint", "test"])
+  grunt.registerTask("suite", ["hint", "brow", "test"])
 }

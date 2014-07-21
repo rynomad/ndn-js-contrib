@@ -55,9 +55,9 @@ describe("PIT.Entry", function(){
   })
   it("should not match (wrong pubKeyDigest)", function(){
 
-      var newKey = new Buffer(32)
-      entry.interest.publisherPublicKeyDigest = newKey;
-      assert(!entry.matches(d22))
+    var newKey = new Buffer(32)
+    entry.interest.publisherPublicKeyDigest = newKey;
+    assert(!entry.matches(d22))
   })
 })
 
@@ -76,21 +76,21 @@ describe("PIT", function(){
     })
   })
   describe("PIT.lookup", function(){
-    it("should get all matches and return a faceFlag", function(){
-
-        var inst = new ndn.Interest(new ndn.Name("a/b/c"))
-        inst.setInterestLifetimeMilliseconds(50);
-        var enc = inst.wireEncode()
-        inst = new ndn.Interest()
-        inst.wireDecode(enc)
-        var entry = new PIT.Entry(enc, inst, 1)
-        var data = new ndn.Data(new ndn.Name("a/b/c/d"), new ndn.SignedInfo(), "test")
-        data.signedInfo.setFields()
-        entry.interest.publisherPublicKeyDigest = pubKeyDigest;
-        pit.insertPitEntry(enc, 1)
-        var returns = pit.lookup(data);
-        assert(returns.faces == 2)
-        assert(returns.pitEntries.length == 1)
+    it("should get all matches and return a faceFlag", function(done){
+      var inst = new ndn.Interest(new ndn.Name("a/b/c"))
+      inst.setInterestLifetimeMilliseconds(50);
+      var enc = inst.wireEncode()
+      inst = new ndn.Interest()
+      inst.wireDecode(enc)
+      var entry = new PIT.Entry(enc, inst, 1)
+      var data = new ndn.Data(new ndn.Name("a/b/c/d"), new ndn.SignedInfo(), "test")
+      data.signedInfo.setFields()
+      entry.interest.publisherPublicKeyDigest = pubKeyDigest;
+      pit.insertPitEntry(enc, 1)
+      var returns = pit.lookup(data);
+      assert(returns.faces == 2)
+      assert(returns.pitEntries.length == 1)
+      done()
     })
   })
 })

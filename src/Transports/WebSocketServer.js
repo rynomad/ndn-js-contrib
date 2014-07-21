@@ -3,9 +3,7 @@
  * @author: Wentao Shang
  * See COPYING for copyright and distribution information.
  */
-var customBuf = require("ndn-lib").customBuffer
-var DataUtils = require('ndn-lib').DataUtils;
-var ElementReader = require('ndn-lib').ElementReader;
+var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 
 
 var websocketServerTransport = function websocketServerTransport(ws)

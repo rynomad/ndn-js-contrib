@@ -3,11 +3,9 @@
  * @author: Wentao Shang
  * See COPYING for copyright and distribution information.
  */
-var customBuf = require("ndn-lib").customBuffer
-var DataUtils = require('ndn-lib').DataUtils;
-var ElementReader = require('ndn-lib').ElementReader;
+var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 
-var serverTcpTransport = function serverTcpTransport(socket)
+var TcpServerTransport = function serverTcpTransport(socket)
 {
   this.socket = socket;
   this.sock_ready = true;
@@ -17,9 +15,7 @@ var serverTcpTransport = function serverTcpTransport(socket)
   this.sock_ready = true
 };
 
-exports.transport = serverTcpTransport;
-
-serverTcpTransport.prototype.connect = function(face, onopenCallback)
+TcpServerTransport.prototype.connect = function(face, onopenCallback)
 {
 
 
@@ -56,10 +52,13 @@ serverTcpTransport.prototype.connect = function(face, onopenCallback)
     // Close Face when TCP Socket is closed
     face.closeByTransport();
   });
+  this.socket.on('connection', function() {
+    console.log('new connection');
+    onopenCallback();
+  });
 
   this.connectedHost = 111
   this.connectedPort = 111
-  onopenCallback()
 
 };
 
