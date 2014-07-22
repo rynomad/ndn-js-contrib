@@ -13,8 +13,8 @@ function NameTree (){
 
 NameTree.Node = NameTreeNode;
 
-NameTree.installModules = function(NDN){
-  NameTree.Node.installModules(NDN);
+NameTree.installNDN = function(NDN){
+  NameTree.Node.installNDN(NDN);
   ndn = NDN;
 };
 

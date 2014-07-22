@@ -19,7 +19,11 @@ function NameTreeNode (prefix) {
   return this;
 }
 
-NameTreeNode.installModules = function(NDN){
+/**Install ndn-lib. Only necessary if you're using require("ndn-Classes/src/DataStructures/NameTreeNode.js"), done for you if require("ndn-Classes").NameTree.Node
+ *@private
+ *@param {Object} NDN ndn-lib object
+ */
+NameTreeNode.installNDN = function(NDN){
   ndn = NDN;
 };
 
