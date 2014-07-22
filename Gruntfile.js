@@ -16,6 +16,10 @@ module.exports = function(grunt){
       testDataStructures: {
         src: "test/node/DataStructures/*.js"
         , dest: "test/browser/DataStructures/suite.js"
+      },
+      testTransports: {
+        src: "test/browser/Transports/src/*.js"
+        , dest: "test/browser/Transports/suite.js"
       }
     },
     jsdoc : {
@@ -63,6 +67,10 @@ module.exports = function(grunt){
         files: ['src/DataStructures/Interfaces.js', 'test/node/Interfaces.js'],
         tasks: ['jshint:Interfaces', 'browserify:testDataStructures','mochaTest:DataStructures']
       },
+      Transports: {
+        files: ["src/Transports/*.js", 'src/Transports/*.js'],
+        tasks: ['jshint:Transports', 'browserify:testTransports' ]
+      },
       livereload: {
         // Here we watch the files the sass task will compile to
         // These files are sent to the live reload server after sass compiles to them
@@ -81,7 +89,8 @@ module.exports = function(grunt){
       ContentStore: ['src/DataStructures/ContentStore.js'],
       FIB: ['src/DataStructures/FIB.js'],
       PIT: ['src/DataStructures/PIT.js'],
-      Interfaces: ['src/DataStructures/Interfaces.js']
+      Interfaces: ['src/DataStructures/Interfaces.js'],
+      Transports: ['src/Transports/*.js']
     }
 
 

@@ -1,6 +1,6 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 
-MessageChannelTransport.protocolKey = "messageChannel"
+MessageChannelTransport.protocolKey = "messageChannel";
 
 /**Transport Class for HTML5 MessageChannels
  *@constructor
@@ -8,8 +8,8 @@ MessageChannelTransport.protocolKey = "messageChannel"
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
-  this.port = port
-};
+  this.port = port;
+}
 
 /**Set the event listener for incoming elements
  *@param {Object} face the ndn.Face object that this transport is attached to
@@ -17,7 +17,6 @@ function MessageChannelTransport (port) {
  */
 MessageChannelTransport.prototype.connect = function(face, onopenCallback, third)
 {
-  console.log(face, onopenCallback, third)
   this.elementReader = new ElementReader(face);
   var self = this;
   this.port.onmessage = function(ev) {

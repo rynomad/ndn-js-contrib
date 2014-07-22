@@ -9,8 +9,9 @@ var listener ;
     describe(".defineListener", function(){
       it("may or may not be present", function(){
         assert((Transport.defineListener && !Transport.Listener) || (!Transport.defineListener && !Transport.Listener))
-        if (Transport.defineListener)
+        if (Transport.defineListener){
           listener = true;
+        }
       })
       it("should define Listener with defaults", function(){
         if (listener){

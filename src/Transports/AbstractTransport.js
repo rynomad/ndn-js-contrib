@@ -3,24 +3,23 @@
  */
 function AbstractTransport(sendCb)
 {
-  this.sendCb = sendCb
+  this.sendCb = sendCb;
   return this;
-};
+}
 
-AbstractTransport.protocolKey = "_abstract"
+AbstractTransport.protocolKey = "_abstract";
 
 /**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
  */
 AbstractTransport.defineListener = function(){
 
   this.Listener = function (newFace) {
-    global.ListenerActive = true
+    global.ListenerActive = true;
     this.call = function(){
 
       newFace(AbstractTransport.protocolKey, function(data){
-        assert(true)
-      })
-    }
+      });
+    };
   };
 };
 
@@ -31,11 +30,11 @@ AbstractTransport.prototype.connect = function(face, onopenCallback)
 
 AbstractTransport.prototype.send = function(/*Buffer*/ data)
 {
-  this.sendCb(data)
+  this.sendCb(data);
 };
 
 AbstractTransport.prototype.close = function()
 {
 };
 
-module.exports = AbstractTransport
+module.exports = AbstractTransport;

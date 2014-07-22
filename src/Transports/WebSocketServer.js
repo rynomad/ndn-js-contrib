@@ -4,28 +4,46 @@
  * See COPYING for copyright and distribution information.
  */
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
+var wss = require('ws').Server;
 
-
-var websocketServerTransport = function websocketServerTransport(ws)
+/** ServerSide websocket transport,
+ *@constructor
+ *@param {WebSocket} ws a connected websocket
+ *@returns {Transport} the transport
+ */
+var WebSocketServerTransport = function WebSocketServerTransport(ws)
 {
   this.ws = ws;
+  return this;
 };
 
+/**
+ *@property {String} protocolKey "wsServer"
+ */
+WebSocketServerTransport.protocolKey = "wsServer";
 
-websocketServerTransport.prototype.connect = function(face, onopenCallback)
+WebSocketServerTransport.defineListener = function(port){
+  port = port || 7575;
+
+  this.Listener = function(newFace){
+    this.server = new wss({port: port});
+    this.server.on('connection', function(ws){
+      newFace("wsServer", ws);
+    });
+  };
+};
+
+WebSocketServerTransport.prototype.connect = function(face, onopenCallback, third)
 {
-
-
   this.elementReader = new ElementReader(face);
 
   // Connect to local ndnd via TCP
   var self = this;
 
   this.ws.on('message', function(data) {
-    console.log("got data on server ws", typeof data)
-    if (typeof data == 'object') {
+    if (typeof data === 'object') {
       // Make a copy of data (maybe a customBuf or a String)
-      var buf = new customBuf(data);
+      var buf = new Buffer(data);
       try {
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(buf);
@@ -50,37 +68,34 @@ websocketServerTransport.prototype.connect = function(face, onopenCallback)
     face.closeByTransport();
   });
 
-  this.connectedHost = 111
-  this.connectedPort = 111
-  onopenCallback()
+  this.connectedHost = 111;
+  this.connectedPort = 111;
+  onopenCallback();
 
 };
 
 /**
  * Send data.
  */
-websocketServerTransport.prototype.send = function(/*Buffer*/ data)
+WebSocketServerTransport.prototype.send = function(/*Buffer*/ data)
 {
-  console.log("sending ")
-  if (!this.ws == false)
-  {
-    console.log("writing data to ws")
-    this.ws.send(data);
-  }else
-    console.log('WS connection is not established.');
+  try{
+    this.ws.send(data, {binary: true});
+  }catch (er){
+    console.log('WS connection is not established.', er);
+  }
 };
 
 /**
  * Close transport
  */
-websocketServerTransport.prototype.close = function()
+WebSocketServerTransport.prototype.close = function()
 {
   try {
-
     this.ws.end();
   } catch (er){
   }
-  console.log('TCP connection closed.');
+  console.log('WS connection closed.');
 };
 
-module.exports.transport = websocketServerTransport
+module.exports = WebSocketServerTransport;
