@@ -25,6 +25,7 @@ function NameTreeNode (prefix) {
  */
 NameTreeNode.installNDN = function(NDN){
   ndn = NDN;
+  return this;
 };
 
 /**Add a child node to this one, inserting at the properly sorted index according to canonical namespace rules

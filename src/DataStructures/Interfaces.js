@@ -29,11 +29,13 @@ function Interfaces(Subject){
   return this;
 }
 
-/**Class method to install ndn-lib
+/**Class method to install ndn-lib. Only necessary if you require("ndn-classes/src/DataStructures/Interfaces.js"), done for you if require('ndn-classes').Interfaces
+ *@private
  *@param {Object} - NDN the ndn-lib object
  */
 Interfaces.installNDN = function(NDN){
   ndn = NDN;
+  return this;
 };
 
 Interfaces.prototype.transports = {};

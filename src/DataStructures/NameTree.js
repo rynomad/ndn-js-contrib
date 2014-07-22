@@ -21,6 +21,7 @@ NameTree.Node = NameTreeNode;
 NameTree.installNDN = function(NDN){
   NameTree.Node.installNDN(NDN);
   ndn = NDN;
+  return this;
 };
 
 /**

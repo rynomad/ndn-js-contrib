@@ -71,11 +71,13 @@ function FIB (nameTree){
   this.nameTree = nameTree; return this;
 }
 
-/**Install ndn-lib into the FIB scope
+/**Install ndn-lib into the FIB scope. only necessary if you require("ndn-Classes/src/DataStructures/FIB.js"), done for you if require("ndn-Classes").FIB
+ *@private
  *@param {Object} NDN ndn-js library as exported by npm
  */
 FIB.installNDN = function(NDN){
   ndn = NDN;
+  return this;
 };
 
 /**find the exact match fibEntry for a given prefix, creating it if not found
