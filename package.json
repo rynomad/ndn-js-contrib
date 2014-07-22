@@ -16,6 +16,9 @@
     "Data",
     "Networking"
   ],
+  "browser":{
+    "./src/Transports/nodeWrapper.js": "./src/Tranpsorts/browserWrapper.js"
+  },
   "author": "Ryan Bennett, Colorado State University",
   "license": "LGPL",
   "bugs": {
