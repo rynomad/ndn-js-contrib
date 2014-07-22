@@ -13,6 +13,11 @@ function NameTree (){
 
 NameTree.Node = NameTreeNode;
 
+
+/**Install ndn-lib. Only necessary if you're using require("ndn-Classes/src/DataStructures/NameTree.js"), done for you if require("ndn-Classes").NameTree
+ *@private
+ *@param {Object} NDN ndn-lib object
+ */
 NameTree.installNDN = function(NDN){
   NameTree.Node.installNDN(NDN);
   ndn = NDN;
