@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
- * @author: Wentao Shang
+ * @author: Wentao Shang, forked and adapted by Ryan Bennett.
  * See COPYING for copyright and distribution information.
  */
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader

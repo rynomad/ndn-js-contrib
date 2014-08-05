@@ -1,7 +1,8 @@
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/MessageChannel.js')
   , Transport1, Transport2, face1, face2, inst
-  , Abstract = require("../../../node/Transports/Abstract.js")
+  , Abstract = require("../../../node/Transports/Abstract.js");
+
 function msSpec (Transport){
   describe('MessageChannelTransport', function(){
     it('face2.expressInterest should send bytearray for face1', function(done){
