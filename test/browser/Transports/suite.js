@@ -7447,8 +7447,8 @@ Data.prototype.getSignatureOrMetaInfoKeyLocator = function()
   if (this.signedInfo != null && this.signedInfo.locator != null &&
       this.signedInfo.locator.getType() != null &&
       this.signedInfo.locator.getType() >= 0) {
-    console.log("WARNING: Temporarily using the key locator found in the MetaInfo - expected it in the Signature object.");
-    console.log("WARNING: In the future, the key locator in the Signature object will not be supported.");
+    //console.log("WARNING: Temporarily using the key locator found in the MetaInfo - expected it in the Signature object.");
+    //console.log("WARNING: In the future, the key locator in the Signature object will not be supported.");
     return this.signedInfo.locator;
   }
 
@@ -10791,7 +10791,7 @@ exports.TlvDecoder = TlvDecoder;
 TlvDecoder.prototype.readVarNumber = function()
 {
   // Assume array values are in the range 0 to 255.
-  firstOctet = this.input[this.offset];
+  var firstOctet = this.input[this.offset];
   this.offset += 1;
   if (firstOctet < 253)
     return firstOctet;
@@ -12084,7 +12084,7 @@ FaceInstance.prototype.getElementLabel = function()
  * This class represents the top-level object for communicating with an NDN host.
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Meki Cherkaoui, Jeff Thompson <jefft0@remap.ucla.edu>, Wentao Shang
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -12133,9 +12133,9 @@ var LOG = require('./log.js').Log.LOG;
  * Face(transport, connectionInfo).  The second form takes an optional settings object:
  * Face([settings]).
  * @constructor
- * @param {Transport} transport An object of a subclass of Transport to use for 
+ * @param {Transport} transport An object of a subclass of Transport to use for
  * communication.
- * @param {Transport.ConnectionInfo} connectionInfo This must be a ConnectionInfo 
+ * @param {Transport.ConnectionInfo} connectionInfo This must be a ConnectionInfo
  * from the same subclass of Transport as transport. If omitted and transport is
  * a new UnixTransport() then attempt to create to the Unix socket for the local
  * forwarder.
@@ -12148,7 +12148,7 @@ var LOG = require('./log.js').Log.LOG;
  *   getConnectionInfo: transport.defaultGetConnectionInfo, // a function, on each call it returns a new Transport.ConnectionInfo or null if there are no more hosts.
  *                                                          // If connectionInfo or host is not null, getConnectionInfo is ignored.
  *   connectionInfo: null,
- *   host: null, // If null and connectionInfo is null, use getConnectionInfo when connecting. 
+ *   host: null, // If null and connectionInfo is null, use getConnectionInfo when connecting.
  *               // However, if connectionInfo is not null, use it instead.
  *   port: 9696, // If in the browser.
  *      OR 6363, // If in Node.js.
@@ -12158,21 +12158,22 @@ var LOG = require('./log.js').Log.LOG;
  *   verify: false // If false, don't verify and call upcall with Closure.UPCALL_CONTENT_UNVERIFIED.
  * }
  */
-var Face = function Face(transportOrSettings, connectionInfo) 
+var Face = function Face(transportOrSettings, connectionInfo)
 {
   if (!Face.supported)
     throw new Error("The necessary JavaScript support is not available on this platform.");
-    
+
   var settings;
+  console.log("!!!!!!!!!!!!!!!",transportOrSettings, connectionInfo, transportOrSettings instanceof Transport)
   if (typeof transportOrSettings == 'object' && transportOrSettings instanceof Transport) {
     this.getConnectionInfo = null;
     this.transport = transportOrSettings;
     this.connectionInfo = (connectionInfo || null);
     // Use defaults for other settings.
     settings = {};
-    
+
     if (this.connectionInfo == null) {
-      if (this.transport && this.transport.__proto__ && 
+      if (this.transport && this.transport.__proto__ &&
           this.transport.__proto__.name == "UnixTransport") {
         // Try to create the default connectionInfo for UnixTransport.
         var filePath = Face.getUnixSocketFilePathForLocalhost();
@@ -12196,7 +12197,7 @@ var Face = function Face(transportOrSettings, connectionInfo)
     if (this.connectionInfo == null) {
       var host = (settings.host !== undefined ? settings.host : null);
 
-      if (this.transport && this.transport.__proto__ && 
+      if (this.transport && this.transport.__proto__ &&
           this.transport.__proto__.name == "UnixTransport") {
         // We are using UnixTransport on Node.js. There is no IP-style host and port.
         if (host != null)
@@ -12227,7 +12228,7 @@ var Face = function Face(transportOrSettings, connectionInfo)
       }
     }
   }
-  
+
   // Deprecated: Set this.host and this.port for backwards compatibility.
   if (this.connectionInfo == null) {
     this.host = null;
@@ -12237,7 +12238,7 @@ var Face = function Face(transportOrSettings, connectionInfo)
     this.host = this.connectionInfo.host;
     this.host = this.connectionInfo.port;
   }
-  
+
   this.readyStatus = Face.UNOPEN;
   this.verify = (settings.verify !== undefined ? settings.verify : false);
   // Event handler
@@ -12275,16 +12276,16 @@ Face.getUnixSocketFilePathForLocalhost = function()
 /**
  * Return true if necessary JavaScript support is available, else log an error and return false.
  */
-Face.getSupported = function() 
+Face.getSupported = function()
 {
   try {
     var dummy = new Buffer(1).slice(0, 1);
-  } 
+  }
   catch (ex) {
     console.log("NDN not available: Buffer not supported. " + ex);
     return false;
   }
-    
+
   return true;
 };
 
@@ -12292,13 +12293,13 @@ Face.supported = Face.getSupported();
 
 Face.ndndIdFetcher = new Name('/%C1.M.S.localhost/%C1.M.SRV/ndnd/KEY');
 
-Face.prototype.createRoute = function(hostOrConnectionInfo, port) 
+Face.prototype.createRoute = function(hostOrConnectionInfo, port)
 {
   if (hostOrConnectionInfo instanceof Transport.ConnectionInfo)
     this.connectionInfo = hostOrConnectionInfo;
   else
     this.connectionInfo = new TcpTransport.ConnectionInfo(hostOrConnectionInfo, port);
-  
+
   // Deprecated: Set this.host and this.port for backwards compatibility.
   this.host = this.connectionInfo.host;
   this.host = this.connectionInfo.port;
@@ -12306,37 +12307,37 @@ Face.prototype.createRoute = function(hostOrConnectionInfo, port)
 
 Face.KeyStore = new Array();
 
-var KeyStoreEntry = function KeyStoreEntry(name, rsa, time) 
+var KeyStoreEntry = function KeyStoreEntry(name, rsa, time)
 {
   this.keyName = name;  // KeyName
   this.rsaKey = rsa;    // RSA key
   this.timeStamp = time;  // Time Stamp
 };
 
-Face.addKeyEntry = function(/* KeyStoreEntry */ keyEntry) 
+Face.addKeyEntry = function(/* KeyStoreEntry */ keyEntry)
 {
   var result = Face.getKeyByName(keyEntry.keyName);
-  if (result == null) 
+  if (result == null)
     Face.KeyStore.push(keyEntry);
   else
     result = keyEntry;
 };
 
-Face.getKeyByName = function(/* KeyName */ name) 
+Face.getKeyByName = function(/* KeyName */ name)
 {
   var result = null;
-  
+
   for (var i = 0; i < Face.KeyStore.length; i++) {
     if (Face.KeyStore[i].keyName.contentName.match(name.contentName)) {
       if (result == null || Face.KeyStore[i].keyName.contentName.size() > result.keyName.contentName.size())
         result = Face.KeyStore[i];
     }
   }
-    
+
   return result;
 };
 
-Face.prototype.close = function() 
+Face.prototype.close = function()
 {
   if (this.readyStatus != Face.OPENED)
     return;
@@ -12351,7 +12352,7 @@ Face.PITTable = new Array();
 /**
  * @constructor
  */
-var PITEntry = function PITEntry(interest, closure) 
+var PITEntry = function PITEntry(interest, closure)
 {
   this.interest = interest;  // Interest
   this.closure = closure;    // Closure
@@ -12364,18 +12365,18 @@ var PITEntry = function PITEntry(interest, closure)
  */
 
 /**
- * Find all entries from Face.PITTable where the name conforms to the entry's 
+ * Find all entries from Face.PITTable where the name conforms to the entry's
  * interest selectors, remove the entries from the table, cancel their timeout
  * timers and return them.
  * @param {Name} name The name to find the interest for (from the incoming data
  * packet).
- * @returns {Array<PITEntry>} The matching entries from Face.PITTable, or [] if 
+ * @returns {Array<PITEntry>} The matching entries from Face.PITTable, or [] if
  * none are found.
  */
-Face.extractEntriesForExpressedInterest = function(name) 
+Face.extractEntriesForExpressedInterest = function(name)
 {
   var result = [];
-    
+
   // Go backwards through the list so we can erase entries.
   for (var i = Face.PITTable.length - 1; i >= 0; --i) {
     var entry = Face.PITTable[i];
@@ -12397,7 +12398,7 @@ Face.registeredPrefixTable = new Array();
 /**
  * @constructor
  */
-var RegisteredPrefix = function RegisteredPrefix(prefix, closure) 
+var RegisteredPrefix = function RegisteredPrefix(prefix, closure)
 {
   this.prefix = prefix;        // String
   this.closure = closure;  // Closure
@@ -12408,20 +12409,20 @@ var RegisteredPrefix = function RegisteredPrefix(prefix, closure)
  * @param {Name} name The name to find the PrefixEntry for (from the incoming interest packet).
  * @returns {object} The entry from Face.registeredPrefixTable, or 0 if not found.
  */
-function getEntryForRegisteredPrefix(name) 
+function getEntryForRegisteredPrefix(name)
 {
   var iResult = -1;
-  
+
   for (var i = 0; i < Face.registeredPrefixTable.length; i++) {
     if (LOG > 3) console.log("Registered prefix " + i + ": checking if " + Face.registeredPrefixTable[i].prefix + " matches " + name);
     if (Face.registeredPrefixTable[i].prefix.match(name)) {
-      if (iResult < 0 || 
+      if (iResult < 0 ||
           Face.registeredPrefixTable[i].prefix.size() > Face.registeredPrefixTable[iResult].prefix.size())
         // Update to the longer match.
         iResult = i;
     }
   }
-  
+
   if (iResult >= 0)
     return Face.registeredPrefixTable[iResult];
   else
@@ -12429,7 +12430,7 @@ function getEntryForRegisteredPrefix(name)
 }
 
 /**
- * Return a function that selects a host at random from hostList and returns 
+ * Return a function that selects a host at random from hostList and returns
  * makeConnectionInfo(host, port), and if no more hosts remain, return null.
  * @param {Array<string>} hostList An array of host names.
  * @param {number} port The port for the connection.
@@ -12438,7 +12439,7 @@ function getEntryForRegisteredPrefix(name)
  * function(host, port) { return new TcpTransport.ConnectionInfo(host, port); }
  * @returns {function} A function which returns a Transport.ConnectionInfo.
  */
-Face.makeShuffledHostGetConnectionInfo = function(hostList, port, makeConnectionInfo) 
+Face.makeShuffledHostGetConnectionInfo = function(hostList, port, makeConnectionInfo)
 {
   // Make a copy.
   hostList = hostList.slice(0, hostList.length);
@@ -12447,13 +12448,13 @@ Face.makeShuffledHostGetConnectionInfo = function(hostList, port, makeConnection
   return function() {
     if (hostList.length == 0)
       return null;
-      
+
     return makeConnectionInfo(hostList.splice(0, 1)[0], port);
   };
 };
 
 /**
- * Send the interest through the transport, read the entire response and call onData. 
+ * Send the interest through the transport, read the entire response and call onData.
  * If the interest times out according to interest lifetime, call onTimeout (if not omitted).
  * There are two forms of expressInterest.  The first form takes the exact interest (including lifetime):
  * expressInterest(interest, onData [, onTimeout]).  The second form creates the interest from
@@ -12462,17 +12463,17 @@ Face.makeShuffledHostGetConnectionInfo = function(hostList, port, makeConnection
  * This also supports the deprecated form expressInterest(name, closure [, template]), but you should use the other forms.
  * @param {Interest} interest The Interest to send which includes the interest lifetime for the timeout.
  * @param {function} onData When a matching data packet is received, this calls onData(interest, data) where
- * interest is the interest given to expressInterest and data is the received 
- * Data object. NOTE: You must not change the interest object - if you need to 
+ * interest is the interest given to expressInterest and data is the received
+ * Data object. NOTE: You must not change the interest object - if you need to
  * change it then make a copy.
- * @param {function} onTimeout (optional) If the interest times out according to the interest lifetime, 
+ * @param {function} onTimeout (optional) If the interest times out according to the interest lifetime,
  *   this calls onTimeout(interest) where:
  *   interest is the interest given to expressInterest.
  * @param {Name} name The Name for the interest. (only used for the second form of expressInterest).
- * @param {Interest} template (optional) If not omitted, copy the interest selectors from this Interest. 
+ * @param {Interest} template (optional) If not omitted, copy the interest selectors from this Interest.
  * If omitted, use a default interest lifetime. (only used for the second form of expressInterest).
  */
-Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4) 
+Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
 {
   // There are several overloaded versions of expressInterest, each shown inline below.
 
@@ -12491,7 +12492,7 @@ Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
       interest.setChildSelector(template.getChildSelector());
       interest.getAnswerOriginKind(template.getAnswerOriginKind());
       interest.setScope(template.getScope());
-      interest.setInterestLifetimeMilliseconds(template.getInterestLifetimeMilliseconds());    
+      interest.setInterestLifetimeMilliseconds(template.getInterestLifetimeMilliseconds());
     }
     else
       interest.setInterestLifetimeMilliseconds(4000);   // default interest timeout value in milliseconds.
@@ -12499,7 +12500,7 @@ Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
     this.expressInterestWithClosure(interest, arg2);
     return;
   }
-  
+
   var interest;
   var onData;
   var onTimeout;
@@ -12514,8 +12515,8 @@ Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
   else {
     // The first argument is a name. Make the interest from the name and possible template.
     interest = new Interest(interestOrName);
-    // expressInterest(Name name, Interest template, function onData); 
-    // expressInterest(Name name, Interest template, function onData, function onTimeout); 
+    // expressInterest(Name name, Interest template, function onData);
+    // expressInterest(Name name, Interest template, function onData, function onTimeout);
     if (arg2 && typeof arg2 == 'object' && arg2 instanceof Interest) {
       var template = arg2;
       interest.setMinSuffixComponents(template.getMinSuffixComponents());
@@ -12525,20 +12526,20 @@ Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
       interest.setChildSelector(template.getChildSelector());
       interest.getAnswerOriginKind(template.getAnswerOriginKind());
       interest.setScope(template.getScope());
-      interest.setInterestLifetimeMilliseconds(template.getInterestLifetimeMilliseconds());    
+      interest.setInterestLifetimeMilliseconds(template.getInterestLifetimeMilliseconds());
 
       onData = arg3;
       onTimeout = (arg4 ? arg4 : function() {});
     }
-    // expressInterest(Name name, function onData); 
-    // expressInterest(Name name, function onData,   function onTimeout); 
+    // expressInterest(Name name, function onData);
+    // expressInterest(Name name, function onData,   function onTimeout);
     else {
       interest.setInterestLifetimeMilliseconds(4000);   // default interest timeout
       onData = arg2;
       onTimeout = (arg3 ? arg3 : function() {});
     }
   }
-  
+
   // Make a Closure from the callbacks so we can use expressInterestWithClosure.
   // TODO: Convert the PIT to use callbacks, not a closure.
   this.expressInterestWithClosure(interest, new Face.CallbackClosure(onData, onTimeout));
@@ -12547,7 +12548,7 @@ Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
 Face.CallbackClosure = function FaceCallbackClosure(onData, onTimeout, onInterest, prefix, transport) {
   // Inherit from Closure.
   Closure.call(this);
-  
+
   this.onData = onData;
   this.onTimeout = onTimeout;
   this.onInterest = onInterest;
@@ -12563,19 +12564,19 @@ Face.CallbackClosure.prototype.upcall = function(kind, upcallInfo) {
   else if (kind == Closure.UPCALL_INTEREST)
     // Note: We never return INTEREST_CONSUMED because onInterest will send the result to the transport.
     this.onInterest(this.prefix, upcallInfo.interest, this.transport)
-  
+
   return Closure.RESULT_OK;
 };
 
 /**
  * A private method to send the the interest to host:port, read the entire response and call
  * closure.upcall(Closure.UPCALL_CONTENT (or Closure.UPCALL_CONTENT_UNVERIFIED),
- *                 new UpcallInfo(this, interest, 0, data)). 
+ *                 new UpcallInfo(this, interest, 0, data)).
  * @deprecated Use expressInterest with callback functions, not Closure.
  * @param {Interest} the interest, already processed with a template (if supplied).
  * @param {Closure} closure
  */
-Face.prototype.expressInterestWithClosure = function(interest, closure) 
+Face.prototype.expressInterestWithClosure = function(interest, closure)
 {
   if (this.connectionInfo == null) {
     if (this.getConnectionInfo == null)
@@ -12594,12 +12595,12 @@ Face.prototype.expressInterestWithClosure = function(interest, closure)
  *   this.transport.connect to change the connection (or connect for the first time).
  * Then call expressInterestHelper.
  */
-Face.prototype.reconnectAndExpressInterest = function(interest, closure) 
+Face.prototype.reconnectAndExpressInterest = function(interest, closure)
 {
   if (!this.connectionInfo.equals(this.transport.connectionInfo)) {
     var thisFace = this;
     this.transport.connect
-      (this.connectionInfo, this, 
+      (this.connectionInfo, this,
        function() { thisFace.expressInterestHelper(interest, closure); },
        function() { thisFace.closeByTransport(); });
     this.readyStatus = Face.OPENED;
@@ -12612,10 +12613,10 @@ Face.prototype.reconnectAndExpressInterest = function(interest, closure)
  * Do the work of reconnectAndExpressInterest once we know we are connected.  Set the PITTable and call
  *   this.transport.send to send the interest.
  */
-Face.prototype.expressInterestHelper = function(interest, closure) 
+Face.prototype.expressInterestHelper = function(interest, closure)
 {
   var binaryInterest = interest.wireEncode();
-  var thisFace = this;    
+  var thisFace = this;
   //TODO: check local content store first
   if (closure != null) {
     var pitEntry = new PITEntry(interest, closure);
@@ -12627,14 +12628,14 @@ Face.prototype.expressInterestHelper = function(interest, closure)
     var timeoutMilliseconds = (interest.getInterestLifetimeMilliseconds() || 4000);
     var timeoutCallback = function() {
       if (LOG > 1) console.log("Interest time out: " + interest.getName().toUri());
-        
+
       // Remove PIT entry from Face.PITTable, even if we add it again later to re-express
       //   the interest because we don't want to match it in the mean time.
       // TODO: Make this a thread-safe operation on the global PITTable.
       var index = Face.PITTable.indexOf(pitEntry);
-      if (index >= 0) 
+      if (index >= 0)
         Face.PITTable.splice(index, 1);
-        
+
       // Raise closure callback
       if (closure.upcall(Closure.UPCALL_INTEREST_TIMED_OUT, new UpcallInfo(thisFace, interest, 0, null)) == Closure.RESULT_REEXPRESS) {
         if (LOG > 1) console.log("Re-express interest: " + interest.getName().toUri());
@@ -12643,7 +12644,7 @@ Face.prototype.expressInterestHelper = function(interest, closure)
         thisFace.transport.send(binaryInterest.buf());
       }
     };
-  
+
     pitEntry.timerID = setTimeout(timeoutCallback, timeoutMilliseconds);
   }
 
@@ -12656,20 +12657,20 @@ Face.prototype.expressInterestHelper = function(interest, closure)
  * registerPrefix(name, onInterest, onRegisterFailed [, flags]).
  * This also supports the deprecated form registerPrefix(name, closure [, intFlags]), but you should use the main form.
  * @param {Name} prefix The Name prefix.
- * @param {function} onInterest When an interest is received which matches the name prefix, this calls 
+ * @param {function} onInterest When an interest is received which matches the name prefix, this calls
  * onInterest(prefix, interest, transport) where:
  *   prefix is the prefix given to registerPrefix.
  *   interest is the received interest.
  *   transport The Transport with the connection which received the interest. You must encode a signed Data packet and send it using transport.send().
- * NOTE: You must not change the prefix object - if you need to change it then 
+ * NOTE: You must not change the prefix object - if you need to change it then
  * make a copy.
- * @param {function} onRegisterFailed If register prefix fails for any reason, 
+ * @param {function} onRegisterFailed If register prefix fails for any reason,
  * this calls onRegisterFailed(prefix) where:
  *   prefix is the prefix given to registerPrefix.
- * @param {ForwardingFlags} flags (optional) The flags for finer control of which interests are forward to the application.  
+ * @param {ForwardingFlags} flags (optional) The flags for finer control of which interests are forward to the application.
  * If omitted, use the default flags defined by the default ForwardingFlags constructor.
  */
-Face.prototype.registerPrefix = function(prefix, arg2, arg3, arg4) 
+Face.prototype.registerPrefix = function(prefix, arg2, arg3, arg4)
 {
   // There are several overloaded versions of registerPrefix, each shown inline below.
 
@@ -12689,21 +12690,21 @@ Face.prototype.registerPrefix = function(prefix, arg2, arg3, arg4)
   var onInterest = arg2;
   var onRegisterFailed = (arg3 ? arg3 : function() {});
   var intFlags = (arg4 ? arg4.getForwardingEntryFlags() : new ForwardingFlags().getForwardingEntryFlags());
-  this.registerPrefixWithClosure(prefix, new Face.CallbackClosure(null, null, onInterest, prefix, this.transport), 
+  this.registerPrefixWithClosure(prefix, new Face.CallbackClosure(null, null, onInterest, prefix, this.transport),
                                  intFlags, onRegisterFailed);
 }
 
 /**
  * A private method to register the prefix with the host, receive the data and call
- * closure.upcall(Closure.UPCALL_INTEREST, new UpcallInfo(this, interest, 0, null)). 
+ * closure.upcall(Closure.UPCALL_INTEREST, new UpcallInfo(this, interest, 0, null)).
  * @deprecated Use registerPrefix with callback functions, not Closure.
  * @param {Name} prefix
  * @param {Closure} closure
  * @param {number} intFlags
- * @param {function} (optional) If called from the non-deprecated registerPrefix, call onRegisterFailed(prefix) 
+ * @param {function} (optional) If called from the non-deprecated registerPrefix, call onRegisterFailed(prefix)
  * if registration fails.
  */
-Face.prototype.registerPrefixWithClosure = function(prefix, closure, intFlags, onRegisterFailed) 
+Face.prototype.registerPrefixWithClosure = function(prefix, closure, intFlags, onRegisterFailed)
 {
   intFlags = intFlags | 3;
   var thisFace = this;
@@ -12716,7 +12717,7 @@ Face.prototype.registerPrefixWithClosure = function(prefix, closure, intFlags, o
       thisFace.reconnectAndExpressInterest
         (interest, new Face.FetchNdndidClosure(thisFace, prefix, closure, intFlags, onRegisterFailed));
     }
-    else  
+    else
       thisFace.registerPrefixHelper(prefix, closure, flags, onRegisterFailed);
   };
 
@@ -12734,11 +12735,11 @@ Face.prototype.registerPrefixWithClosure = function(prefix, closure, intFlags, o
  * This is a closure to receive the Data for Face.ndndIdFetcher and call
  *   registerPrefixHelper(prefix, callerClosure, flags).
  */
-Face.FetchNdndidClosure = function FetchNdndidClosure(face, prefix, callerClosure, flags, onRegisterFailed) 
+Face.FetchNdndidClosure = function FetchNdndidClosure(face, prefix, callerClosure, flags, onRegisterFailed)
 {
   // Inherit from Closure.
   Closure.call(this);
-    
+
   this.face = face;
   this.prefix = prefix;
   this.callerClosure = callerClosure;
@@ -12746,7 +12747,7 @@ Face.FetchNdndidClosure = function FetchNdndidClosure(face, prefix, callerClosur
   this.onRegisterFailed = onRegisterFailed;
 };
 
-Face.FetchNdndidClosure.prototype.upcall = function(kind, upcallInfo) 
+Face.FetchNdndidClosure.prototype.upcall = function(kind, upcallInfo)
 {
   if (kind == Closure.UPCALL_INTEREST_TIMED_OUT) {
     console.log("Timeout while requesting the ndndid.  Cannot registerPrefix for " + this.prefix.toUri() + " .");
@@ -12758,35 +12759,35 @@ Face.FetchNdndidClosure.prototype.upcall = function(kind, upcallInfo)
         kind == Closure.UPCALL_CONTENT_UNVERIFIED))
     // The upcall is not for us.  Don't expect this to happen.
     return Closure.RESULT_ERR;
-       
+
   if (LOG > 3) console.log('Got ndndid from ndnd.');
   // Get the digest of the public key in the data packet content.
   var hash = require("crypto").createHash('sha256');
   hash.update(upcallInfo.data.getContent().buf());
   this.face.ndndid = new Buffer(DataUtils.toNumbersIfString(hash.digest()));
   if (LOG > 3) console.log(this.face.ndndid);
-  
+
   this.face.registerPrefixHelper
     (this.prefix, this.callerClosure, this.flags, this.onRegisterFailed);
-    
+
   return Closure.RESULT_OK;
 };
 /**
- * This is a closure to receive the response Data packet from the register 
+ * This is a closure to receive the response Data packet from the register
  * prefix interest sent to the connected NDN hub. If this gets a bad response
  * or a timeout, call onRegisterFailed.
  */
 Face.RegisterResponseClosure = function RegisterResponseClosure
-  (prefix, onRegisterFailed) 
+  (prefix, onRegisterFailed)
 {
   // Inherit from Closure.
   Closure.call(this);
-    
+
   this.prefix = prefix;
   this.onRegisterFailed = onRegisterFailed;
 };
 
-Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo) 
+Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
 {
   if (kind == Closure.UPCALL_INTEREST_TIMED_OUT) {
     if (this.onRegisterFailed)
@@ -12797,7 +12798,7 @@ Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
         kind == Closure.UPCALL_CONTENT_UNVERIFIED))
     // The upcall is not for us.  Don't expect this to happen.
     return Closure.RESULT_ERR;
-       
+
   var expectedName = new Name("/ndnx/.../selfreg");
   // Got a response. Do a quick check of expected name components.
   if (upcallInfo.data.getName().size() < 4 ||
@@ -12806,8 +12807,8 @@ Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
     this.onRegisterFailed(this.prefix);
     return;
   }
-  
-  // Otherwise, silently succeed.  
+
+  // Otherwise, silently succeed.
   return Closure.RESULT_OK;
 };
 
@@ -12815,27 +12816,27 @@ Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
  * Do the work of registerPrefix once we know we are connected with a ndndid.
  */
 Face.prototype.registerPrefixHelper = function
-  (prefix, closure, flags, onRegisterFailed) 
+  (prefix, closure, flags, onRegisterFailed)
 {
   var fe = new ForwardingEntry('selfreg', prefix, null, null, flags, null);
-    
+
   // Always encode as BinaryXml until we support TLV for ForwardingEntry.
   var encoder = new BinaryXMLEncoder();
   fe.to_ndnb(encoder);
   var bytes = encoder.getReducedOstream();
-    
+
   var metaInfo = new MetaInfo();
   metaInfo.setFields();
   // Since we encode the register prefix message as BinaryXml, use the full
   //   public key in the key locator to make the legacy NDNx happy.
   metaInfo.locator.setType(KeyLocatorType.KEY);
   metaInfo.locator.setKeyData(globalKeyManager.getKey().publicToDER());
-    
-  var data = new Data(new Name(), metaInfo, bytes); 
+
+  var data = new Data(new Name(), metaInfo, bytes);
   // Always encode as BinaryXml until we support TLV for ForwardingEntry.
   data.sign(BinaryXmlWireFormat.get());
   var coBinary = data.wireEncode(BinaryXmlWireFormat.get());;
-    
+
   var nodename = this.ndndid;
   var interestName = new Name(['ndnx', nodename, 'selfreg', coBinary]);
 
@@ -12843,9 +12844,9 @@ Face.prototype.registerPrefixHelper = function
   interest.setInterestLifetimeMilliseconds(4000.0);
   interest.setScope(1);
   if (LOG > 3) console.log('Send Interest registration packet.');
-      
+
   Face.registeredPrefixTable.push(new RegisteredPrefix(prefix, closure));
-    
+
   this.reconnectAndExpressInterest
     (interest, new Face.RegisterResponseClosure(prefix, onRegisterFailed));
 };
@@ -12854,7 +12855,7 @@ Face.prototype.registerPrefixHelper = function
  * This is called when an entire binary XML element is received, such as a Data or Interest.
  * Look up in the PITTable and call the closure callback.
  */
-Face.prototype.onReceivedElement = function(element) 
+Face.prototype.onReceivedElement = function(element)
 {
   if (LOG > 3) console.log('Complete element received. Length ' + element.length + '. Start decoding.');
   // First, decode as Interest or Data.
@@ -12864,7 +12865,7 @@ Face.prototype.onReceivedElement = function(element)
   //   conflict with the first byte of a binary XML packet, so we can
   //   just look at the first byte.
   if (element[0] == Tlv.Interest || element[0] == Tlv.Data) {
-    var decoder = new TlvDecoder (element);  
+    var decoder = new TlvDecoder (element);
     if (decoder.peekType(Tlv.Interest, element.length)) {
       interest = new Interest();
       interest.wireDecode(element, TlvWireFormat.get());
@@ -12890,89 +12891,89 @@ Face.prototype.onReceivedElement = function(element)
   // Now process as Interest or Data.
   if (interest !== null) {
     if (LOG > 3) console.log('Interest packet received.');
-        
+
     var entry = getEntryForRegisteredPrefix(interest.getName());
     if (entry != null) {
       if (LOG > 3) console.log("Found registered prefix for " + interest.getName().toUri());
       var info = new UpcallInfo(this, interest, 0, null);
       var ret = entry.closure.upcall(Closure.UPCALL_INTEREST, info);
-      if (ret == Closure.RESULT_INTEREST_CONSUMED && info.data != null) 
+      if (ret == Closure.RESULT_INTEREST_CONSUMED && info.data != null)
         this.transport.send(info.data.wireEncode().buf());
-    }        
-  } 
+    }
+  }
   else if (data !== null) {
     if (LOG > 3) console.log('Data packet received.');
-        
+
     var pendingInterests = Face.extractEntriesForExpressedInterest(data.getName());
     // Process each matching PIT entry (if any).
     for (var i = 0; i < pendingInterests.length; ++i) {
       var pitEntry = pendingInterests[i];
       var currentClosure = pitEntry.closure;
-                    
+
       if (this.verify == false) {
         // Pass content up without verifying the signature
         currentClosure.upcall(Closure.UPCALL_CONTENT_UNVERIFIED, new UpcallInfo(this, pitEntry.interest, 0, data));
         continue;
       }
-        
+
       // Key verification
-            
+
       // Recursive key fetching & verification closure
       var KeyFetchClosure = function KeyFetchClosure(content, closure, key, sig, wit) {
         this.data = content;  // unverified data packet object
         this.closure = closure;  // closure corresponding to the data
         this.keyName = key;  // name of current key to be fetched
-            
+
         Closure.call(this);
       };
-            
+
       var thisFace = this;
       KeyFetchClosure.prototype.upcall = function(kind, upcallInfo) {
         if (kind == Closure.UPCALL_INTEREST_TIMED_OUT) {
           console.log("In KeyFetchClosure.upcall: interest time out.");
           console.log(this.keyName.contentName.toUri());
-        } 
+        }
         else if (kind == Closure.UPCALL_CONTENT) {
           var rsakey = new Key();
           rsakey.readDerPublicKey(upcallInfo.data.getContent().buf());
           var verified = data.verify(rsakey);
-                
+
           var flag = (verified == true) ? Closure.UPCALL_CONTENT : Closure.UPCALL_CONTENT_BAD;
           this.closure.upcall(flag, new UpcallInfo(thisFace, null, 0, this.data));
-                
+
           // Store key in cache
           var keyEntry = new KeyStoreEntry(keylocator.keyName, rsakey, new Date().getTime());
           Face.addKeyEntry(keyEntry);
-        } 
+        }
         else if (kind == Closure.UPCALL_CONTENT_BAD)
           console.log("In KeyFetchClosure.upcall: signature verification failed");
       };
-            
+
       if (data.getMetaInfo() && data.getMetaInfo().locator && data.getSignature()) {
         if (LOG > 3) console.log("Key verification...");
         var sigHex = data.getSignature().getSignature().toHex();
-              
+
         var wit = null;
         if (data.getSignature().witness != null)
             //SWT: deprecate support for Witness decoding and Merkle hash tree verification
             currentClosure.upcall(Closure.UPCALL_CONTENT_BAD, new UpcallInfo(this, pitEntry.interest, 0, data));
-          
+
         var keylocator = data.getMetaInfo().locator;
         if (keylocator.getType() == KeyLocatorType.KEYNAME) {
           if (LOG > 3) console.log("KeyLocator contains KEYNAME");
-                
+
           if (keylocator.keyName.contentName.match(data.getName())) {
             if (LOG > 3) console.log("Content is key itself");
-                  
+
             var rsakey = new Key();
             rsakey.readDerPublicKey(data.getContent().buf());
             var verified = data.verify(rsakey);
             var flag = (verified == true) ? Closure.UPCALL_CONTENT : Closure.UPCALL_CONTENT_BAD;
-              
+
             currentClosure.upcall(flag, new UpcallInfo(this, pitEntry.interest, 0, data));
 
             // SWT: We don't need to store key here since the same key will be stored again in the closure.
-          } 
+          }
           else {
             // Check local key store
             var keyEntry = Face.getKeyByName(keylocator.keyName);
@@ -12985,7 +12986,7 @@ Face.prototype.onReceivedElement = function(element)
 
               // Raise callback
               currentClosure.upcall(flag, new UpcallInfo(this, pitEntry.interest, 0, data));
-            } 
+            }
             else {
               // Not found, fetch now
               if (LOG > 3) console.log("Fetch key according to keylocator");
@@ -12994,38 +12995,38 @@ Face.prototype.onReceivedElement = function(element)
               this.expressInterest(keylocator.keyName.contentName.getPrefix(4), nextClosure);
             }
           }
-        } 
+        }
         else if (keylocator.getType() == KeyLocatorType.KEY) {
           if (LOG > 3) console.log("Keylocator contains KEY");
-                
+
           var rsakey = new Key();
           rsakey.readDerPublicKey(keylocator.publicKey);
           var verified = data.verify(rsakey);
-              
+
           var flag = (verified == true) ? Closure.UPCALL_CONTENT : Closure.UPCALL_CONTENT_BAD;
           // Raise callback
           currentClosure.upcall(Closure.UPCALL_CONTENT, new UpcallInfo(this, pitEntry.interest, 0, data));
 
           // Since KeyLocator does not contain key name for this key,
           // we have no way to store it as a key entry in KeyStore.
-        } 
+        }
         else {
           var cert = keylocator.certificate;
           console.log("KeyLocator contains CERT");
-          console.log(cert);                
+          console.log(cert);
           // TODO: verify certificate
         }
       }
     }
-  } 
+  }
 };
 
 /**
- * Assume this.getConnectionInfo is not null.  This is called when 
- * this.connectionInfo is null or its host is not alive.  
+ * Assume this.getConnectionInfo is not null.  This is called when
+ * this.connectionInfo is null or its host is not alive.
  * Get a connectionInfo, connect, then execute onConnected().
  */
-Face.prototype.connectAndExecute = function(onConnected) 
+Face.prototype.connectAndExecute = function(onConnected)
 {
   var connectionInfo = this.getConnectionInfo();
   if (connectionInfo == null) {
@@ -13034,24 +13035,24 @@ Face.prototype.connectAndExecute = function(onConnected)
     // Deprecated: Set this.host and this.port for backwards compatibility.
     this.host = null;
     this.host = null;
-  
+
     return;
   }
 
   if (connectionInfo.equals(this.connectionInfo)) {
     console.log
-      ('ERROR: The host returned by getConnectionInfo is not alive: ' + 
+      ('ERROR: The host returned by getConnectionInfo is not alive: ' +
        this.connectionInfo.toString());
     return;
   }
-        
-  this.connectionInfo = connectionInfo;   
-  if (LOG>0) console.log("connectAndExecute: trying host from getConnectionInfo: " + 
-                         this.connectionInfo.toString());  
+
+  this.connectionInfo = connectionInfo;
+  if (LOG>0) console.log("connectAndExecute: trying host from getConnectionInfo: " +
+                         this.connectionInfo.toString());
   // Deprecated: Set this.host and this.port for backwards compatibility.
   this.host = this.connectionInfo.host;
   this.host = this.connectionInfo.port;
-    
+
   // Fetch any content.
   var interest = new Interest(new Name("/"));
   interest.setInterestLifetimeMilliseconds(4000);
@@ -13062,36 +13063,36 @@ Face.prototype.connectAndExecute = function(onConnected)
       // Try again.
       thisFace.connectAndExecute(onConnected);
   }, 3000);
-  
+
   this.reconnectAndExpressInterest(interest, new Face.ConnectClosure(this, onConnected, timerID));
 };
 
 /**
  * This is called by the Transport when the connection is closed by the remote host.
  */
-Face.prototype.closeByTransport = function() 
+Face.prototype.closeByTransport = function()
 {
   this.readyStatus = Face.CLOSED;
   this.onclose();
 };
 
-Face.ConnectClosure = function ConnectClosure(face, onConnected, timerID) 
+Face.ConnectClosure = function ConnectClosure(face, onConnected, timerID)
 {
   // Inherit from Closure.
   Closure.call(this);
-    
+
   this.face = face;
   this.onConnected = onConnected;
   this.timerID = timerID;
 };
 
-Face.ConnectClosure.prototype.upcall = function(kind, upcallInfo) 
+Face.ConnectClosure.prototype.upcall = function(kind, upcallInfo)
 {
   if (!(kind == Closure.UPCALL_CONTENT ||
         kind == Closure.UPCALL_CONTENT_UNVERIFIED))
     // The upcall is not for us.
     return Closure.RESULT_ERR;
-        
+
   // The host is alive, so cancel the timeout and continue with onConnected().
   clearTimeout(this.timerID);
 
@@ -13108,13 +13109,13 @@ Face.ConnectClosure.prototype.upcall = function(kind, upcallInfo)
 /**
  * @deprecated Use new Face.
  */
-var NDN = function NDN(settings) 
+var NDN = function NDN(settings)
 {
   // Call the base constructor.
-  Face.call(this, settings); 
+  Face.call(this, settings);
 }
 
-// Use dummy functions so that the Face constructor will not try to set its own defaults.                                      
+// Use dummy functions so that the Face constructor will not try to set its own defaults.
 NDN.prototype = new Face({ getTransport: function(){}, getConnectionInfo: function(){} });
 
 exports.NDN = NDN;
@@ -23626,7 +23627,9 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
 module.exports = require("./dist/Long.js");
 
 },{"./dist/Long.js":84}],86:[function(require,module,exports){
+(function (Buffer){
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
+var Transport = require("ndn-lib/js/transport/transport.js").Transport;
 
 MessageChannelTransport.protocolKey = "messageChannel";
 
@@ -23636,28 +23639,57 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
-  this.port = port;
+  Transport.call(this);
+  this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
+  return this;
 }
+
+
+MessageChannelTransport.prototype = new Transport();
+MessageChannelTransport.prototype.name = "messageChannelTransport";
+
+MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
+  console.log(Transport);
+  Transport.ConnectionInfo.call(this);
+  this.port = port;
+};
+
+MessageChannelTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
+MessageChannelTransport.ConnectionInfo.prototype.name = "MessageChannelTransport.ConnectionInfo";
+
+MessageChannelTransport.ConnectionInfo.prototype.getPort = function()
+{
+  return this.port;
+};
+
+MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
+{
+  if (other === null || other.port === undefined){
+    return false;
+  }
+  return (this.port === other.port);
+};
 
 /**Set the event listener for incoming elements
  *@param {Object} face the ndn.Face object that this transport is attached to
  *@param {function} onopenCallback a callback to be performed once the transport is open
  */
-MessageChannelTransport.prototype.connect = function(face, onopenCallback, third)
+MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  this.elementReader = new ElementReader(face);
+  this.elementReader = new ElementReader(elementListener);
   var self = this;
-  this.port.onmessage = function(ev) {
+  connectionInfo.getPort().onmessage = function(ev) {
+    //console.log("onmessage")
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
-        self.elementReader.onReceivedData(ev.data);
+        self.elementReader.onReceivedData(new Buffer(ev.data));
       } catch (ex) {
-        console.log("NDN.ws.onmessage exception: " + ex);
+        console.log("NDN.ws.onmessage exception: ", ex);
         return;
       }
     }
   };
-  if (third) {third();} else {onopenCallback();}
+  onopenCallback();
 };
 
 /**Send the Uint8Array data.
@@ -23665,12 +23697,13 @@ MessageChannelTransport.prototype.connect = function(face, onopenCallback, third
  */
 MessageChannelTransport.prototype.send = function(element)
 {
-  this.port.postMessage(element);
+  this.connectionInfo.getPort().postMessage(element);
 };
 
 module.exports = MessageChannelTransport;
 
-},{"ndn-lib/js/encoding/element-reader.js":46}],87:[function(require,module,exports){
+}).call(this,require("buffer").Buffer)
+},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":46,"ndn-lib/js/transport/transport.js":71}],87:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/MessageChannel.js')
   , Transport1, Transport2, face1, face2, inst
@@ -23681,11 +23714,12 @@ function msSpec (Transport){
       var ms = new MessageChannel()
       , Transport1 = new Transport(ms.port1)
       , Transport2 = new Transport(ms.port2)
-      , face1 = new ndn.Face({host:1, port:1, getTransport: function(){return Transport1}})
-      , face2 = new ndn.Face({host:1, port:1, getTransport: function(){return Transport2}})
+      , face1 = new ndn.Face(Transport1, Transport1.connectionInfo)
+      , face2 = new ndn.Face(Transport2, Transport2.connectionInfo)
       , inst = new ndn.Interest(new ndn.Name("test"))
-      Transport2.connect(face2, function(){})
-      Transport1.connect(face1, function(){
+      console.log(Transport1)
+      Transport2.connect(Transport2.connectionInfo, face2, function(){})
+      Transport1.connect(Transport1.connectionInfo, face1, function(){
         Transport1.elementReader.onReceivedData = function(bytearray){
           done()
         }
@@ -23704,14 +23738,15 @@ var assert = require('assert')
 module.exports = function(Transport, moveOn){
 var listener ;
   describe("Transport", function(){
-    it("should have .protocolKey String", function(){
-      assert(typeof Transport.protocolKey === "string", "Transport.protocolKey must be a string")
+    it("should have .prototype.name String", function(){
+      assert(typeof Transport.prototype.name === "string", "Transport.prototype.name must be a string")
     })
     describe(".defineListener", function(){
       it("may or may not be present", function(){
         assert((Transport.defineListener && !Transport.Listener) || (!Transport.defineListener && !Transport.Listener))
-        if (Transport.defineListener)
+        if (Transport.defineListener){
           listener = true;
+        }
       })
       it("should define Listener with defaults", function(){
         if (listener){

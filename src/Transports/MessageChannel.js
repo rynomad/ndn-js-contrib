@@ -32,6 +32,14 @@ MessageChannelTransport.ConnectionInfo.prototype.getPort = function()
   return this.port;
 };
 
+MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
+{
+  if (other === null || other.port === undefined){
+    return false;
+  }
+  return (this.port === other.port);
+};
+
 /**Set the event listener for incoming elements
  *@param {Object} face the ndn.Face object that this transport is attached to
  *@param {function} onopenCallback a callback to be performed once the transport is open
