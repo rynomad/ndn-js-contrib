@@ -24,7 +24,7 @@ Usage
 -----
 simply require("ndn-contrib") in your project (use browserify for browser projects)
 
-   var ndn = require("ndn-contrib");
+    var ndn = require("ndn-contrib");
 
 all the classes are now attached to the ndn object (including ndn-js @ ndn.ndn), and are ready to go...
 
