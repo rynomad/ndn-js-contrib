@@ -1,4 +1,5 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
+var Transport = require("ndn-lib/js/transport/transport.js").Transport;
 
 MessageChannelTransport.protocolKey = "messageChannel";
 
@@ -8,28 +9,50 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
-  this.port = port;
+  Transport.call(this);
+  this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
+  return this;
 }
+
+
+MessageChannelTransport.prototype = new Transport();
+MessageChannelTransport.prototype.name = "messageChannelTransport";
+
+MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
+  console.log(Transport);
+  Transport.ConnectionInfo.call(this);
+  this.port = port;
+};
+
+MessageChannelTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
+MessageChannelTransport.ConnectionInfo.prototype.name = "MessageChannelTransport.ConnectionInfo";
+
+MessageChannelTransport.ConnectionInfo.prototype.getPort = function()
+{
+  return this.port;
+};
 
 /**Set the event listener for incoming elements
  *@param {Object} face the ndn.Face object that this transport is attached to
  *@param {function} onopenCallback a callback to be performed once the transport is open
  */
-MessageChannelTransport.prototype.connect = function(face, onopenCallback, third)
+MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  this.elementReader = new ElementReader(face);
+  console.log(connectionInfo, elementListener)
+  this.elementReader = new ElementReader(elementListener);
   var self = this;
-  this.port.onmessage = function(ev) {
+  connectionInfo.getPort().onmessage = function(ev) {
+    //console.log("onmessage")
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
-        self.elementReader.onReceivedData(ev.data);
+        self.elementReader.onReceivedData(new Buffer(ev.data));
       } catch (ex) {
-        console.log("NDN.ws.onmessage exception: " + ex);
+        console.log("NDN.ws.onmessage exception: ", ex);
         return;
       }
     }
   };
-  if (third) {third();} else {onopenCallback();}
+  onopenCallback();
 };
 
 /**Send the Uint8Array data.
@@ -37,7 +60,7 @@ MessageChannelTransport.prototype.connect = function(face, onopenCallback, third
  */
 MessageChannelTransport.prototype.send = function(element)
 {
-  this.port.postMessage(element);
+  this.connectionInfo.getPort().postMessage(element);
 };
 
 module.exports = MessageChannelTransport;

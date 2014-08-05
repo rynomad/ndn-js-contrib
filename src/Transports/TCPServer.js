@@ -4,10 +4,11 @@
  * See COPYING for copyright and distribution information.
  */
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
+  , Transport = require("ndn-lib/js/transport/transport.js").Transport
   , net = require('net');
 
 
-var TcpServerTransport = function serverTcpTransport(socketOrHostAndPort)
+var TCPServerTransport = function serverTcpTransport(socketOrHostAndPort)
 {
   var self = this;
   if (Object.keys(socketOrHostAndPort).length <= 2){
@@ -26,12 +27,28 @@ var TcpServerTransport = function serverTcpTransport(socketOrHostAndPort)
   return this;
 };
 
-TcpServerTransport.protocolKey = "tcpServer";
+TCPServerTransport.prototype.name = "TCPServerTransport";
+
+TCPServerTransport.prototype = new Transport();
+TCPServerTransport.prototype.name = "messageChannelTransport";
+
+TCPServerTransport.ConnectionInfo = function TCPServerTransportConnectionInfo(socket){
+  Transport.ConnectionInfo.call(this);
+  this.socket = socket;
+};
+
+TCPServerTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
+TCPServerTransport.ConnectionInfo.prototype.name = "TCPServerTransport.ConnectionInfo";
+
+TCPServerTransport.ConnectionInfo.prototype.getSocket = function()
+{
+  return this.socket;
+};
 
 /**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
  *@param {Number=} - port the port for the listener to listen on, default 7474
  */
-TcpServerTransport.defineListener = function(port){
+TCPServerTransport.defineListener = function(port){
   port = port || 7474;
 
   this.Listener = function (newFace) {
@@ -47,9 +64,9 @@ TcpServerTransport.defineListener = function(port){
   };
 };
 
-TcpServerTransport.prototype.connect = function(face, onopenCallback)
+TCPServerTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  this.elementReader = new ElementReader(face);
+  this.elementReader = new ElementReader(elementListener);
 
   // Connect to local ndnd via TCP
   var self = this;
@@ -92,7 +109,7 @@ TcpServerTransport.prototype.connect = function(face, onopenCallback)
 
 };
 
-TcpServerTransport.prototype.send = function(/*Buffer*/ data)
+TCPServerTransport.prototype.send = function(/*Buffer*/ data)
 {
   if (this.sock_ready)
   {
@@ -103,10 +120,10 @@ TcpServerTransport.prototype.send = function(/*Buffer*/ data)
   }
 };
 
-TcpServerTransport.prototype.close = function()
+TCPServerTransport.prototype.close = function()
 {
   this.socket.end();
   console.log('TCP connection closed.');
 };
 
-module.exports = TcpServerTransport;
+module.exports = TCPServerTransport;

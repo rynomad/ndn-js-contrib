@@ -67,7 +67,7 @@ function ContentStore(nameTree, entryClass){
 }
 
 /**check the ContentStore for data matching a given interest (including min/max suffix, exclude, publisherKey)
- *@param {ndn.Interest} nameTree the nameTree to build upon
+ *@param {ndn.Interest} interest the interest to match against
  *@param {function=} callback for asynchronous cases (like levelDB). recieves return value as only argument
  *@returns {Buffer | null}
  */
@@ -76,7 +76,8 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
   node = node || this.nameTree.lookup(interest.name);
   stack = stack || 1;
   stack++;
-  if (stack++ > Object.keys(this.nameTree).length){
+  if (stack++ > Object.keys(this.nameTree).length * 2){
+    console.log("stack over")
     return callback(null);
   }
 
@@ -176,22 +177,20 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
 
 /**Insert a new entry into the contentStore
  *@constructor
- *@param {Buffer} element the nameTree to build upon
+ *@param {Buffer} element the raw data packet
  *@param {ndn.Data} data the ndn.Data object
  *@returns {ContentStore} - for chaining
  */
 ContentStore.prototype.insert = function(element, data){
   var Entry = this.EntryClass;
   var freshness = data.getMetaInfo().getFreshnessPeriod();
-  if (freshness){
-    var node = this.nameTree.lookup(data.name)
-      , entry = new Entry(element, data);
-    node[Entry.type] = entry;
-    node[Entry.type].nameTreeNode = node;
-    setTimeout(function(){
-      if (node[Entry.type]) {node[Entry.type].stale(node);}
-    }, freshness );
-  }
+  var node = this.nameTree.lookup(data.name)
+  , entry = new Entry(element, data);
+  node[Entry.type] = entry;
+  node[Entry.type].nameTreeNode = node;
+  setTimeout(function(){
+    if (node[Entry.type]) {node[Entry.type].stale(node);}
+  }, freshness || 20 );
   return this;
 };
 

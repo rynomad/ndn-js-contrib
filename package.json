@@ -1,5 +1,5 @@
 {
-  "name": "ndn-data-structures",
+  "name": "ndn-classes",
   "version": "0.0.0",
   "description": "data structures for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces",
   "main": "index.js",

@@ -1,5 +1,6 @@
 var ndn
   , Face
+  , ndn = require("ndn-lib")
   , TlvDecoder = require("ndn-lib/js/encoding/tlv/tlv-decoder.js").TlvDecoder
   , Tlv = require("ndn-lib/js/encoding/tlv/tlv.js").Tlv;
 
@@ -9,20 +10,8 @@ var ndn
  *@returns {Interfaces} - a new Interface manager
  */
 function Interfaces(Subject){
-  ndn.Face.prototype.onReceivedElement = function(element){
-    var decoder = new TlvDecoder(element);
-    if (decoder.peekType(Tlv.Interest, element.length)) {
-      Subject.handleInterest(element, this.faceID);
-    }
-    else if (decoder.peekType(Tlv.Data, element.length)) {
-      Subject.handleData(element, this.faceID);
-    }
-  };
 
-  ndn.Face.prototype.send = function(element){
-    this.transport.send(element);
-  };
-
+  this.subject = Subject;
   this.transports = {};
   Face = ndn.Face;
 
@@ -47,7 +36,7 @@ Interfaces.prototype.Faces = [];
  *@returns {Interfaces} for chaining
  */
 Interfaces.prototype.installTransport = function(Transport){
-  this.transports[Transport.protocolKey] = Transport;
+  this.transports[Transport.prototype.name] = Transport;
 
   if (Transport.Listener){
     Transport.Listener(this.newFace);
@@ -58,25 +47,44 @@ Interfaces.prototype.installTransport = function(Transport){
 
 /**Create a new Face
  *@param {String} protocol a string matching the .protocolKey property of a previously installed {@link Transport}
+ *@param {Object} connectionParameters the object expected by the transport class
  *@returns {Number} id the numerical faceID of the created Face.
  */
 Interfaces.prototype.newFace = function(protocol, connectionParameters) {
-  var self = this;
+  var Self = this;
 
   if (!this.transports[protocol]){
     return -1;
   } else {
-    var Transport = this.transports[protocol];
+    var Transport = new this.transports[protocol](connectionParameters);
+
+    var newFace =  new ndn.Face(Transport, Transport.connectionInfo);
+
     this.Faces.push(
-      new Face({
-        host   : connectionParameters.host || 1
-        , port : connectionParameters.port || 1
-        , getTransport : function(){return new Transport(connectionParameters);}
-      })
+     newFace
     );
-    var id = this.Faces.length - 1;
-    this.Faces[id].faceID = id;
-    return id;
+    newFace.faceID = this.Faces.length - 1;
+
+    newFace.transport.connect(newFace.connectionInfo, newFace, function(){
+
+      newFace.onReceivedElement = function(element){
+        //console.log("onReceivedElement")
+        var decoder = new TlvDecoder(element);
+        if (decoder.peekType(Tlv.Interest, element.length)) {
+          Self.subject.handleInterest(element, this.faceID);
+        }
+        else if (decoder.peekType(Tlv.Data, element.length)) {
+          Self.subject.handleData(element, this.faceID);
+        }
+      };
+
+      newFace.send = function(element){
+        this.transport.send(element);
+      };
+    }, function(){
+
+    })
+    return newFace.faceID;
   }
 };
 

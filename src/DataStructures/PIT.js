@@ -28,7 +28,9 @@ function PitEntry (element, interest, faceIDorCallback){
     interest = new ndn.Interest();
     interest.wireDecode(element);
   }
-
+  if (!interest.nonce){
+    interest.wireDecode(element);
+  }
   this.nonce = interest.nonce;
   this.uri = interest.name.toUri();
   this.interest = interest;
@@ -62,7 +64,10 @@ PitEntry.prototype.consume = function() {
   if (this.nameTreeNode){
     var i = binarySearch(this.nameTreeNode.pitEntries, this, "nonce");
     if (i >= 0){
-      this.nameTreeNode.pitEntries.splice(~i, 1);
+      var removed = this.nameTreeNode.pitEntries.splice(~i, 1)[0];
+      if (removed.callback){
+        removed.callback(null, removed.interest);
+      }
     }
   }
   return this;
