@@ -20,7 +20,7 @@ function arraysEqual (ar1, ar2){
   return true;
 }
 
-NameTree.installModules(ndn);
+NameTree.installNDN(ndn);
 
 var cache = new ContentStore(new NameTree())
 

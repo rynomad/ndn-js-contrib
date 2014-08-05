@@ -12,15 +12,15 @@ var TCPServerTransport = function serverTcpTransport(socketOrHostAndPort)
 {
   var self = this;
   if (Object.keys(socketOrHostAndPort).length <= 2){
-    net.connect(socketOrHostAndPort.port || 7575, socketOrHostAndPort.host || 'localhost', function(sock){
+    net.connect(socketOrHostAndPort.port || 7474, socketOrHostAndPort.host || 'localhost', function(sock){
       self.socket = sock;
       self.connectedHost = socketOrHostAndPort.host || 'localhost'; // Read by Face.
-      self.connectedPort = socketOrHostAndPort.port || 7575;
+      self.connectedPort = socketOrHostAndPort.port || 7474;
 
       self.sock_ready = true;
     });
   } else {
-    this.socket = socket;
+    this.socket = socketOrHostAndPort;
     this.connectedHost = null; // Read by Face.
     this.connectedPort = null; // Read by Face.
   }
@@ -46,7 +46,7 @@ TCPServerTransport.ConnectionInfo.prototype.getSocket = function()
 };
 
 /**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
- *@param {Number=} - port the port for the listener to listen on, default 7474
+ *@param {Number=} - port the port for the listener to listen on, default 7575
  */
 TCPServerTransport.defineListener = function(port){
   port = port || 7474;

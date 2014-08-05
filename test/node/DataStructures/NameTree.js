@@ -3,7 +3,7 @@ var NameTree = require('../../../src/DataStructures/NameTree.js')
   , ndn = require('ndn-lib')
   , assert = require('assert')
 
-NameTree.installModules(ndn);
+NameTree.installNDN(ndn);
 var nameTree = new NameTree();
 
 describe('NameTree.addNode()', function(){

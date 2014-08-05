@@ -3,8 +3,9 @@
  * @author: Wentao Shang
  * See COPYING for copyright and distribution information.
  */
-var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
-var wss = require('ws').Server;
+var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
+  , Transport = require("ndn-lib/js/transport/transport.js").Transport
+  , wss = require('ws').Server;
 
 /** ServerSide websocket transport,
  *@constructor
@@ -13,6 +14,7 @@ var wss = require('ws').Server;
  */
 var WebSocketServerTransport = function WebSocketServerTransport(ws)
 {
+  Transport.call(this);
   this.ws = ws;
   return this;
 };
@@ -20,7 +22,24 @@ var WebSocketServerTransport = function WebSocketServerTransport(ws)
 /**
  *@property {String} protocolKey "wsServer"
  */
-WebSocketServerTransport.protocolKey = "wsServer";
+
+WebSocketServerTransport.prototype.name = "WebSocketServerTransport";
+
+WebSocketServerTransport.prototype = new Transport();
+WebSocketServerTransport.prototype.name = "messageChannelTransport";
+
+WebSocketServerTransport.ConnectionInfo = function WebSocketServerTransportConnectionInfo(socket){
+  Transport.ConnectionInfo.call(this);
+  this.socket = socket;
+};
+
+WebSocketServerTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
+WebSocketServerTransport.ConnectionInfo.prototype.name = "WebSocketServerTransport.ConnectionInfo";
+
+WebSocketServerTransport.ConnectionInfo.prototype.getSocket = function()
+{
+  return this.socket;
+};
 
 WebSocketServerTransport.defineListener = function(port){
   port = port || 7575;

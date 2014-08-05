@@ -3,8 +3,8 @@ var assert = require('assert')
 module.exports = function(Transport, moveOn){
 var listener ;
   describe("Transport", function(){
-    it("should have .protocolKey String", function(){
-      assert(typeof Transport.protocolKey === "string", "Transport.protocolKey must be a string")
+    it("should have .prototype.name String", function(){
+      assert(typeof Transport.prototype.name === "string", "Transport.prototype.name must be a string")
     })
     describe(".defineListener", function(){
       it("may or may not be present", function(){

@@ -57,7 +57,7 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters) {
     return -1;
   } else {
     var Transport = new this.transports[protocol](connectionParameters);
-
+    console.log(this.transports, Transport, connectionParameters)
     var newFace =  new ndn.Face(Transport, Transport.connectionInfo);
 
     this.Faces.push(
@@ -66,7 +66,7 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters) {
     newFace.faceID = this.Faces.length - 1;
 
     newFace.transport.connect(newFace.connectionInfo, newFace, function(){
-
+      console.log("?????????????????????????????")
       newFace.onReceivedElement = function(element){
         //console.log("onReceivedElement")
         var decoder = new TlvDecoder(element);

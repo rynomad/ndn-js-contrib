@@ -1,13 +1,19 @@
 /**An Abstract transport class for unit testing the {@link Interfaces} data structure and a starting point for implimenting new Transports
  *@constructor
  */
+
+var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+
 function AbstractTransport(sendCb)
 {
+  Transport.call(this);
+
   this.sendCb = sendCb;
   return this;
 }
 
-AbstractTransport.protocolKey = "_abstract";
+AbstractTransport.prototype = new Transport();
+AbstractTransport.prototype.name = "_abstract";
 
 /**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
  */
@@ -17,14 +23,15 @@ AbstractTransport.defineListener = function(){
     global.ListenerActive = true;
     this.call = function(){
 
-      newFace(AbstractTransport.protocolKey, function(data){
+      newFace(AbstractTransport.prototype.name, function(data){
       });
     };
   };
 };
 
-AbstractTransport.prototype.connect = function(face, onopenCallback)
+AbstractTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback)
 {
+  onopenCallback();
   return this;
 };
 

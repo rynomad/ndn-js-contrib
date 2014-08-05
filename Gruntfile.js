@@ -31,13 +31,6 @@ module.exports = function(grunt){
       }
     },
     mochaTest: {
-      DataStructures: {
-        options: {
-          reporter: 'spec'
-          ,clearRequireCache: true
-        },
-        src: ['test/node/DataStructures/*.js']
-      },
       suite: {
         options: {
           reporter: 'spec'

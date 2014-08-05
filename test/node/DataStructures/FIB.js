@@ -7,7 +7,7 @@ var ndn = require('ndn-lib')
 
 
 FIB.installNDN(ndn);
-NameTree.installModules(ndn);
+NameTree.installNDN(ndn);
 
 var fib = new FIB(new NameTree())
 

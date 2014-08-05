@@ -6,7 +6,7 @@ var ndn = require('ndn-lib')
 
 PIT.installNDN(ndn);
 var pubKeyDigest = ndn.globalKeyManager.getKey().publicKeyDigest
-NameTree.installModules(ndn);
+NameTree.installNDN(ndn);
 var pit = new PIT(new NameTree());
 var inst = new ndn.Interest(new ndn.Name("a/b"))
 , enc = inst.wireEncode()
