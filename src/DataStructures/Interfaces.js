@@ -50,23 +50,19 @@ Interfaces.prototype.installTransport = function(Transport){
  *@param {Object} connectionParameters the object expected by the transport class
  *@returns {Number} id the numerical faceID of the created Face.
  */
-Interfaces.prototype.newFace = function(protocol, connectionParameters) {
+Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, onclose) {
   var Self = this;
 
   if (!this.transports[protocol]){
     return -1;
   } else {
-    var Transport = new this.transports[protocol](connectionParameters);
-    console.log(this.transports, Transport, connectionParameters)
-    var newFace =  new ndn.Face(Transport, Transport.connectionInfo);
+    var Transport = new this.transports[protocol](connectionParameters)
+      , newFace =  new ndn.Face(Transport, Transport.connectionInfo);
 
-    this.Faces.push(
-     newFace
-    );
+    this.Faces.push(newFace);
     newFace.faceID = this.Faces.length - 1;
 
     newFace.transport.connect(newFace.connectionInfo, newFace, function(){
-      console.log("?????????????????????????????")
       newFace.onReceivedElement = function(element){
         //console.log("onReceivedElement")
         var decoder = new TlvDecoder(element);
@@ -81,9 +77,12 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters) {
       newFace.send = function(element){
         this.transport.send(element);
       };
-    }, function(){
 
-    })
+      if (onopen) {onopen();}
+    }, function(){
+      //onclose event TODO
+      if (onclose) {onclose();}
+    });
     return newFace.faceID;
   }
 };

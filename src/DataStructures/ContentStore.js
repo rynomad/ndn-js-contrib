@@ -77,7 +77,7 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
   stack = stack || 1;
   stack++;
   if (stack++ > Object.keys(this.nameTree).length * 2){
-    console.log("stack over")
+    console.log("stack over");
     return callback(null);
   }
 

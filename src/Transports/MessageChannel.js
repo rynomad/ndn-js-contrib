@@ -38,7 +38,6 @@ MessageChannelTransport.ConnectionInfo.prototype.getPort = function()
  */
 MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  console.log(connectionInfo, elementListener)
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
