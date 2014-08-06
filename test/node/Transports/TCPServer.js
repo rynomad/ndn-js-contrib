@@ -1,5 +1,5 @@
 var abstract = require("./Abstract.js")
-var tcpServer = require("../../../src/Transports/TCPServer.js")
+var tcpServer = require("../../../src/Transports/node/TCPServer.js")
 var assert = require("assert")
 var net = require("net")
 

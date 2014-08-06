@@ -1,5 +1,5 @@
 var abstract = require("./Abstract.js")
-var WSSServer = require("../../../src/Transports/WebSocketServer.js")
+var WSSServer = require("../../../src/Transports/node/WebSocketServer.js")
 var assert = require("assert")
 var ws = require("ws")
 

@@ -1,5 +1,5 @@
 var ndn = require('ndn-lib')
-  , Transport = require('../../../../src/Transports/MessageChannel.js')
+  , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
   , Transport1, Transport2, face1, face2, inst
   , Abstract = require("../../../node/Transports/Abstract.js");
 
