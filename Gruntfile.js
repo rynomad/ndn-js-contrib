@@ -1,16 +1,5 @@
 module.exports = function(grunt){
 
-
-   var browsers = [{
-        browserName: "chrome",
-        version: "33",
-        platform: "XP"
-    }, {
-      browserName: "chrome",
-      version: "33",
-      platform: "Linux"
-    }];
-
   grunt.initConfig({
     browserify: {
       testDataStructures: {
@@ -83,18 +72,17 @@ module.exports = function(grunt){
       Interfaces: ['src/DataStructures/Interfaces.js'],
       Transports: ['src/Transports/*.js']
     }
-
-
   })
+
   grunt.loadNpmTasks('grunt-jsdoc');
   grunt.loadNpmTasks("grunt-mocha-test");
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-contrib-watch");
-
+  grunt.loadNpmTasks("grunt-saucelabs");
   grunt.loadNpmTasks('grunt-browserify');
 
   grunt.registerTask("brow", ["browserify"])
   grunt.registerTask("test", "mochaTest");
   grunt.registerTask("hint", "jshint")
   grunt.registerTask("suite", ["hint", "brow", "test"])
-}
+};
