@@ -1,14 +1,14 @@
 {
   "name": "ndn-classes",
   "version": "0.0.0",
-  "description": "data structures for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces",
+  "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rynomad/ndn-NameTree"
+    "url": "https://github.com/rynomad/ndn-contrib"
   },
   "keywords": [
     "NDN",
@@ -16,16 +16,17 @@
     "Data",
     "Networking"
   ],
-  "browser":{
-    "./src/Transports/nodeWrapper.js": "./src/Transports/browserWrapper.js"
+  "browser": {
+    "./src/Transports/node.js": "./src/Transports/browser.js"
   },
   "author": "Ryan Bennett, Colorado State University",
-  "license": "LGPLv2",
+  "license": "LGPLvTBD",
   "bugs": {
-    "url": "https://github.com/rynomad/ndn-DataStructures/issues"
+    "url": "https://github.com/rynomad/ndn-contrib/issues"
   },
-  "homepage": "https://github.com/rynomad/ndn-DataStructures",
+  "homepage": "https://github.com/rynomad/ndn-contrib",
   "devDependencies": {
+    "ndn-lib": "git+https://github.com/rynomad/ndn-js.git#feross",
     "grunt": "^0.4.5",
     "grunt-jsdoc": "^0.5.6",
     "npm": "^1.4.21",
@@ -34,6 +35,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-browserify": "^2.1.3",
-    "browserify": "^4.2.1"
+    "browserify": "^4.2.1",
+    "mocha": "^1.21.3"
   }
 }
