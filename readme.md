@@ -53,7 +53,7 @@ Bug reports and pull requests welcome! lint, doc, and test are all registered ta
 
 License
 -------
-LGPLv2
+LGPL (vTBD)
 
 Contact
 -------
