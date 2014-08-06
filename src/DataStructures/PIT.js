@@ -91,6 +91,7 @@ PIT = function(nameTree){
  */
 PIT.installNDN = function(NDN){
   ndn = NDN;
+  return this;
 };
 
 PIT.Entry = PitEntry;
