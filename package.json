@@ -1,6 +1,6 @@
 {
   "name": "ndn-classes",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
