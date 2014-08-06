@@ -46,10 +46,10 @@ MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
+  console.log("messageChannel connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
-    //console.log("onmessage")
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
         self.elementReader.onReceivedData(new Buffer(ev.data));
@@ -59,6 +59,7 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
       }
     }
   };
+  //elementListener.readyStatus = 2
   onopenCallback();
 };
 

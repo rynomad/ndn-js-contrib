@@ -13,14 +13,15 @@ function msSpec (Transport){
       , face2 = new ndn.Face(Transport2, Transport2.connectionInfo)
       , inst = new ndn.Interest(new ndn.Name("test"))
       console.log(Transport1)
-      Transport2.connect(Transport2.connectionInfo, face2, function(){})
-      Transport1.connect(Transport1.connectionInfo, face1, function(){
-        Transport1.elementReader.onReceivedData = function(bytearray){
-          done()
-        }
+      face1.onReceivedElement = function(bytearray){
 
-        face2.expressInterest(inst)
+       done()
+      }
+      face1.transport.connect(face1.transport.connectionInfo, face1, function(){
+        face2.expressInterest(inst);
       })
+
+
     })
   })
 }

@@ -26426,140 +26426,1594 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
 module.exports = require("./dist/Long.js");
 
 },{"./dist/Long.js":98}],100:[function(require,module,exports){
-(function (Buffer){
-var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
-var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+var debug = false;
 
-MessageChannelTransport.protocolKey = "messageChannel";
+function pubKeyMatch (ar1, ar2){
+  if (!ar1){
+    return true;
+  }
+  for(var i = 0; i < ar1.length; i++ ){
+    if (ar1[i] !== ar2[i]){
+      return false;
+    }
+  }
+  return true;
+}
 
-/**Transport Class for HTML5 MessageChannels
+
+/** Default EntryClass for ContentStore
  *@constructor
- *@param {MessageChannel_Port} port one end of an HTML MessageChannel
- *@returns {MessageChannelTransport}
+ *@private
+ *@param {Buffer} element the raw data packet.
+ *@param {Data} data the ndn.Data object
  */
-function MessageChannelTransport (port) {
-  Transport.call(this);
-  this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
+function csEntry (element, data){
+  var freshnessPeriod = data.getMetaInfo().getFreshnessPeriod();
+  this.name = data.name;
+  this.element = element;
+  this.freshnessPeriod = freshnessPeriod;
+  this.uri = data.name.toUri();
+  this.publisherPublicKeyDigest = data.signedInfo.publisher.publisherPublicKeyDigest;
   return this;
 }
 
-
-MessageChannelTransport.prototype = new Transport();
-MessageChannelTransport.prototype.name = "messageChannelTransport";
-
-MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
-  console.log(Transport);
-  Transport.ConnectionInfo.call(this);
-  this.port = port;
-};
-
-MessageChannelTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
-MessageChannelTransport.ConnectionInfo.prototype.name = "MessageChannelTransport.ConnectionInfo";
-
-MessageChannelTransport.ConnectionInfo.prototype.getPort = function()
-{
-  return this.port;
-};
-
-MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
-{
-  if (other === null || other.port === undefined){
-    return false;
-  }
-  return (this.port === other.port);
-};
-
-/**Set the event listener for incoming elements
- *@param {Object} face the ndn.Face object that this transport is attached to
- *@param {function} onopenCallback a callback to be performed once the transport is open
+/**
+ *@property {String} type a type string describing the type of entry
  */
-MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
-{
-  console.log("messageChannel connect");
-  this.elementReader = new ElementReader(elementListener);
+csEntry.type = "csEntry";
+
+/** sync/async getter for the element
+ *@private
+ *@param {function} callback Recieves element as only argument
+ *@returns {Buffer} element the raw data packet
+ */
+csEntry.prototype.getElement = function(callback){
+  callback = callback || function(e){return e;};
+  return callback(this.element);
+};
+
+/**
+ *@private
+ *@param {NameTreeNode} node the node to remove this entry from
+ *@returns {csEntry} entry the csEntry in case you want to do something other than throw it away
+ */
+csEntry.prototype.stale = function(node){
+  delete node.csEntry;
+  return this;
+};
+
+/**A ContentStore constructor for building cache's and database indexes
+ *@constructor
+ *@param {NameTree} nameTree the nameTree to build upon
+ *@param {constructor} entryClass a constructor class conforming to the same API as {@link csEntry}.
+ *@returns {ContentStore} - a new store
+ */
+function ContentStore(nameTree, entryClass){
+  this.nameTree = nameTree;
+  this.EntryClass = entryClass || csEntry;
+  return this;
+}
+
+/**check the ContentStore for data matching a given interest (including min/max suffix, exclude, publisherKey)
+ *@param {ndn.Interest} interest the interest to match against
+ *@param {function=} callback for asynchronous cases (like levelDB). recieves return value as only argument
+ *@returns {Buffer | null}
+ */
+ContentStore.prototype.check = function(interest, callback, node, suffixCount, childTracker, stack){
+  callback = callback || function(element){return element;};
+  node = node || this.nameTree.lookup(interest.name);
+  stack = stack || 1;
+  stack++;
+  if (stack++ > Object.keys(this.nameTree).length * 2){
+    console.log("stack over");
+    return callback(null);
+  }
+
   var self = this;
-  connectionInfo.getPort().onmessage = function(ev) {
-    if (ev.data.buffer instanceof ArrayBuffer) {
-      try {
-        self.elementReader.onReceivedData(new Buffer(ev.data));
-      } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ", ex);
-        return;
+
+  if (node[this.EntryClass.type]
+      && interest.matchesName(node[this.EntryClass.type].name)
+      && pubKeyMatch(interest.publisherPublicKeyDigest, node[this.EntryClass.type].publisherPublicKeyDigest)
+     ){
+    return node[this.EntryClass.type].getElement(callback);
+  }
+
+
+
+  suffixCount = suffixCount || 0;
+  childTracker = childTracker || [];
+
+  var maxSuffix = interest.getMaxSuffixComponents()
+    , minSuffix = interest.getMinSuffixComponents()
+    , childSelector = interest.getChildSelector()
+    , atMaxSuffix = (maxSuffix && (suffixCount === maxSuffix))
+    , hasChildren = (node.children.length > 0)
+    , hasMoreSiblings = function(node){
+      if (debug) {console.log(childTracker.length, node.parent.children.length, childTracker[childTracker.length - 1] );}
+      return  (!!childTracker.length && !!node.parent && (node.parent.children.length > childTracker[childTracker.length - 1] + 1));
+    };
+
+  if (debug) {console.log(node.prefix.toUri(), interest.name.toUri(), childTracker, hasMoreSiblings(node));}
+
+  function toChild(node){
+    if (debug) {console.log("toChild", childTracker);}
+    suffixCount++;
+    childTracker.push(0);
+    if (!childSelector){ //leftmost == 0 == falsey
+
+      return self.check(interest, callback, node.children[0], suffixCount, childTracker , stack++);
+    } else {
+
+      return self.check(interest, callback, node.children[node.children.length - 1], suffixCount, childTracker, stack++);
+    }
+  }
+
+  function toSibling(node){
+    if (debug) {console.log("toSibling from ", node.prefix.toUri(), childTracker, node);}
+    childTracker[childTracker.length - 1]++;
+
+    if (!childSelector){
+      if (debug) {console.log(node.prefix.toUri(), childTracker, node.parent.children[childTracker[childTracker.length - 1]].prefix.toUri());}
+      return self.check(interest, callback, node.parent.children[childTracker[childTracker.length - 1]], suffixCount, childTracker, stack++);
+    } else {
+      if (debug) {console.log(node.prefix.toUri(), childTracker, node.parent.children[node.parent.children.length  + ~childTracker[childTracker.length - 1]].prefix.toUri());}
+      return self.check(interest, callback, node.parent.children[node.parent.children.length  + ~childTracker[childTracker.length - 1]], suffixCount, childTracker, stack++);
+    }
+  }
+
+  function toAncestorSibling(node, stack){
+    if (debug) {console.log("toAncestorSibling from ",node.prefix.toUri(), childTracker);}
+    suffixCount--;
+    childTracker.pop();
+    if (stack++ > 10000){
+      return callback(null);
+    }
+
+    var hasParentSibling = (node.parent && node.parent.parent && node.parent.parent.children.length > childTracker[childTracker.length - 1] + 1);
+
+    if (hasParentSibling){
+      return toSibling(node.parent);
+    } else if (childTracker.length >0) {
+      return toAncestorSibling(node.parent, stack++);
+    } else {
+      return callback(null);
+    }
+  }
+
+  if (childTracker.length === 1){
+    if (interest.exclude.matches(node.prefix.get(-1))){
+      if (hasMoreSiblings(node)){
+        return toSibling(node);
+      } else {
+        return callback(null);
       }
     }
-  };
-  //elementListener.readyStatus = 2
-  onopenCallback();
+  }
+
+
+
+  if (!node.prefix.size() ||(!atMaxSuffix && hasChildren)){
+    return toChild(node);
+  } else if (hasMoreSiblings(node)){
+    return toSibling(node);
+  } else if (childTracker.length > 1){
+    return toAncestorSibling(node);
+  } else{
+    return callback(null);
+  }
 };
 
-/**Send the Uint8Array data.
- *@param {Buffer} element the data packet
+/**Insert a new entry into the contentStore
+ *@constructor
+ *@param {Buffer} element the raw data packet
+ *@param {ndn.Data} data the ndn.Data object
+ *@returns {ContentStore} - for chaining
  */
-MessageChannelTransport.prototype.send = function(element)
-{
-  this.connectionInfo.getPort().postMessage(element);
+ContentStore.prototype.insert = function(element, data){
+  var Entry = this.EntryClass;
+  var freshness = data.getMetaInfo().getFreshnessPeriod();
+  var node = this.nameTree.lookup(data.name)
+  , entry = new Entry(element, data);
+  node[Entry.type] = entry;
+  node[Entry.type].nameTreeNode = node;
+  setTimeout(function(){
+    if (node[Entry.type]) {node[Entry.type].stale(node);}
+  }, freshness || 20 );
+  return this;
 };
 
-module.exports = MessageChannelTransport;
+
+module.exports = ContentStore;
+
+},{}],101:[function(require,module,exports){
+var binarySearch = require("./../Utility/binarySearch.js")
+  , ndn;
+
+/**A Forwarding Entry
+ *@constructor
+ *@param {Object|string} prefix - the ndn.Name object representing the prefix for this forwarding entry
+ *@param {Array} - an array of nextHop objects, each with a "faceID" integer property, or just an array of the faceIDs
+ *@returns {FibEntry}
+ */
+function FibEntry(prefix, nextHops){
+  this.prefix = (typeof prefix === "string") ? new ndn.Name(prefix) : prefix ;
+
+  this.nextHops = (function(){
+    var hops = [];
+    function recurse(){
+      if (nextHops && nextHops.length > 0){
+        var hop = (nextHops[0].faceID) ? nextHops.shift() : {faceID: nextHops.shift()};
+        var i = binarySearch(hops, hop, "faceID");
+        if (i < 0){
+          hops.splice(~i, 0, hop);
+        }
+        return recurse();
+      } else{
+        return hops;
+      }
+    }
+    return recurse();
+  })();
+  return this;
+}
+
+/**get all nextHops, excluding a given faceID
+ *@param {Number=} excludingFaceID the faceID to exclude
+ *@returns {Array} an array of nextHops
+ */
+FibEntry.prototype.getNextHops = function(excludingFaceID){
+  if(excludingFaceID !== undefined){
+    var q = {faceID: excludingFaceID }
+      , i = binarySearch(this.nextHops, q, "faceID");
+    if (i >= 0){
+      return this.nextHops.slice(0,i).concat(this.nextHops.slice(i + 1));
+    } else {
+      return this.nextHops;
+    }
+  } else {
+    return this.nextHops;
+  }
+};
+
+/**Add a nextHop (will replace if a nextHop with the same faceID exists)
+ *@param {Object} nextHop an object with faceID Number property
+ *@returns {FIBEntry}
+ */
+FibEntry.prototype.addNextHop = function(nextHop){
+  var i = binarySearch(this.nextHops, nextHop, "faceID");
+
+  if (i < 0){
+    this.nextHops.splice(~i, 0, nextHop);
+    return this;
+  } else{
+    this.nextHops.splice(i,1,nextHop);
+    return this;
+  }
+};
+
+/**Forwarding Interest Base
+ *@constructor
+ *@param {@link NameTree} nameTree the nameTree to build the FIB on.
+ */
+function FIB (nameTree){
+  this.nameTree = nameTree; return this;
+}
+
+/**Install ndn-lib into the FIB scope. only necessary if you require("ndn-Classes/src/DataStructures/FIB.js"), done for you if require("ndn-Classes").FIB
+ *@private
+ *@param {Object} NDN ndn-js library as exported by npm
+ */
+FIB.installNDN = function(NDN){
+  ndn = NDN;
+  return this;
+};
+
+/**find the exact match fibEntry for a given prefix, creating it if not found
+ *@param {Object} prefix the ndn.Name object representing the prefix
+ *@returns {FIBEntry}
+ */
+FIB.prototype.lookup = function(prefix){
+  prefix = (typeof prefix === "string") ? new ndn.Name(prefix) : prefix;
+
+  var ent = this.nameTree.lookup(prefix)
+    , entry = ent.fibEntry;
+
+  if (entry){
+    return entry;
+  }else{
+    return (ent.fibEntry = new FIB.FibEntry({prefix: prefix, nextHops: []}));
+  }
+};
+
+/**Return an Iterator that progressively returns longest prefix FIBEntries with 1 or more nextHops
+ *@param {Object} prefix the ndn.Name object representing the prefix
+ *@returns {Object} Iterator object with .next() and .hasNext = Boolean
+ */
+FIB.prototype.findAllFibEntries = function(prefix){
+
+  var inner =  this.nameTree.findAllMatches(prefix, function(match){
+    if (match.fibEntry && (match.fibEntry.nextHops.length > 0)){
+      return true;
+    }  else {
+      return false;
+    }
+  })
+  , iterouter = {
+    hasNext : inner.hasNext
+    , next : function(){
+      var next = inner.next();
+
+      if (inner.hasNext){
+        this.hasNext = true;
+      } else {
+        this.hasNext = false;
+      }
+      return next.fibEntry;
+    }
+  };
+  return iterouter;
+};
+
+/**Convenience method to get a faceFlag representing all nextHop faces for all prefixes of a given prefix
+ *@param {Object|String} prefix ndn.Name Object or NDN URI string to lookup
+ *@param {Number=} excludingFaceID faceID to exclude from results
+ *@returns {Number} - a faceFlag for use with {@link Interfaces.dispatch}
+ */
+FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
+  prefix = (typeof prefix === "string") ? new ndn.Name(prefix) : prefix;
+  var faceFlag = 0
+    , iterator = this.findAllFibEntries(prefix);
+
+  while (iterator.hasNext){
+    var entry = iterator.next()
+      , nextHops = entry.getNextHops(excludingFaceID);
+    for (var i =0; i < nextHops.length; i ++){
+      faceFlag = faceFlag | (1 << nextHops[i].faceID);
+    }
+  }
+  return faceFlag;
+};
+
+/**Add a FIBEntry
+ *@param {Object} -
+ *
+ */
+
+FIB.prototype.addEntry = function(prefix, nextHops){
+  var fibEntry = new FibEntry(prefix, nextHops);
+
+  var node = this.nameTree.lookup(fibEntry.prefix);
+  if (!node.fibEntry){
+    node.fibEntry = fibEntry;
+    return this;
+  } else {
+    for (var i = 0 ; i < fibEntry.nextHops.length; i++ ){
+      var j = binarySearch(node.fibEntry.nextHops, fibEntry.nextHops[i], "faceID");
+      if (j < 0){
+        node.fibEntry.nextHops.splice(~j, 0, fibEntry.nextHops[i]);
+      }
+    }
+    return this;
+  }
+};
+
+FIB.Entry = FibEntry;
+
+module.exports = FIB;
+
+},{"./../Utility/binarySearch.js":107}],102:[function(require,module,exports){
+var ndn
+  , Face
+  , ndn = require("ndn-lib")
+  , TlvDecoder = require("ndn-lib/js/encoding/tlv/tlv-decoder.js").TlvDecoder
+  , Tlv = require("ndn-lib/js/encoding/tlv/tlv.js").Tlv;
+
+/**Interface manager
+ *@constructor
+ *@param {Subject} Subject - a {@link Subject} instance
+ *@returns {Interfaces} - a new Interface manager
+ */
+function Interfaces(Subject){
+
+  this.subject = Subject;
+  this.transports = {};
+  Face = ndn.Face;
+
+  return this;
+}
+
+/**Class method to install ndn-lib. Only necessary if you require("ndn-classes/src/DataStructures/Interfaces.js"), done for you if require('ndn-classes').Interfaces
+ *@private
+ *@param {Object} - NDN the ndn-lib object
+ */
+Interfaces.installNDN = function(NDN){
+  ndn = NDN;
+  return this;
+};
+
+Interfaces.prototype.transports = {};
+
+Interfaces.prototype.Faces = [];
+
+/**Install a transport Class to the Interfaces manager. If the Class has a Listener function, the Listener will be invoked
+ *@param {Transport} Transport a Transport Class matching the Abstract Transport API
+ *@returns {Interfaces} for chaining
+ */
+Interfaces.prototype.installTransport = function(Transport){
+  this.transports[Transport.prototype.name] = Transport;
+
+  if (Transport.Listener){
+    Transport.Listener(this.newFace);
+  }
+
+  return this;
+};
+
+/**Create a new Face
+ *@param {String} protocol a string matching the .protocolKey property of a previously installed {@link Transport}
+ *@param {Object} connectionParameters the object expected by the transport class
+ *@returns {Number} id the numerical faceID of the created Face.
+ */
+Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, onclose) {
+  var Self = this;
+
+  if (!this.transports[protocol]){
+    return -1;
+  } else {
+    var Transport = new this.transports[protocol](connectionParameters)
+      , newFace =  new ndn.Face(Transport, Transport.connectionInfo);
+
+    this.Faces.push(newFace);
+    newFace.faceID = this.Faces.length - 1;
+
+    newFace.transport.connect(newFace.connectionInfo, newFace, function(){
+      newFace.onReceivedElement = function(element){
+        //console.log("onReceivedElement")
+        var decoder = new TlvDecoder(element);
+        if (decoder.peekType(Tlv.Interest, element.length)) {
+          Self.subject.handleInterest(element, this.faceID);
+        }
+        else if (decoder.peekType(Tlv.Data, element.length)) {
+          Self.subject.handleData(element, this.faceID);
+        }
+      };
+
+      newFace.send = function(element){
+        this.transport.send(element);
+      };
+
+      if (onopen) {onopen();}
+    }, function(){
+      //onclose event TODO
+      if (onclose) {onclose();}
+    });
+    return newFace.faceID;
+  }
+};
+
+/** Dispatch an element to one or more Faces
+ *@param {Buffer} element the raw packet to dispatch
+ *@param {Number} faceFlag an Integer representing the faces to send one
+ *@param {Function} callback called per face sent, used for testing
+ *@returns {Interfaces} for chaining
+ */
+Interfaces.prototype.dispatch = function(element, faceFlag, callback){
+  if (faceFlag){
+    for (var i = 0; i < faceFlag.toString(2).length; i++){
+      if (faceFlag & (1<<i) ){
+        this.Faces[i].send(element);
+        if (callback){
+          callback(i);
+        }
+      }
+    }
+  }
+  return this;
+};
+
+module.exports = Interfaces;
+
+},{"ndn-lib":35,"ndn-lib/js/encoding/tlv/tlv-decoder.js":51,"ndn-lib/js/encoding/tlv/tlv.js":54}],103:[function(require,module,exports){
+var NameTreeNode = require("./NameTreeNode.js")
+  , binaryIndexOf = require("./../Utility/binarySearch.js")
+  , ndn
+  , debug = require("./../Utility/debug.js").NameTree;
+
+/**Creates an empty NameTree.
+ *@constructor
+ */
+function NameTree (){
+  this.addNode('/');
+  return this;
+}
+
+NameTree.Node = NameTreeNode;
+
+
+/**Install ndn-lib. Only necessary if you're using require("ndn-Classes/src/DataStructures/NameTree.js"), done for you if require("ndn-Classes").NameTree
+ *@private
+ *@param {Object} NDN ndn-lib object
+ */
+NameTree.installNDN = function(NDN){
+  NameTree.Node.installNDN(NDN);
+  ndn = NDN;
+  return this;
+};
+
+/**
+ * Add a node to the NameTree, recursively populating all parents
+ * @param  {Name|String} prefix - the prefix for the new node.
+ * @returns {NameTreeNode} node - the NameTree node created.
+ */
+NameTree.prototype.addNode = function(prefix){
+  if (typeof prefix === "string"){
+    prefix = new ndn.Name(prefix);
+  }
+  var self = this[prefix.toUri()];
+  if(self){
+    return self;
+  } else {
+    self = this[prefix.toUri()] = new NameTree.Node(prefix);
+    while(prefix.size() > 0){
+      var parentPrefix = prefix.getPrefix(-1);
+
+      if(!this[parentPrefix.toUri()]){
+        this[parentPrefix.toUri()] = new NameTree.Node(parentPrefix);
+      }
+      this[prefix.toUri()].parent = this[parentPrefix.toUri()];
+      this[parentPrefix.toUri()].addChild(this[prefix.toUri()]);
+      prefix = parentPrefix;
+    }
+  }
+  return self;
+};
+
+/**
+ * Delete a node (and all it's children, grandchildren, etc.).
+ * @param   {Name|URI} prefix - the name of the node to delete.
+ * @returns {NameTree} the nameTree.
+ */
+NameTree.prototype.removeNode = function(prefix, cycleFinish){
+  if (typeof prefix === "string"){
+    prefix = new ndn.Name(prefix);
+  }
+  cycleFinish = cycleFinish || prefix;
+  var self = this[prefix.toUri()];
+
+  if (!self){
+    return this;
+  } else{
+    var child = self.children.shift();
+
+    if (child !== undefined){
+      return this.removeNode(child.prefix, cycleFinish);
+    } else {
+      delete this[self.prefix.toUri()];
+      if (cycleFinish.equals(prefix)){
+        self.parent.removeChild(self);
+        return this;
+      }
+      else{
+        return this.removeNode(prefix.getPrefix(-1), cycleFinish);
+      }
+    }
+  }
+};
+
+/**
+ * Perform a lookup on the NameTree and return the proper node, creating it if necessary.
+ * @param  {Name|URI} prefix the name of the node to lookup.
+ * @returns {NameTreeNode} the resulting node.
+ */
+NameTree.prototype.lookup = function (prefix) {
+  if (typeof prefix === "string"){
+    prefix = new ndn.Name(prefix);
+  }
+  var node = this[prefix.toUri()];
+
+  if (node){
+    return node;
+  } else{
+    return (this.addNode(prefix));
+  }
+};
+
+/**
+ * Find the Longest Prefix Match in the NameTree that matches the selector
+ * @param    {Name|URI} prefix the name to lookup
+ * @param    {function} selector predicate function
+ * @returns  {NameTreeNode} the longest prefix match.
+ */
+NameTree.prototype.findLongestPrefixMatch = function(prefix, selector) {
+  if (typeof prefix === "string"){
+    prefix = new ndn.Name(prefix);
+  }
+  selector = selector || function(){return true;};
+
+  var match = this[prefix.toUri()];
+  if ( match && selector(match)){
+    return match;
+  } else if (prefix.size() > 0){
+    return this.findLongestPrefixMatch(prefix.getPrefix(-1), selector);
+  } else {
+    return null;
+  }
+};
+
+/**
+ * Return an Iterator that provides a .next() method which returns the next longest Prefix matching the selector, returning null when depleted.
+ * @param {Name} prefix - the prefix to begin iteration
+ * @param {Function} selector - a selector function that returns a boolean when called with selector(node)
+ * @returns {Object} Iterator - the .depleted property of the iterator will be true when there are no more matches.
+ */
+NameTree.prototype.findAllMatches = function(prefix, selector){
+  if (typeof prefix === "string"){
+    prefix = new ndn.Name(prefix);
+  }
+  selector = selector || function(){return true;};
+
+  var self = this
+    , nextReturn = self[prefix.toUri()]
+    , thisReturn
+    , iterator = {
+      next: function(){
+        if (!this.hasNext){
+          return null;
+        }
+        prefix = nextReturn.prefix;
+        thisReturn = nextReturn;
+        nextReturn = (thisReturn && thisReturn.parent && selector(thisReturn.parent)) ?
+          thisReturn.parent
+        : (prefix.size() > 0) ?
+          self.findLongestPrefixMatch(prefix.getPrefix(-1), selector)
+        : null ;
+        if (!nextReturn){
+          this.hasNext = false;
+        } else {
+          this.hasNext = true;
+        }
+        return thisReturn;
+      }
+    };
+
+  if (nextReturn && selector(nextReturn)){
+    iterator.hasNext = true;
+    return iterator;
+  } else if (prefix.size() > 0){
+    return this.findAllMatches(prefix.getPrefix(-1), selector);
+  } else{
+    return null;
+  }
+};
+
+module.exports = NameTree;
+
+},{"./../Utility/binarySearch.js":107,"./../Utility/debug.js":108,"./NameTreeNode.js":104}],104:[function(require,module,exports){
+var binarySearch = require("./../Utility/binarySearch.js")
+  , ndn
+  , debug = require("./../Utility/debug.js");
+
+/**NameTreeNode constructor, NOTE: (typeof URI == "string") && (Name instanceof <a href="https://github.com/named-data/ndn-js/blob/master/js/name.js">ndn.Name</a> )
+ *@constructor
+ *@private
+ *@param {Name|URI} prefix of the node
+ *@returns {NameTreeNode}
+ */
+function NameTreeNode (prefix) {
+  this.prefix     = (typeof prefix === "string") ? new ndn.Name(prefix) : (prefix || null);
+  this.parent     = null;
+  this.children   = [];
+  this.fibEntry   = null;
+  this.pitEntries = [];
+  this.measurements  = null;
+  this.strategy = null;
+  return this;
+}
+
+/**Install ndn-lib. Only necessary if you're using require("ndn-Classes/src/DataStructures/NameTreeNode.js"), done for you if require("ndn-Classes").NameTree.Node
+ *@private
+ *@param {Object} NDN ndn-lib object
+ */
+NameTreeNode.installNDN = function(NDN){
+  ndn = NDN;
+  return this;
+};
+
+/**Add a child node to this one, inserting at the properly sorted index according to canonical namespace rules
+ *@private
+ *@param {NameTreeNode | String} child - the node to insert, or the suffix for a new node.
+ *@returns {NameTreeNode} the original node
+ */
+NameTreeNode.prototype.addChild = function addChild(child){
+  var self  = this
+    , index = binarySearch(this.children, child.prefix.get(-1), "prefix");
+
+  child = (child.prefix) ? child : new NameTreeNode(new ndn.Name(self.prefix).append(child));
+  if ( index < 0){
+    if (debug.NameTree) {
+      console.log("adding child " + child.prefix.toUri()+ " to "+ self.prefix.toUri() + " at index " +~index);
+    }
+    this.children.splice(~index, 0, child);
+  }
+  return this;
+};
+
+/**Remove a child from this node. This won't derefrence the child node, just remove it from the index
+ *@private
+ *@param {NameTreeNode | String} child - the node to remove, or the suffix of that node.
+ *@returns {NameTreeNode} the original node
+ */
+NameTreeNode.prototype.removeChild = function(child){
+  child = (typeof child === "string") ? {prefix:  new ndn.Name(child)} : child;
+
+  var index = binarySearch(this.children, child.prefix.get(-1), "prefix");
+  if (index < 0){
+    return this;
+  } else {
+    this.children.splice(index, 1);
+    return this;
+  }
+};
+
+
+module.exports = NameTreeNode;
+
+},{"./../Utility/binarySearch.js":107,"./../Utility/debug.js":108}],105:[function(require,module,exports){
+var binarySearch = require("./../Utility/binarySearch.js")
+  , ndn;
+
+
+function pubKeyMatch (ar1, ar2){
+  if (!ar1){
+    return true;
+  }
+
+  for(var i = 0; i < ar1.length; i++ ){
+    if (ar1[i] !== ar2[i]){
+      return false;
+    }
+  }
+  return true;
+}
+
+/**PIT Entry
+ *@constructor
+ *@param {Buffer} element The raw interest data packet
+ *@param {Object=} interest the ndn.Interest Object
+ *@param {number|function} faceIDorCallback Either the faceID of the face this interest was received on, or a callback function to receive any matching data
+ *@returns {PitEntry} - the entry
+ */
+function PitEntry (element, interest, faceIDorCallback){
+  if (typeof interest !== "object"){
+    faceIDorCallback = interest;
+    interest = new ndn.Interest();
+    interest.wireDecode(element);
+  }
+  if (!interest.nonce){
+    interest.wireDecode(element);
+  }
+  this.nonce = interest.nonce;
+  this.uri = interest.name.toUri();
+  this.interest = interest;
+  this.element = element;
+  if (typeof faceIDorCallback === "function" ){
+    this.callback = faceIDorCallback;
+  } else {
+    this.faceID = faceIDorCallback;
+  }
+  return this;
+}
+
+/**Test whether the PitEntry is fulfilled by a data object
+ *@param {Object} data the ndn.Data object
+ *@returns {Boolean}
+ */
+PitEntry.prototype.matches = function(data){
+  if (this.interest.matchesName(data.name)
+     && pubKeyMatch(this.interest.publisherPublicKeyDigest, data.signedInfo.publisher.publisherPublicKeyDigest)
+     ){
+    return true;
+  } else {
+    return false;
+  }
+};
+
+/**Consume the PitEntry (assuming it is attached to a the nameTree)
+ *@returns {PitEntry} in case you want to do anything with it afterward
+ */
+PitEntry.prototype.consume = function() {
+  if (this.nameTreeNode){
+    var i = binarySearch(this.nameTreeNode.pitEntries, this, "nonce");
+    if (i >= 0){
+      var removed = this.nameTreeNode.pitEntries.splice(~i, 1)[0];
+      if (removed.callback){
+        removed.callback(null, removed.interest);
+      }
+    }
+  }
+  return this;
+};
+
+
+
+
+/**Pending Interest Table
+ *@constructor
+ *@param {NameTree} nameTree the nameTree to build the table on top of
+ *@returns {PIT} a new PIT
+ */
+PIT = function(nameTree){
+  this.nameTree = nameTree;
+  return this;
+};
+
+/**Import ndn-lib into the PIT scope
+ *@param {Object} NDN the NDN-js library in object form
+ */
+PIT.installNDN = function(NDN){
+  ndn = NDN;
+};
+
+PIT.Entry = PitEntry;
+
+PIT.prototype.useNameTree = function(nameTree){
+  this.nameTree = nameTree;
+  return this;
+};
+
+/**Create and insert a new {@link PITEntry}
+ *@param {Buffer} element The raw interest data packet
+ *@param {Object=} interest the ndn.Interest object
+ *@param {Number|function} faceIDorCallback either a numerical faceID or a callbackFunction
+ *@returns {PIT} the PIT (for chaining)
+ */
+PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
+  var pitEntry = new PIT.Entry(element, interest, faceIDorCallback);
+
+  setTimeout(function(){
+    pitEntry.consume();
+  }, pitEntry.interest.getInterestLifetimeMilliseconds() || 10);
+  var node = this.nameTree.lookup(pitEntry.interest.name);
+
+  var i = binarySearch(node.pitEntries, pitEntry, "nonce");
+  if (i < 0){
+    pitEntry.nameTreeNode = node;
+    node.pitEntries.splice(~i, 0 ,pitEntry);
+  }
+  return this;
+};
+
+/**Lookup the PIT for Entries matching a given data object
+ *@param {Object} data The ndn.Data object
+ *@returns {Object} results: an object with two properties, pitEntries and faces, which are
+ * an array of matching {@link PITEntry}s and
+ * an integer faceFlag for use with {@link Interfaces.dispatch}, respectively.
+ */
+PIT.prototype.lookup = function(data, name, matches, faceFlag){
+  name = name || data.name;
+  matches = matches || [];
+  faceFlag = faceFlag || 0;
+
+  var pitEntries = this.nameTree.lookup(name).pitEntries;
+
+  for (var i = 0; i < pitEntries.length; i++){
+    if (pitEntries[i].matches(data)){
+      matches.push(pitEntries[i]);
+      faceFlag = faceFlag | (1 << pitEntries[i].faceID);
+    }
+  }
+
+  if (name.size() > 0){
+    return this.lookup(data, name.getPrefix(-1), matches, faceFlag);
+  } else{
+    return {pitEntries : matches, faces : faceFlag};
+  }
+};
+
+module.exports = PIT;
+
+},{"./../Utility/binarySearch.js":107}],106:[function(require,module,exports){
+(function (global){
+/**An Abstract transport class for unit testing the {@link Interfaces} data structure and a starting point for implimenting new Transports
+ *@constructor
+ */
+
+var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+
+function AbstractTransport(sendCb)
+{
+  Transport.call(this);
+
+  this.sendCb = sendCb;
+  return this;
+}
+
+AbstractTransport.prototype = new Transport();
+AbstractTransport.prototype.name = "_abstract";
+
+/**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
+ */
+AbstractTransport.defineListener = function(){
+
+  this.Listener = function (newFace) {
+    global.ListenerActive = true;
+    this.call = function(){
+
+      newFace(AbstractTransport.prototype.name, function(data){
+      });
+    };
+  };
+};
+
+AbstractTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback)
+{
+  onopenCallback();
+  return this;
+};
+
+AbstractTransport.prototype.send = function(/*Buffer*/ data)
+{
+  this.sendCb(data);
+};
+
+AbstractTransport.prototype.close = function()
+{
+};
+
+module.exports = AbstractTransport;
+
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"ndn-lib/js/transport/transport.js":85}],107:[function(require,module,exports){
+  /**
+ * Modified from https://gist.github.com/Wolfy87/5734530
+ *
+ *
+ * Performs a binary search on the host array. This method can either be
+ * injected into Array.prototype or called with a specified scope like this:
+ * binaryIndexOf.call(someArray, searchElement);
+ *
+ * @param {*} searchElement The item to search for within the array.
+ * @return {Number} The index of the element which defaults to -1 when not found.
+ */
+
+var debug = require("./debug.js").binaryIndexOf
+
+function compareArrays(query, comparator, i){
+  if (!(i >= 0))
+    i = -1
+
+  if (i >= 0 || (query.length == comparator.length)){
+    i++
+    if (comparator[i] > query[i]){
+      return 1;
+    } else if (comparator[i] < query[i]) {
+      return -1;
+    } else if (query[i] == comparator[i]){
+      if (i < query.length - 1)
+        return compareArrays(query, comparator, i);
+      else
+        return 0;
+    }
+  } else if (comparator.length > query.length){
+    return 1;
+  } else if (comparator.length < query.length){
+    return -1;
+  }
+
+}
+
+
+var binaryIndexOfPrefix = function(array, searchElement, prop) {
+	'use strict';
+  if (array.length == 0){
+    return -1;}
+
+	var minIndex = 0;
+	var maxIndex = array.length - 1;
+	var currentIndex;
+	var currentElement;
+	var resultIndex;
+  var res;
+
+  searchElement = (prop == "prefix") ?
+    searchElement.getValue().buffer
+  : (prop == "nonce") ?
+    searchElement.nonce
+  : (prop == "faceID") ?
+    searchElement.faceID
+  : searchElement
+
+	while (minIndex <= maxIndex) {
+		resultIndex = currentIndex = (minIndex + maxIndex) / 2 | 0;
+    currentElement = (prop == "prefix") ? array[currentIndex].prefix.get(-1).getValue().buffer : (prop == "nonce") ? array[currentIndex].nonce : (prop == "faceID") ? array[currentIndex].faceID : array[currentIndex]
+
+    res = (typeof searchElement !== "number") ? compareArrays(searchElement, currentElement) : (function(){
+      if (searchElement > currentElement)
+        return -1;
+      if (searchElement < currentElement)
+        return 1;
+      else
+        return 0
+    })()
+
+
+		if (res == 1) {
+			maxIndex = currentIndex - 1;
+		}
+		else if (res == -1) {
+      minIndex = currentIndex + 1;
+		}
+		else {
+			return currentIndex;
+		}
+	}
+  return ~(maxIndex + 1);
+}
+
+module.exports = binaryIndexOfPrefix
+
+},{"./debug.js":108}],108:[function(require,module,exports){
+module.exports = {
+  NameTree : false
+  ,binaryIndexOf : true
+}
+
+},{}],109:[function(require,module,exports){
+
+var ContentStore = require("../../../src/DataStructures/ContentStore.js")
+, NameTree = require("../../../src/DataStructures/NameTree.js")
+var assert = require("assert")
+var ndn = require('ndn-lib')
+
+function arraysEqual (ar1, ar2){
+  if (ar1.length !== ar2.length ){
+    console.log("length not match")
+    return false
+  }
+  var i = 0
+  while (i < ar1.length){
+    if (ar1[i] !== ar2[i]){
+      console.log("non matching element at index ", i, ar1[i], ar2[i])
+      return false;
+    }
+    i++
+  }
+  return true;
+}
+
+NameTree.installNDN(ndn);
+
+var cache = new ContentStore(new NameTree())
+
+var entry, d;
+describe("csEntry",function(){
+  it("should set to node", function(){
+    d = new ndn.Data(new ndn.Name("a/b/c/d"),new ndn.SignedInfo(),"testContent")
+    d.signedInfo.setFreshnessPeriod(100)
+    d.signedInfo.setFields()
+
+    d.sign()
+    var el = d.wireEncode().buffer
+    cache.insert(el, d)
+    assert(cache.nameTree.lookup(d.name).csEntry.name.equals(d.name))
+  })
+  it("should be consumed", function(done){
+    setTimeout(function(){
+      assert(!cache.nameTree.lookup(d.name).csEntry)
+      done();
+    },101)
+  })
+})
+var aa = new ndn.Data(new ndn.Name("a/aa/c/a"),new ndn.SignedInfo(),"testContent")
+,bb = new ndn.Data(new ndn.Name("a/aa/c/d"),new ndn.SignedInfo(),"testContent")
+,cc= new ndn.Data(new ndn.Name("a/b/a/d"),new ndn.SignedInfo(),"testContent")
+
+,dd = new ndn.Data(new ndn.Name("a/b/c/d"),new ndn.SignedInfo(),"testContent")
+,ee = new ndn.Data(new ndn.Name("a/b/ee/d"),new ndn.SignedInfo(),"testContent")
+,ff = new ndn.Data(new ndn.Name("a/b/c/d"),new ndn.SignedInfo(),"testContent")
+,gg = new ndn.Data(new ndn.Name("a/aa/ee/d/e/f/g"),new ndn.SignedInfo(),"testContent")
+
+aa.signedInfo.setFreshnessPeriod(4000)
+bb.signedInfo.setFreshnessPeriod(4000)
+cc.signedInfo.setFreshnessPeriod(4000)
+dd.signedInfo.setFreshnessPeriod(4000)
+ee.signedInfo.setFreshnessPeriod(4000)
+ff.signedInfo.setFreshnessPeriod(4000)
+gg.signedInfo.setFreshnessPeriod(4000)
+var abuf = aa.wireEncode().buffer
+var bbuf = bb.wireEncode().buffer
+
+var cbuf = cc.wireEncode().buffer
+
+var dbuf = dd.wireEncode().buffer
+
+var ebuf = ee.wireEncode().buffer
+
+var fbuf = ff.wireEncode().buffer
+
+var gbuf = gg.wireEncode().buffer
+cache.insert( abuf, aa)
+.insert( bbuf, bb)
+.insert( cbuf,cc)
+.insert( dbuf, dd)
+.insert( ebuf, ee)
+
+.insert( fbuf, ff)
+
+.insert( gbuf, gg)
+
+//console.log(cache.nameTree)
+//console.log(cache.nameTree['/a'].children.length, cache.nameTree['/a'].children.length, cache.nameTree['/a/aa'].children[0].children[0].prefix.toUri())
+describe("ContentStore", function(){
+  //console.log(cache.__proto__)
+  it("should insert", function(){
+
+    var el = dd.wireEncode()
+    cache.insert(el.buffer, dd)
+    assert(cache.nameTree.lookup(dd.name).csEntry.name.equals(dd.name))
+  })
+  it("should find leftmost", function(){
+    var inst = new ndn.Interest(new ndn.Name("a"))
+    var res = cache.check(inst)
+    var el = cc.wireEncode().buffer
+    assert.deepEqual(cbuf,res, "this didnt work")
+  })
+  it("should find rightMost", function(){
+    var i = new ndn.Interest(new ndn.Name("a"))
+    i.setChildSelector(1)
+    assert.deepEqual(cache.check(i), gg.wireEncode().buffer)
+  })
+  it("should find rightMost with Exclude", function(){
+    var i = new ndn.Interest(new ndn.Name("a"))
+    i.setChildSelector(1)
+    i.setExclude(new ndn.Exclude([new ndn.Name.Component("aa")]))
+    //console.log(cache.nameTree)
+    assert.deepEqual(cache.check(i), ee.wireEncode().buffer)
+  })
+  it("should find rightMost with minSuffix", function(){
+    var i = new ndn.Interest(new ndn.Name("a/aa"))
+    i.setChildSelector(1)
+    i.setMinSuffixComponents(4)
+    //console.log(cache.nameTree)
+    assert.deepEqual(cache.check(i), gg.wireEncode().buffer)
+  })
+  it("should return null for exclude", function(){
+    var i = new ndn.Interest(new ndn.Name('a'))
+    i.setExclude(new ndn.Exclude([new ndn.Name.Component('b'), new ndn.Name.Component('aa')]))
+    assert(!cache.check(i))
+  })
+  it("should return null for no match", function(){
+    var i = new ndn.Interest(new ndn.Name("c"))
+    assert(!cache.check(i))
+  })
+  it("should return null for minSuffix", function(){
+    var i = new ndn.Interest(new ndn.Name("/"))
+    i.setMinSuffixComponents(9)
+    assert(!cache.check(i))
+  })
+  it("should return null for maxSuffix", function(){
+    var i = new ndn.Interest(new ndn.Name("/"))
+    i.setMaxSuffixComponents(2)
+    assert(!cache.check(i))
+  })
+  it("should all fail after freshness timeout", function(done){
+    var i = new ndn.Interest(new ndn.Name(''))
+    this.timeout(5000)
+    assert(cache.check(i))
+    setTimeout(function(){assert(!cache.check(i)); done()}, 4001)
+  })
+})
+
+
+},{"../../../src/DataStructures/ContentStore.js":100,"../../../src/DataStructures/NameTree.js":103,"assert":2,"ndn-lib":35}],110:[function(require,module,exports){
+
+var FIB = require('../../../src/DataStructures/FIB.js')
+, NameTree = require("../../../src/DataStructures/NameTree.js")
+
+var assert = require("assert")
+var ndn = require('ndn-lib')
+
+
+FIB.installNDN(ndn);
+NameTree.installNDN(ndn);
+
+var fib = new FIB(new NameTree())
+
+describe('FIB.addEntry()', function(){
+  it('should add without error with all polymorphism', function(){
+    var param1= {
+      prefix : 'a/b/c',
+      nextHops:[
+        {
+          faceID: 1,
+          cost: 0
+        }
+      ]
+    }
+    var param2 = {
+      prefix: new ndn.Name("a/b/c")
+      , nextHops: [{
+        faceID: 0
+      }]
+    }
+
+    var entry = new FIB.Entry(param1);
+
+    fib.addEntry(param1.prefix, param1.nextHops)
+    fib.addEntry(param2.prefix, param2.nextHops)
+    fib.addEntry(param1.prefix, [0,2,3]);
+    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 4)
+  })
+  it("should ignore existing nextHop with identical faceID", function(){
+    var param3 = {
+      prefix: new ndn.Name("a/b/c")
+      , nextHops: [{
+        faceID: 0
+      }]
+    }
+
+    fib.addEntry(param3.prefix, param3.nextHops);
+
+    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 4)
+  })
+})
+var entry
+describe("FIB.Entry.addNextHop()", function(){
+  it("should add, but not duplicate, a nextHop", function(){
+    entry = new FIB.Entry({prefix: 'a'})
+    var hop0 = {faceID: 0}
+    var hop1 = {faceID: 1}
+    var hop2 = {faceID: 2}
+    var hop3 = {faceID: 3}
+    entry.addNextHop(hop3).addNextHop(hop1).addNextHop(hop2).addNextHop(hop0).addNextHop(hop1)
+    assert(entry.nextHops.length == 4)
+  })
+  it("should order them by faceID", function(){
+    assert(entry.nextHops[0].faceID == 0)
+    assert(entry.nextHops[1].faceID == 1)
+    assert(entry.nextHops[2].faceID == 2)
+    assert(entry.nextHops[3].faceID == 3)
+  })
+})
+
+describe("FIB.findAllNextHops()", function(){
+  it("should return a faceFlag with all next Hops, ignoring exclude ", function(){
+    var param = {
+      prefix: new ndn.Name("a/b")
+      , nextHops: [{
+        faceID: 7
+      }]
+    }
+    fib.addEntry(param.prefix, [7,1,2]);
+
+    var faceFlag = fib.findAllNextHops(new ndn.Name("a/b/c/d"), 0);
+    assert(faceFlag == 142)
+  })
+})
+
+
+},{"../../../src/DataStructures/FIB.js":101,"../../../src/DataStructures/NameTree.js":103,"assert":2,"ndn-lib":35}],111:[function(require,module,exports){
+(function (global,Buffer){
+var Interfaces = require("../../../src/DataStructures/Interfaces.js")
+var Transport = require("../../../src/Transports/AbstractTransport.js")
+
+var assert = require("assert")
+
+var Subject = {
+  handleInterest: function(element, faceID){
+    assert(element.length == 5)
+    assert(faceID == 0)
+  }
+  , handleData: this.handleInterest
+}
+
+var ndn = require("ndn-lib")
+Interfaces.installNDN(ndn);
+Transport.defineListener();
+
+var int = new Interfaces(Subject)
+
+describe("Interfaces", function(){
+  it("should Install transport", function(){
+    int.installTransport(Transport)
+  })
+  it("should create Listener", function(){
+    assert(global.ListenerActive)
+  })
+  describe(".newFace", function(){
+    it("should create newFace", function(){
+      assert(int.newFace("_abstract", function(data){
+        assert(data.length == 5)
+      }) == 0)
+      assert(int.newFace("_abstract", function(data){
+        assert(data.length == 5)
+      }) == 1)
+      assert(int.newFace("_abstract", function(data){
+        assert(data.length == 5)
+      }) == 2)
+
+      assert(int.newFace("_abstract", function(data){
+        assert(data.length == 5)
+      }) == 3)
+
+      assert(int.newFace("_abstract", function(data){
+        assert(data.length == 5)
+      }) == 4)
+
+      assert(int.newFace("_abstract", function(data){
+        assert(data.length == 5)
+      }) == 5)
+    })
+  })
+  describe("dispatch", function(){
+    it("should send", function(){
+      var element = new Buffer(5)
+      var sentFaces = []
+      int.dispatch(element, 37, function(id){
+        sentFaces.push(id);
+      })
+      assert(sentFaces.length == 3)
+      assert(sentFaces[0] == 0)
+      assert(sentFaces[1] == 2)
+      assert(sentFaces[2] == 5)
+    })
+  })
+  describe("onReceivedElement", function(){
+    it("should overWrite ndn.Face def", function(){
+      var inst = new ndn.Interest(new ndn.Name("test"))
+      var element = inst.wireEncode()
+      int.Faces[0].onReceivedElement(element);
+
+    })
+  })
+
+
+})
+
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+},{"../../../src/DataStructures/Interfaces.js":102,"../../../src/Transports/AbstractTransport.js":106,"assert":2,"buffer":5,"ndn-lib":35}],112:[function(require,module,exports){
+
+var NameTree = require('../../../src/DataStructures/NameTree.js')
+  , ndn = require('ndn-lib')
+  , assert = require('assert')
+
+NameTree.installNDN(ndn);
+var nameTree = new NameTree();
+
+describe('NameTree.addNode()', function(){
+  it('should add without error from string && prefix', function(){
+    nameTree.addNode("some/test/c");  // [2]
+    nameTree.addNode("some/test/a");  // [0]
+
+    nameTree.addNode(new ndn.Name("some/test/aaa"));// [4]
+    nameTree.addNode("some/test/aab");// [5]
+    nameTree.addNode("some/test/aaabb");// [7]
+
+    nameTree.addNode(new ndn.Name("some/test/aba"));// [6]
+    nameTree.addNode("some/test/b");  // [1]
+    nameTree.addNode("some/test/ab"); // [3]
+  })
+
+  it('should populate ancestors', function(){
+
+    assert(nameTree["/some/test/a"]
+           , "nameTree['/some/test/a'] does not exist");
+    assert(nameTree["/some/test"]
+           , "nameTree['/some/test'] does not exist");
+    assert(nameTree["/some"]
+           , "nameTree['/some'] does not exist");
+    assert(nameTree["/"]
+           , "nameTree['/'] does not exist");
+  })
+  it('should populate .parent property of nodes', function(){
+    assert(nameTree['/some/test/a'].parent
+           ,"nameTree['/some/test/a'].parent does not exist")
+    assert(nameTree['/some/test/a'].parent.parent
+           ,"nameTree['/some/test/a'].parent.parent does not exist")
+    assert(nameTree['/some/test/a'].parent.parent.parent
+           ,"nameTree['/some/test/a'].parent.parent.parents does not exist")
+    assert(nameTree['/some/test/a'].parent.prefix.equals(nameTree['/some/test'].prefix)
+           , "nameTree['/some/test/a'].parent.prefix != nameTree['/some/test'].prefix")
+  })
+  it('should populate .children array of nodes', function(){
+    assert(nameTree['/some/test'].children.length == 8
+           ,"nameTree['/some/test'].children.length is not 8");
+
+    assert(nameTree['/some/test'].children[0].prefix.equals(nameTree['/some/test/a'].prefix)
+           , "nameTree['/some/test/a'] is out of order in .parent.children array");
+
+    assert(nameTree['/some/test'].children[4].prefix.equals(nameTree['/some/test/aaa'].prefix)
+           , "nameTree['/some/test/aaa'] is out of order in .parent.children array");
+
+    assert(nameTree['/some/test'].children[3].prefix.equals(nameTree['/some/test/ab'].prefix)
+           , "nameTree['/some/test/ab'] is out of order in .parent.children array");
+
+    assert(nameTree['/some/test'].children[6].prefix.equals(nameTree['/some/test/aba'].prefix)
+           , "nameTree['/some/test/aba'] is out of order in .parent.children array");
+
+    assert(nameTree['/some/test'].children[1].prefix.equals(nameTree['/some/test/b'].prefix)
+           , "nameTree['/some/test/b'] is out of order in .parent.children array");
+
+    assert(nameTree['/some/test'].children[2].prefix.equals(nameTree['/some/test/c'].prefix)
+           , "nameTree['/some/test/c'] is out of order in .parent.children array");
+
+    assert(nameTree['/some/test'].children[5].prefix.equals(nameTree['/some/test/aab'].prefix)
+           , "nameTree['/some/test/aab'] is out of order in .parent.children array");
+  })
+
+})
+
+describe("NameTree.removeNode()", function(){
+  it("should remove node and all children",function(){
+    nameTree.removeNode("/some");
+    assert(!nameTree["/some"], "nameTree['/some'] still exists" );
+    assert(!nameTree["/some/test"], "nameTree['/some/test'] still exists");
+    assert(!nameTree["/some/test/a"], "nameTree['/some/test/a'] still exists");
+    assert(!nameTree["/some/test/aaa"], "nameTree['/some/test/aaa'] still exists");
+    assert(!nameTree["/some/test/aaabb", "nameTree['/some/test/aaabb'] still exists"]);
+    assert(!nameTree["/some/test/ab"], "nameTree['/some/test/ab'] still exists");
+    assert(!nameTree["/some/test/aba"],  "nameTree['/some/test/aba'] still exists");
+    assert(!nameTree["/some/test/aab"], "nameTree['/some/test/aab'] still exists");
+    assert(!nameTree["/some/test/c"], "nameTree['/some/test/c'] still exists");
+    assert(!nameTree["/some/test/b"],  "nameTree['/some/test/a'] still exists");
+  })
+})
+
+describe("NameTree.lookup()", function(){
+  it("should return existing node", function(){
+    nameTree.addNode("/lookup/test")
+    assert((nameTree.lookup("/lookup/test") instanceof NameTree.Node))
+  })
+  it("should create non existing node", function(){
+    assert((nameTree.lookup("/lookup/creation/test") instanceof NameTree.Node));
+    assert((nameTree["/lookup"].children.length == 2));
+  })
+})
+
+describe("NameTree.findLongestPrefixMatch()", function(){
+  it("should return longest prefix match node", function(){
+    var query = new ndn.Name("lookup/creation/test/with/suffix")
+    assert((nameTree.findLongestPrefixMatch(query).prefix.components.length == 3)
+            && (nameTree.findLongestPrefixMatch(query).prefix.match(query)))
+  })
+  it("should return based on truthiness of selector", function(){
+    nameTree.lookup("/lookup").property = true;
+    var query = new ndn.Name("lookup/creation/test/with/suffix")
+      , predicate = function(potential){
+        if (potential.property == true) return true; else return false;
+      }
+    assert((nameTree.findLongestPrefixMatch(query, predicate).prefix.components.length == 1)
+           && (nameTree.findLongestPrefixMatch(query, predicate).prefix.match(query)))
+  })
+})
+
+var iterator;
+var toMatch = new ndn.Name("0/1/2/3/4/5/6")
+
+describe("NameTree.findAllMatches", function(){
+  it("should return an iterator", function(){
+
+    nameTree.lookup(toMatch)
+    iterator = nameTree.findAllMatches("0/1/2/3/4/5/6/7/8/9/0/", function(potential){
+      if (!potential.prefix.equals(new ndn.Name("0/1/2/3/4")))
+        return true
+      else
+        return false
+    })
+    assert(iterator.hasNext)
+  })
+  it("iterator should find all Matches and skip '0/1/2/3/4/' based on provided selector", function(){
+    while(iterator.hasNext){
+      var here = iterator.next()
+      assert(here.prefix.match(toMatch))
+      assert(!here.prefix.equals(new ndn.Name("0/1/2/3/4")))
+    }
+  })
+  it("iterator.hasNext == false && iterator.next() returns null", function(){
+    assert(!iterator.hasNext)
+    assert(!iterator.next())
+  })
+})
+
+},{"../../../src/DataStructures/NameTree.js":103,"assert":2,"ndn-lib":35}],113:[function(require,module,exports){
+(function (Buffer){
+
+var PIT = require('../../../src/DataStructures/PIT.js')
+, NameTree = require("../../../src/DataStructures/NameTree.js")
+var assert = require("assert")
+var ndn = require('ndn-lib')
+
+PIT.installNDN(ndn);
+var pubKeyDigest = ndn.globalKeyManager.getKey().publicKeyDigest
+NameTree.installNDN(ndn);
+var pit = new PIT(new NameTree());
+var inst = new ndn.Interest(new ndn.Name("a/b"))
+, enc = inst.wireEncode()
+inst = new ndn.Interest()
+inst.wireDecode(enc);
+
+var entry = new PIT.Entry(enc, inst, 1)
+var d11 = new ndn.Data(new ndn.Name("a/b"), new ndn.SignedInfo(), "test")
+d11.signedInfo.setFields()
+d11.sign()
+var d22 = new ndn.Data(new ndn.Name("a/b/d"), new ndn.SignedInfo(), "test")
+d22.signedInfo.setFields()
+d22.sign()
+describe("PIT.Entry", function(){
+
+
+  it("should match exact", function(){
+
+
+    assert(entry.matches(d11))
+  })
+  it("should match (with pubKey)", function(){
+      entry.interest.publisherPublicKeyDigest = pubKeyDigest
+
+      assert(entry.matches(d11))
+  })
+  it("should not match (data name too short)", function(){
+
+    var data = new ndn.Data(new ndn.Name("a"), new ndn.SignedInfo(), "test")
+    assert(!entry.matches(data))
+  })
+  it("should not match (data name too long)", function(){
+    entry.interest.setMaxSuffixComponents(3)
+    var data = new ndn.Data(new ndn.Name("a/b/c/d/e"), new ndn.SignedInfo(), "test")
+    assert(!entry.matches(data))
+  })
+  it("should not match (data name too short)", function(){
+    entry.interest.setMinSuffixComponents(2)
+    var data = new ndn.Data(new ndn.Name("a/b"), new ndn.SignedInfo(), "test")
+    assert(!entry.matches(data))
+  })
+  it("should not match (Exclude)", function(){
+    entry.interest.setExclude(new ndn.Exclude([new ndn.Name.Component("c")]))
+    var data = new ndn.Data(new ndn.Name("a/b/c"), new ndn.SignedInfo(), "test")
+    assert(!entry.matches(data))
+  })
+  it("should not match (wrong pubKeyDigest)", function(){
+
+    var newKey = new Buffer(32)
+    entry.interest.publisherPublicKeyDigest = newKey;
+    assert(!entry.matches(d22))
+  })
+})
+
+describe("PIT", function(){
+  describe("PIT.insertPitEntry", function(){
+    it("should insert", function(){
+      entry.interest.setInterestLifetimeMilliseconds(100)
+      pit.insertPitEntry(enc,1)
+      assert(pit.nameTree["/a/b"].pitEntries.length > 0)
+    })
+    it("should auto-consume", function(done){
+      setTimeout(function(){
+        assert(pit.nameTree["/a/b"].pitEntries.length == 0)
+        done()
+      },110)
+    })
+  })
+  describe("PIT.lookup", function(){
+    it("should get all matches and return a faceFlag", function(done){
+      var inst = new ndn.Interest(new ndn.Name("a/b/c"))
+      inst.setInterestLifetimeMilliseconds(50);
+      var enc = inst.wireEncode()
+      inst = new ndn.Interest()
+      inst.wireDecode(enc)
+      var entry = new PIT.Entry(enc, inst, 1)
+      var data = new ndn.Data(new ndn.Name("a/b/c/d"), new ndn.SignedInfo(), "test")
+      data.signedInfo.setFields()
+      entry.interest.publisherPublicKeyDigest = pubKeyDigest;
+      pit.insertPitEntry(enc, 1)
+      var returns = pit.lookup(data);
+      assert(returns.faces == 2)
+      assert(returns.pitEntries.length == 1)
+      done()
+    })
+  })
+})
+
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":46,"ndn-lib/js/transport/transport.js":85}],101:[function(require,module,exports){
-var ndn = require('ndn-lib')
-  , Transport = require('../../../../src/Transports/MessageChannel.js')
-  , Transport1, Transport2, face1, face2, inst
-  , Abstract = require("../../../node/Transports/Abstract.js");
-
-function msSpec (Transport){
-  describe('MessageChannelTransport', function(){
-    it('face2.expressInterest should send bytearray for face1', function(done){
-      var ms = new MessageChannel()
-      , Transport1 = new Transport(ms.port1)
-      , Transport2 = new Transport(ms.port2)
-      , face1 = new ndn.Face(Transport1, Transport1.connectionInfo)
-      , face2 = new ndn.Face(Transport2, Transport2.connectionInfo)
-      , inst = new ndn.Interest(new ndn.Name("test"))
-      console.log(Transport1)
-      face1.onReceivedElement = function(bytearray){
-
-       done()
-      }
-      face1.transport.connect(face1.transport.connectionInfo, face1, function(){
-        face2.expressInterest(inst);
-      })
-
-
-    })
-  })
-}
-
-Abstract(Transport, msSpec);
-
-},{"../../../../src/Transports/MessageChannel.js":100,"../../../node/Transports/Abstract.js":102,"ndn-lib":35}],102:[function(require,module,exports){
-var assert = require('assert')
-
-module.exports = function(Transport, moveOn){
-var listener ;
-  describe("Transport", function(){
-    it("should have .prototype.name String", function(){
-      assert(typeof Transport.prototype.name === "string", "Transport.prototype.name must be a string")
-    })
-    describe(".defineListener", function(){
-      it("may or may not be present", function(){
-        assert((Transport.defineListener && !Transport.Listener) || (!Transport.defineListener && !Transport.Listener))
-        if (Transport.defineListener){
-          listener = true;
-        }
-      })
-      it("should define Listener with defaults", function(){
-        if (listener){
-          Transport.defineListener()
-          assert(Transport.Listener)
-        }
-      })
-    })
-  })
-  moveOn(Transport)
-}
-
-
-},{"assert":2}]},{},[101]);
+},{"../../../src/DataStructures/NameTree.js":103,"../../../src/DataStructures/PIT.js":105,"assert":2,"buffer":5,"ndn-lib":35}]},{},[109,110,111,112,113]);

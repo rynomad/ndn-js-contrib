@@ -20,7 +20,7 @@
     "./src/Transports/nodeWrapper.js": "./src/Transports/browserWrapper.js"
   },
   "author": "Ryan Bennett, Colorado State University",
-  "license": "LGPL",
+  "license": "LGPLv2",
   "bugs": {
     "url": "https://github.com/rynomad/ndn-DataStructures/issues"
   },
