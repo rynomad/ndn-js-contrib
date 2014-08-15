@@ -1,3 +1,4 @@
 build/
 test/browser/DataStructures/suite.js
 doc/
+node_modules/
