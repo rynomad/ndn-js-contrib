@@ -1,6 +1,13 @@
 module.exports = function(grunt){
 
   grunt.initConfig({
+    uglify: {
+      build: {
+        files: {
+          'build/ndn-contrib.min.js' : ["build/ndn-contrib.js"]
+        }
+      }
+    },
     browserify: {
       testDataStructures: {
         src: "test/node/DataStructures/*.js"
@@ -9,6 +16,15 @@ module.exports = function(grunt){
       testTransports: {
         src: "test/browser/Transports/src/*.js"
         , dest: "test/browser/Transports/suite.js"
+      },
+      build: {
+        src: "index.js",
+        dest: "build/ndn-contrib.js",
+        options: {
+          bundleOptions: {
+            standalone: 'NDN'
+          }
+        }
       }
     },
     jsdoc : {
@@ -79,8 +95,9 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks("grunt-contrib-uglify");
 
-  grunt.registerTask("brow", ["browserify"])
+  grunt.registerTask("build", ["browserify:build", "uglify:build"])
   grunt.registerTask("test", "mochaTest");
   grunt.registerTask("hint", "jshint")
   grunt.registerTask("suite", ["hint", "brow", "test"])
