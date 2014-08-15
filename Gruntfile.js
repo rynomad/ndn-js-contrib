@@ -98,7 +98,5 @@ module.exports = function(grunt){
   grunt.loadNpmTasks("grunt-contrib-uglify");
 
   grunt.registerTask("build", ["browserify:build", "uglify:build"])
-  grunt.registerTask("test", "mochaTest");
-  grunt.registerTask("hint", "jshint")
-  grunt.registerTask("suite", ["hint", "brow", "test"])
+  grunt.registerTask("suite", ["jshint", "browserify:testDataStructures", "browserify:testTransports", "mochaTest"])
 };

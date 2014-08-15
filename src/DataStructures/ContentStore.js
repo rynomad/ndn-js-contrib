@@ -64,7 +64,7 @@ var ContentStore = function ContentStore(nameTree, entryClass){
   this.nameTree = nameTree;
   this.EntryClass = entryClass || csEntry;
   return this;
-}
+};
 
 /**check the ContentStore for data matching a given interest (including min/max suffix, exclude, publisherKey)
  *@param {ndn.Interest} interest the interest to match against

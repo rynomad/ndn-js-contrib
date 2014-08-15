@@ -17,7 +17,7 @@ var NameTreeNode = function NameTreeNode (prefix) {
   this.measurements  = null;
   this.strategy = null;
   return this;
-}
+};
 
 /**Install ndn-lib. Only necessary if you're using require("ndn-Classes/src/DataStructures/NameTreeNode.js"), done for you if require("ndn-Classes").NameTree.Node
  *@private

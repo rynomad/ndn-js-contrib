@@ -16,7 +16,7 @@ var Interfaces = function Interfaces(Subject){
   Face = ndn.Face;
 
   return this;
-}
+};
 
 /**Class method to install ndn-lib. Only necessary if you require("ndn-classes/src/DataStructures/Interfaces.js"), done for you if require('ndn-classes').Interfaces
  *@private

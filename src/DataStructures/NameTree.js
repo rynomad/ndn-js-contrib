@@ -9,7 +9,7 @@ var NameTreeNode = require("./NameTreeNode.js")
 var NameTree = function NameTree (){
   this.addNode('/');
   return this;
-}
+};
 
 NameTree.Node = NameTreeNode;
 
