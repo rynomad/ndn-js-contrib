@@ -6,7 +6,7 @@ var NameTreeNode = require("./NameTreeNode.js")
 /**Creates an empty NameTree.
  *@constructor
  */
-function NameTree (){
+var NameTree = function NameTree (){
   this.addNode('/');
   return this;
 }

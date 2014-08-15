@@ -9,7 +9,7 @@ var ndn
  *@param {Subject} Subject - a {@link Subject} instance
  *@returns {Interfaces} - a new Interface manager
  */
-function Interfaces(Subject){
+var Interfaces = function Interfaces(Subject){
 
   this.subject = Subject;
   this.transports = {};

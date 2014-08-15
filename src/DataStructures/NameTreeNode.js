@@ -8,7 +8,7 @@ var binarySearch = require("./../Utility/binarySearch.js")
  *@param {Name|URI} prefix of the node
  *@returns {NameTreeNode}
  */
-function NameTreeNode (prefix) {
+var NameTreeNode = function NameTreeNode (prefix) {
   this.prefix     = (typeof prefix === "string") ? new ndn.Name(prefix) : (prefix || null);
   this.parent     = null;
   this.children   = [];

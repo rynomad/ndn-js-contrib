@@ -52,7 +52,7 @@ WebSocketServerTransport.defineListener = function(port){
   };
 };
 
-WebSocketServerTransport.prototype.connect = function(face, onopenCallback, third)
+WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onopenCallback, third)
 {
   this.elementReader = new ElementReader(face);
 

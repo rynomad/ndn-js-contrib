@@ -81,7 +81,7 @@ PitEntry.prototype.consume = function() {
  *@param {NameTree} nameTree the nameTree to build the table on top of
  *@returns {PIT} a new PIT
  */
-PIT = function(nameTree){
+var PIT = function PIT(nameTree){
   this.nameTree = nameTree;
   return this;
 };

@@ -60,7 +60,7 @@ csEntry.prototype.stale = function(node){
  *@param {constructor} entryClass a constructor class conforming to the same API as {@link csEntry}.
  *@returns {ContentStore} - a new store
  */
-function ContentStore(nameTree, entryClass){
+var ContentStore = function ContentStore(nameTree, entryClass){
   this.nameTree = nameTree;
   this.EntryClass = entryClass || csEntry;
   return this;
