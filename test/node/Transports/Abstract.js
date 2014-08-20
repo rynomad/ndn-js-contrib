@@ -2,6 +2,8 @@ var assert = require('assert')
 
 module.exports = function(Transport, moveOn){
 var listener ;
+
+  moveOn(Transport)
   describe("Transport", function(){
     it("should have .prototype.name String", function(){
       assert(typeof Transport.prototype.name === "string", "Transport.prototype.name must be a string")
@@ -21,6 +23,5 @@ var listener ;
       })
     })
   })
-  moveOn(Transport)
 }
 

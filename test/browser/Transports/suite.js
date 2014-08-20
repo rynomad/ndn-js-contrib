@@ -12209,13 +12209,14 @@ var Face = function Face(transportOrSettings, connectionInfo)
     throw new Error("The necessary JavaScript support is not available on this platform.");
 
   var settings;
+  console.log("INSTACEOF!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   if (typeof transportOrSettings == 'object' && transportOrSettings instanceof Transport) {
     this.getConnectionInfo = null;
     this.transport = transportOrSettings;
     this.connectionInfo = (connectionInfo || null);
     // Use defaults for other settings.
     settings = {};
-
+    console.log("instance passed")
     if (this.connectionInfo == null) {
       if (this.transport && this.transport.__proto__ &&
           this.transport.__proto__.name == "UnixTransport") {
@@ -14608,7 +14609,7 @@ exports.Log = Log;
  * LOG is the level for logging debugging statements.  0 means no log messages.
  * @type Number
  */
-Log.LOG = 0;
+Log.LOG = 0
 
 },{}],65:[function(require,module,exports){
 (function (Buffer){
@@ -18795,8 +18796,8 @@ UnixTransport.ConnectionInfo = function UnixTransportConnectionInfo(filePath)
 {
   // Call the base constructor.
   Transport.ConnectionInfo .call(this);
-
-  this.filePath = filePath;
+  console.log("editlive", filePath)
+  this.filePath = filePath
 };
 
 UnixTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
@@ -18844,11 +18845,13 @@ UnixTransport.prototype.connect = function
   this.elementReader = new ElementReader(elementListener);
 
   var net = require('net');
+  console.log(connectionInfo.filePath)
   this.socket = new net.createConnection(connectionInfo.filePath);
 
   var thisTransport = this;
 
   this.socket.on('data', function(data) {
+    console.log("socket got data")
     if (typeof data == 'object') {
       // Make a copy of data (maybe a Buffer or a String)
       var buf = new Buffer(data);
@@ -18870,8 +18873,8 @@ UnixTransport.prototype.connect = function
     onopenCallback();
   });
 
-  this.socket.on('error', function() {
-    if (LOG > 3) console.log('socket.onerror: Unix socket error');
+  this.socket.on('error', function(er) {
+    if (LOG > 3) console.log('socket.onerror: Unix socket error', er);
   });
 
   this.socket.on('close', function() {
@@ -18904,6 +18907,8 @@ UnixTransport.prototype.close = function()
   this.socket.end();
   if (LOG > 3) console.log('Unix socket connection closed.');
 };
+
+module.exports = {UnixTransport: UnixTransport}
 
 }).call(this,require("buffer").Buffer)
 },{"../encoding/element-reader.js":46,"../log.js":64,"./transport.js":85,"buffer":5,"net":1}],87:[function(require,module,exports){
@@ -26517,10 +26522,164 @@ module.exports = MessageChannelTransport;
 
 }).call(this,require("buffer").Buffer)
 },{"buffer":5,"ndn-lib/js/encoding/element-reader.js":46,"ndn-lib/js/transport/transport.js":85}],101:[function(require,module,exports){
+(function (Buffer){
+var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
+var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+
+
+/**Transport Class for HTML5 DataChannels
+ *@constructor
+ *@param {DataChannel_Port} port one end of an HTML DataChannel
+ *@returns {DataChannelTransport}
+ */
+function DataChannelTransport (channel) {
+  Transport.call(this);
+  this.connectionInfo = new DataChannelTransport.ConnectionInfo(channel);
+  return this;
+}
+
+
+DataChannelTransport.prototype = new Transport();
+DataChannelTransport.prototype.name = "DataChannelTransport";
+
+DataChannelTransport.ConnectionInfo = function DataChannelTransportConnectionInfo(channel){
+  Transport.ConnectionInfo.call(this);
+
+  channel.binaryType = "arraybuffer";
+  this.channel = channel;
+};
+
+DataChannelTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
+DataChannelTransport.ConnectionInfo.prototype.name = "DataChannelTransport.ConnectionInfo";
+
+DataChannelTransport.ConnectionInfo.prototype.getChannel = function()
+{
+  return this.channel;
+};
+
+DataChannelTransport.ConnectionInfo.prototype.equals = function(other)
+{
+  if (other === null || other.port === undefined){
+    return false;
+  }
+  return (this.port === other.port);
+};
+
+/**Set the event listener for incoming elements
+ *@param {Object} face the ndn.Face object that this transport is attached to
+ *@param {function} onopenCallback a callback to be performed once the transport is open
+ */
+DataChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
+{
+  console.log("DataChannel connect");
+  this.elementReader = new ElementReader(elementListener);
+  var self = this;
+  connectionInfo.getChannel().onmessage = function(ev) {
+    if (ev.data.buffer instanceof ArrayBuffer) {
+      try {
+        self.elementReader.onReceivedData(new Buffer(ev.data));
+      } catch (ex) {
+        console.log("NDN.ws.onmessage exception: ", ex);
+        return;
+      }
+    }
+  };
+
+  connectionInfo.getChannel().onmessage = function(ev) {
+    console.log('dc.onmessage called', ev)
+    if (ev.data instanceof ArrayBuffer) {
+
+      var result = ev.data;
+      console.log('RecvHandle called.', result);
+      var bytearray = new Buffer(new Uint8Array(result));
+      console.log(bytearray)
+
+      console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
+
+      try {
+        //console.log(self, face)
+        // Find the end of the binary XML element and call face.onReceivedElement.
+        self.elementReader.onReceivedData(bytearray);
+      } catch (ex) {
+        //console.log("NDN.ws.onmessage exception: " + ex);
+        return;
+      }
+    }
+  };
+
+  connectionInfo.getChannel().onopen = function(ev) {
+    if (LOG > 3) console.log(ev);
+    if (LOG > 3) console.log('dc.onopen: WebRTC connection opened.');
+    if (LOG > 3) console.log('dc.onopen: ReadyState: ' + this.readyState);
+        // Face.registerPrefix will fetch the ndndid when needed.
+
+    onopenCallback();
+  }
+
+  connectionInfo.getChannel().onerror = function(ev) {
+    //console.log('dc.onerror: ReadyState: ' + this.readyState);
+    //console.log(ev);
+    //console.log('dc.onerror: WebRTC error: ' + ev.data);
+  }
+
+  connectionInfo.getChannel().onclose = function(ev) {
+    //console.log('dc.onclose: WebRTC connection closed.');
+    self.dc = null;
+
+    // Close Face when WebSocket is closed
+    self.face.readyStatus = ndn.Face.CLOSED;
+    self.face.onclose();
+    //console.log("NDN.onclose event fired.");
+  }
+  onopenCallback();
+
+};
+
+/**Send the Uint8Array data.
+ *@param {Buffer} element the data packet
+ */
+DataChannelTransport.prototype.send = function(element)
+{
+  console.log("attempting to send", element, this.connectionInfo.getChannel())
+  this.connectionInfo.getChannel().send(element.toArrayBuffer());
+};
+
+
+/**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
+ *@param {Number=} - port the port for the listener to listen on, default 7575
+ *//**))
+DataChannelTransport.defineListener = function(subject, namespace){
+
+  subject.contentStore.insert()
+
+  this.Listener = function (newFace) {
+    this.server = net.createServer(function(socket){
+      socket.on('end', function() {
+        console.log('server disconnected');
+      });
+      newFace("tcpServer", socket);
+    });
+    this.server.listen(port, function(){
+      //console.log('server awaiting connections');
+    });
+  };
+};
+*/
+module.exports = DataChannelTransport;
+
+}).call(this,require("buffer").Buffer)
+},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":46,"ndn-lib/js/transport/transport.js":85}],102:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
-  , Transport1, Transport2, face1, face2, inst
+  , DTransport = require("../../../../src/Transports/browser/WebRTCDataChannel.js")
+  , Transport1, Transport2, face1, face2, inst, localConnection, remotePeerConnection, sendChannel, receiveChannel
   , Abstract = require("../../../node/Transports/Abstract.js");
+
+function trace(msg){console.log(msg)}
+
+var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+var IceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+var SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
 
 function msSpec (Transport){
   describe('MessageChannelTransport', function(){
@@ -26545,13 +26704,159 @@ function msSpec (Transport){
   })
 }
 
-Abstract(Transport, msSpec);
+function onCreateSessionDescriptionError(error) {
+  trace('Failed to create session description: ' + error.toString());
+}
 
-},{"../../../../src/Transports/browser/MessageChannel.js":100,"../../../node/Transports/Abstract.js":102,"ndn-lib":35}],102:[function(require,module,exports){
+
+function onAddIceCandidateSuccess() {
+  trace('AddIceCandidate success.');
+}
+
+function onAddIceCandidateError(error) {
+  trace('Failed to add Ice Candidate: ' + error.toString());
+}
+
+function receiveChannelCallback(event) {
+  trace('Receive Channel Callback');
+  receiveChannel = event.channel;
+  receiveChannel.onmessage = onReceiveMessageCallback;
+  receiveChannel.onopen = onReceiveChannelStateChange;
+  receiveChannel.onclose = onReceiveChannelStateChange;
+}
+
+function onReceiveMessageCallback(event) {
+  trace('Received Message');
+  dataChannelReceive.value = event.data;
+}
+
+function onSendChannelStateChange() {
+  var readyState = sendChannel.readyState;
+  trace('Send channel state is: ' + readyState);
+  if (readyState == 'open') {
+    dataChannelSend.disabled = false;
+    dataChannelSend.focus();
+    sendButton.disabled = false;
+    closeButton.disabled = false;
+  } else {
+    dataChannelSend.disabled = true;
+    sendButton.disabled = true;
+    closeButton.disabled = true;
+  }
+}
+
+function onReceiveChannelStateChange() {
+  var readyState = receiveChannel.readyState;
+  trace('Receive channel state is: ' + readyState);
+}
+
+function gotDescription1(desc) {
+  localConnection.setLocalDescription(desc);
+  trace('Offer from localConnection \n' + desc.sdp);
+  remotePeerConnection.setRemoteDescription(desc);
+  remotePeerConnection.createAnswer(gotDescription2, onCreateSessionDescriptionError);
+}
+
+function gotDescription2(desc) {
+  remotePeerConnection.setLocalDescription(desc);
+  trace('Answer from remotePeerConnection \n' + desc.sdp);
+  localConnection.setRemoteDescription(desc);
+}
+
+function iceCallback1(event) {
+  trace('local ice callback');
+  if (event.candidate) {
+    remotePeerConnection.addIceCandidate(event.candidate,
+                        onAddIceCandidateSuccess, onAddIceCandidateError);
+    trace('Local ICE candidate: \n' + event.candidate.candidate);
+  }
+}
+
+function iceCallback2(event) {
+  trace('remote ice callback');
+  if (event.candidate) {
+    localConnection.addIceCandidate(event.candidate,
+                        onAddIceCandidateSuccess, onAddIceCandidateError);
+    trace('Remote ICE candidate: \n ' + event.candidate.candidate);
+  }
+}
+
+function createConnection() {
+  var servers = null;
+  localConnection = new RTCPeerConnection(servers);
+  trace('Created local peer connection object localConnection');
+
+  try {
+    // Data Channel api supported from Chrome M25.
+    // You might need to start chrome with  --enable-data-channels flag.
+    sendChannel = localConnection.createDataChannel('sendDataChannel');
+    trace('Created send data channel');
+  } catch (e) {
+    alert('Failed to create data channel. ' +
+          'You need Chrome M25 or later with --enable-data-channels flag');
+    trace('Create Data channel failed with exception: ' + e.message);
+  }
+  localConnection.onicecandidate = iceCallback1;
+
+  remotePeerConnection = new RTCPeerConnection(servers);
+  trace('Created remote peer connection object remotePeerConnection');
+
+  remotePeerConnection.onicecandidate = iceCallback2;
+  remotePeerConnection.ondatachannel = receiveChannelCallback;
+
+  localConnection.createOffer(gotDescription1, onCreateSessionDescriptionError);
+}
+
+createConnection();
+
+function dcSpec (Transport){
+  describe('DataChannelTransport', function(){
+    it('face2.expressInterest should send bytearray for face1', function(done){
+      this.timeout(10000)
+      function waiter (){
+        console.log("channels defined????", sendChannel, receiveChannel)
+        if (sendChannel && receiveChannel){
+
+          var Transport1 = new Transport(sendChannel)
+          , Transport2 = new Transport(receiveChannel)
+          , face1 = new ndn.Face(Transport1, Transport1.connectionInfo)
+          , face2 = new ndn.Face(Transport2, Transport2.connectionInfo)
+          , inst = new ndn.Interest(new ndn.Name("test"))
+          console.log(Transport1)
+          try{
+          face1.onReceivedElement = function(bytearray){
+
+            done()
+          }
+          face1.transport.connect(face1.transport.connectionInfo, face1, function(){
+            console.log("face1 connect");
+            face2.expressInterest(inst);
+          })
+          } catch(e){
+            console.log("error:", e)
+          }
+
+        } else {
+          setTimeout(waiter, 1000)
+        }
+      }
+      waiter();
+
+    })
+
+  })
+};
+
+Abstract(Transport, msSpec);
+Abstract(DTransport, dcSpec);
+
+},{"../../../../src/Transports/browser/MessageChannel.js":100,"../../../../src/Transports/browser/WebRTCDataChannel.js":101,"../../../node/Transports/Abstract.js":103,"ndn-lib":35}],103:[function(require,module,exports){
 var assert = require('assert')
 
 module.exports = function(Transport, moveOn){
 var listener ;
+
+  moveOn(Transport)
   describe("Transport", function(){
     it("should have .prototype.name String", function(){
       assert(typeof Transport.prototype.name === "string", "Transport.prototype.name must be a string")
@@ -26571,8 +26876,7 @@ var listener ;
       })
     })
   })
-  moveOn(Transport)
 }
 
 
-},{"assert":2}]},{},[101]);
+},{"assert":2}]},{},[102]);

@@ -9,7 +9,7 @@
     <script>
         onload = function(){
             mocha.checkLeaks();
-            mocha.globals(['mochaResults', 'v' ]);
+            mocha.globals(['mochaResults', 'server', 'v' ]);
             var runner = mocha.run();
 
             var failedTests = [];

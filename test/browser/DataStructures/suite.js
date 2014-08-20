@@ -12209,13 +12209,14 @@ var Face = function Face(transportOrSettings, connectionInfo)
     throw new Error("The necessary JavaScript support is not available on this platform.");
 
   var settings;
+  console.log("INSTACEOF!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   if (typeof transportOrSettings == 'object' && transportOrSettings instanceof Transport) {
     this.getConnectionInfo = null;
     this.transport = transportOrSettings;
     this.connectionInfo = (connectionInfo || null);
     // Use defaults for other settings.
     settings = {};
-
+    console.log("instance passed")
     if (this.connectionInfo == null) {
       if (this.transport && this.transport.__proto__ &&
           this.transport.__proto__.name == "UnixTransport") {
@@ -14608,7 +14609,7 @@ exports.Log = Log;
  * LOG is the level for logging debugging statements.  0 means no log messages.
  * @type Number
  */
-Log.LOG = 0;
+Log.LOG = 0
 
 },{}],65:[function(require,module,exports){
 (function (Buffer){
@@ -18795,8 +18796,8 @@ UnixTransport.ConnectionInfo = function UnixTransportConnectionInfo(filePath)
 {
   // Call the base constructor.
   Transport.ConnectionInfo .call(this);
-
-  this.filePath = filePath;
+  console.log("editlive", filePath)
+  this.filePath = filePath
 };
 
 UnixTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
@@ -18844,11 +18845,13 @@ UnixTransport.prototype.connect = function
   this.elementReader = new ElementReader(elementListener);
 
   var net = require('net');
+  console.log(connectionInfo.filePath)
   this.socket = new net.createConnection(connectionInfo.filePath);
 
   var thisTransport = this;
 
   this.socket.on('data', function(data) {
+    console.log("socket got data")
     if (typeof data == 'object') {
       // Make a copy of data (maybe a Buffer or a String)
       var buf = new Buffer(data);
@@ -18870,8 +18873,8 @@ UnixTransport.prototype.connect = function
     onopenCallback();
   });
 
-  this.socket.on('error', function() {
-    if (LOG > 3) console.log('socket.onerror: Unix socket error');
+  this.socket.on('error', function(er) {
+    if (LOG > 3) console.log('socket.onerror: Unix socket error', er);
   });
 
   this.socket.on('close', function() {
@@ -18904,6 +18907,8 @@ UnixTransport.prototype.close = function()
   this.socket.end();
   if (LOG > 3) console.log('Unix socket connection closed.');
 };
+
+module.exports = {UnixTransport: UnixTransport}
 
 }).call(this,require("buffer").Buffer)
 },{"../encoding/element-reader.js":46,"../log.js":64,"./transport.js":85,"buffer":5,"net":1}],87:[function(require,module,exports){
