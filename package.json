@@ -1,6 +1,6 @@
 {
   "name": "ndn-contrib",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "grunt-contrib-uglify": "^0.5.1"
   },
   "dependencies": {
-    "ndn-lib": "git+https://github.com/rynomad/ndn-js.git#feross",
+    "ndn-lib": "git+https://github.com/rynomad/ndn-js.git#ferossmerge",
     "ws": "^0.4.31"
   }
 }
