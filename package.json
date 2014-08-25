@@ -17,7 +17,7 @@
     "Networking"
   ],
   "browser": {
-    "./src/Transports/node.js": "./src/Transports/browser.js"
+    "./src/Transports/node/export.js": "./src/Transports/browser/export.js"
   },
   "author": "Ryan Bennett, Colorado State University",
   "license": "LGPLvTBD",
