@@ -1,6 +1,6 @@
 {
   "name": "ndn-contrib",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
