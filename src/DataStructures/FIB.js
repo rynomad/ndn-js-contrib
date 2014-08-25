@@ -29,6 +29,8 @@ function FibEntry(prefix, nextHops){
   return this;
 }
 
+FibEntry.type = "FibEntry";
+
 /**get all nextHops, excluding a given faceID
  *@param {Number=} excludingFaceID the faceID to exclude
  *@returns {Array} an array of nextHops
@@ -44,6 +46,21 @@ FibEntry.prototype.getNextHops = function(excludingFaceID){
     }
   } else {
     return this.nextHops;
+  }
+};
+
+/**Remove a nextHop (will do nothing if a nextHop with the given faceID does not exist)
+ *@param {Object} nextHop an object with faceID Number property
+ *@returns {FIBEntry} for chaining
+ */
+FibEntry.prototype.removeNextHop = function(nextHop){
+  var i = binarySearch(this.nextHops, nextHop, "faceID");
+
+  if (i < 0){
+    return this;
+  } else{
+    this.nextHops.splice(i,1);
+    return this;
   }
 };
 

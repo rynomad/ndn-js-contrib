@@ -97,7 +97,9 @@ Interfaces.prototype.dispatch = function(element, faceFlag, callback){
   if (faceFlag){
     for (var i = 0; i < faceFlag.toString(2).length; i++){
       if (faceFlag & (1<<i) ){
-        this.Faces[i].send(element);
+        if (this.Faces[i]){
+          this.Faces[i].send(element);
+        }
         if (callback){
           callback(i);
         }
