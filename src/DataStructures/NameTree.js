@@ -166,7 +166,8 @@ NameTree.prototype.findAllMatches = function(prefix, selector){
   } else if (prefix.size() > 0){
     return this.findAllMatches(prefix.getPrefix(-1), selector);
   } else{
-    return null;
+    iterator.hasNext = false;
+    return iterator;
   }
 };
 

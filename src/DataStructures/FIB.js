@@ -138,16 +138,22 @@ FIB.prototype.findAllFibEntries = function(prefix){
   , iterouter = {
     hasNext : inner.hasNext
     , next : function(){
-      var next = inner.next();
-
       if (inner.hasNext){
-        this.hasNext = true;
+        var next = inner.next();
+
+        if (inner.hasNext){
+          this.hasNext = true;
+        } else {
+          this.hasNext = false;
+        }
+        return next.fibEntry;
       } else {
-        this.hasNext = false;
+        return null;
       }
-      return next.fibEntry;
     }
   };
+
+  console.log("got here");
   return iterouter;
 };
 
