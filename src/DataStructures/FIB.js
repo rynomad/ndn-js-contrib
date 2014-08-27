@@ -14,7 +14,7 @@ function FibEntry(prefix, nextHops){
     var hops = [];
     function recurse(){
       if (nextHops && nextHops.length > 0){
-        var hop
+        var hop;
         if (typeof nextHops[0].faceID !== "undefined" ){
           hop = nextHops.shift();
         } else {
@@ -172,13 +172,25 @@ FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
 };
 
 /**Add a FIBEntry
- *@param {Object} -
- *
+ *@param {String} prefix the nameSpace for the fibEntry
+ *@param {Number| Number Array | nextHop | nextHop Array} nextHops the nextHop info for the fibEntry
+ *@returns {this} FIB for chaining
  */
 
-FIB.prototype.addEntry = function(prefix, nextHop){
-  var fibEntry = new FibEntry(prefix, [nextHop]);
+FIB.prototype.addEntry = function(prefix, nextHops){
+  var fibEntry;
 
+  if (
+    (typeof nextHops === "number")
+    || (
+      (typeof nextHops === "object")
+      && (nextHops.faceID)
+    )
+  ) {
+    fibEntry = new FibEntry(prefix, [nextHops]);
+  } else {
+    fibEntry = new FibEntry(prefix, nextHops);
+  }
   var node = this.nameTree.lookup(fibEntry.prefix);
   if (!node.fibEntry){
     node.fibEntry = fibEntry;

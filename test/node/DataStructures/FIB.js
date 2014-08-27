@@ -34,7 +34,8 @@ describe('FIB.addEntry()', function(){
     fib.addEntry(param1.prefix, param1.nextHops)
     fib.addEntry(param2.prefix, param2.nextHops)
     fib.addEntry(param1.prefix, [0,2,3]);
-    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 4)
+    fib.addEntry(param1.prefix, 7);
+    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length === 5)
   })
   it("should ignore existing nextHop with identical faceID", function(){
     var param3 = {
@@ -46,7 +47,7 @@ describe('FIB.addEntry()', function(){
 
     fib.addEntry(param3.prefix, param3.nextHops);
 
-    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length == 4)
+    assert(fib.nameTree["/a/b/c"].fibEntry.nextHops.length === 5)
   })
 })
 var entry
@@ -82,4 +83,3 @@ describe("FIB.findAllNextHops()", function(){
     assert(faceFlag == 142)
   })
 })
-

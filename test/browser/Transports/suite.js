@@ -3827,8 +3827,9 @@ module.exports=require(4)
 //
 // Depends on:
 //
-var BigInteger = require('jsbn')
+var intShim = require('jsbn')
 
+var BigInteger = intShim.BigInteger ? intShim.BigInteger : intShim;
 function parseBigInt(str,r) {
   return new BigInteger(str,r);
 }
@@ -4106,7 +4107,7 @@ ASN1HEX.getDecendantHexTLVByNthList = _asnhex_getDecendantHexTLVByNthList;
 exports.ASN1HEX = ASN1HEX;
 module.exports = exports;
 
-},{"jsbn":95}],27:[function(require,module,exports){
+},{"jsbn":97}],27:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -4123,10 +4124,13 @@ module.exports = exports;
 // 
 // See "jrsasig-THIRDPARTYLICENSE.txt" for details.
 
-var b64map="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-var b64pad="=";
-var BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz"
-function int2char(n) { return BI_RM.charAt(n); }
+var b64map="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+  , b64pad="="
+  , BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+function int2char(n) {
+  return BI_RM.charAt(n); 
+}
 
 function hex2b64(h) {
   var i;
@@ -4196,7 +4200,6 @@ function b64toBA(s) {
   }
   return a;
 }
-
 
 exports.b64tohex = b64tohex;
 exports.b64toBA  = b64toBA;
@@ -4960,8 +4963,12 @@ module.exports = exports;
  * @since 2.2
  * @license <a href="http://kjur.github.io/jsrsasign/license/">MIT License</a>
  */
+
 var CryptoJS = require('./sha256.js').CryptoJS
-var BigInteger = require('jsbn')
+  , intShim = require('jsbn');
+
+var BigInteger = intShim.BigInteger ? intShim.BigInteger : intShim;
+
 function parseBigInt(str,r) {
   return new BigInteger(str,r);
 }
@@ -5633,7 +5640,7 @@ KJUR.crypto.Signature = function(params) {
 exports.KJUR = KJUR;
 module.exports = exports;
 
-},{"./sha256.js":34,"jsbn":95}],30:[function(require,module,exports){
+},{"./sha256.js":34,"jsbn":97}],30:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -5652,8 +5659,8 @@ module.exports = exports;
 
 // Depends on jsbn.js and rng.js
 var intShim = require("jsbn");
-var BigInteger = intShim.BigInteger ? intShim.BigInteger : intShim ;
 
+var BigInteger = intShim.BigInteger ? intShim.BigInteger : intShim ;
 // Version 1.1: support utf-8 encoding in pkcs1pad2
 
 // convert a (hex) string to a bignum object
@@ -5837,13 +5844,13 @@ RSAKey.prototype.doPublic = RSADoPublic;
 RSAKey.prototype.setPublic = RSASetPublic;
 RSAKey.prototype.encrypt = RSAEncrypt;
 RSAKey.prototype.encryptOAEP = RSAEncryptOAEP;
+//RSAKey.prototype.encrypt_b64 = RSAEncryptB64;
+
 
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-//RSAKey.prototype.encrypt_b64 = RSAEncryptB64;
-
-},{"jsbn":95}],31:[function(require,module,exports){
+},{"jsbn":97}],31:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -5861,15 +5868,17 @@ module.exports = exports;
 // See "jrsasig-THIRDPARTYLICENSE.txt" for details.
 
 // Depends on rsa.js and jsbn2.js
-var intShim = require("jsbn")
+
+var intShim = require("jsbn");
 var BigInteger = intShim.BigInteger ? intShim.BigInteger : intShim ;
 var RSAKey = require('./rsa.js').RSAKey;
+
 
 function parseBigInt(str,r) {
   return new BigInteger(str,r);
 }
-
 // Version 1.1: support utf-8 decoding in pkcs1unpad2
+
 // Undo PKCS#1 (type 2, random) padding and, if valid, return the plaintext
 function pkcs1unpad2(d,n) {
   var b = d.toByteArray();
@@ -6113,7 +6122,7 @@ RSAKey.prototype.decryptOAEP = RSADecryptOAEP;
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"./rsa.js":30,"jsbn":95}],32:[function(require,module,exports){
+},{"./rsa.js":30,"jsbn":97}],32:[function(require,module,exports){
 /*! rsapem-1.1.js (c) 2012 Kenji Urushima | kjur.github.com/jsrsasign/license
  */
 //
@@ -6263,8 +6272,8 @@ module.exports = exports;
 //   rsa2.js
 //
 var intShim = require('jsbn');
-var BigInteger = (intShim.BigInteger) ? intShim.BigInteger : intShim ; 
-var RSAKey = require('./rsapem-1.1.js').RSAKey;
+var BigInteger = intShim.BigInteger ? intShim.BigInteger : intShim;
+var RSAKey = require('./rsapem-1.1.js').RSAKey
 
 function parseBigInt(str,r) {
   return new BigInteger(str,r);
@@ -6638,10 +6647,10 @@ RSAKey.SALT_LEN_RECOVER = -2;
  * @description Tom Wu's RSA Key class and extension
  */
 
-exports.RSAKey = RSAKey
+exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"./rsapem-1.1.js":32,"jsbn":95}],34:[function(require,module,exports){
+},{"./rsapem-1.1.js":32,"jsbn":97}],34:[function(require,module,exports){
 /*
 CryptoJS v3.1.2
 code.google.com/p/crypto-js
@@ -6838,9 +6847,8 @@ var C = require('./core.js').CryptoJS;
     C.HmacSHA256 = Hasher._createHmacHelper(SHA256);
 }(Math));
 
-exports.CryptoJS = C
-module.exports = exports
-
+exports.CryptoJS = C;
+module.exports = exports;
 
 },{"./core.js":28}],35:[function(require,module,exports){
 exports.Face = require('./js/face.js').Face;
@@ -6890,7 +6898,7 @@ exports.NoVerifyPolicyManager = require('./js/security/policy/no-verify-policy-m
 exports.SelfVerifyPolicyManager = require('./js/security/policy/self-verify-policy-manager.js').SelfVerifyPolicyManager;
 exports.KeyChain = require('./js/security/key-chain.js').KeyChain;
 
-},{"./js/closure.js":38,"./js/data.js":39,"./js/encoding/binary-xml-wire-format.js":43,"./js/encoding/data-utils.js":44,"./js/encoding/encoding-utils.js":47,"./js/encoding/protobuf-tlv.js":48,"./js/encoding/tlv-wire-format.js":50,"./js/encoding/wire-format.js":55,"./js/exclude.js":56,"./js/face.js":58,"./js/forwarding-flags.js":60,"./js/interest.js":61,"./js/key-locator.js":62,"./js/key.js":63,"./js/meta-info.js":65,"./js/name.js":66,"./js/publisher-public-key-digest.js":68,"./js/security/identity/identity-manager.js":71,"./js/security/identity/identity-storage.js":72,"./js/security/identity/memory-identity-storage.js":73,"./js/security/identity/memory-private-key-storage.js":74,"./js/security/key-chain.js":76,"./js/security/key-manager.js":77,"./js/security/policy/no-verify-policy-manager.js":78,"./js/security/policy/policy-manager.js":79,"./js/security/policy/self-verify-policy-manager.js":80,"./js/security/policy/validation-request.js":81,"./js/security/security-exception.js":82,"./js/security/security-types.js":83,"./js/sha256-with-rsa-signature.js":84,"./js/transport/tcp-transport.js":36,"./js/transport/unix-transport.js":86,"./js/util/blob.js":88,"./js/util/memory-content-cache.js":90,"./js/util/name-enumeration.js":91,"./js/util/ndn-time.js":93}],36:[function(require,module,exports){
+},{"./js/closure.js":38,"./js/data.js":40,"./js/encoding/binary-xml-wire-format.js":44,"./js/encoding/data-utils.js":45,"./js/encoding/encoding-utils.js":48,"./js/encoding/protobuf-tlv.js":49,"./js/encoding/tlv-wire-format.js":51,"./js/encoding/wire-format.js":56,"./js/exclude.js":57,"./js/face.js":59,"./js/forwarding-flags.js":61,"./js/interest.js":62,"./js/key-locator.js":63,"./js/key.js":64,"./js/meta-info.js":66,"./js/name.js":67,"./js/publisher-public-key-digest.js":69,"./js/security/identity/identity-manager.js":72,"./js/security/identity/identity-storage.js":73,"./js/security/identity/memory-identity-storage.js":74,"./js/security/identity/memory-private-key-storage.js":75,"./js/security/key-chain.js":77,"./js/security/key-manager.js":78,"./js/security/policy/no-verify-policy-manager.js":79,"./js/security/policy/policy-manager.js":80,"./js/security/policy/self-verify-policy-manager.js":81,"./js/security/policy/validation-request.js":82,"./js/security/security-exception.js":83,"./js/security/security-types.js":84,"./js/sha256-with-rsa-signature.js":85,"./js/transport/tcp-transport.js":36,"./js/transport/unix-transport.js":87,"./js/util/blob.js":89,"./js/util/memory-content-cache.js":92,"./js/util/name-enumeration.js":93,"./js/util/ndn-time.js":95}],36:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -6913,7 +6921,7 @@ exports.KeyChain = require('./js/security/key-chain.js').KeyChain;
 // The Face constructor uses TcpTransport by default which is not available in the browser, so override to WebSocketTransport.
 exports.TcpTransport = require("./transport/web-socket-transport").WebSocketTransport;
 
-},{"./transport/web-socket-transport":87}],37:[function(require,module,exports){
+},{"./transport/web-socket-transport":88}],37:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -7075,7 +7083,7 @@ module.exports = exports
 // After this we include contrib/feross/buffer.js to define the Buffer class.
 
 }).call(this,require("buffer").Buffer)
-},{"../contrib/securityLib/asn1hex-1.1.js":26,"../contrib/securityLib/base64.js":27,"../contrib/securityLib/crypto-1.0.js":29,"../contrib/securityLib/rsasign-1.2.js":33,"./key.js":63,"buffer":5}],38:[function(require,module,exports){
+},{"../contrib/securityLib/asn1hex-1.1.js":26,"../contrib/securityLib/base64.js":27,"../contrib/securityLib/crypto-1.0.js":29,"../contrib/securityLib/rsasign-1.2.js":33,"./key.js":64,"buffer":5}],38:[function(require,module,exports){
 /**
  * Provide the callback closure for the async communication methods in the Face class.
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -7172,6 +7180,210 @@ UpcallInfo.prototype.toString = function()
 exports.UpcallInfo = UpcallInfo;
 
 },{}],39:[function(require,module,exports){
+/**
+ * Copyright (C) 2014 Regents of the University of California.
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU General Public License is in the file COPYING.
+ */
+
+var ForwardingFlags = require('./forwarding-flags.js').ForwardingFlags;
+var Name = require('./name.js').Name;
+var WireFormat = require('./encoding/wire-format.js').WireFormat;
+
+/**
+ * A ControlParameters which holds a Name and other fields for a
+ * ControlParameters which is used, for example, in the command interest to
+ * register a prefix with a forwarder.
+ * @constructor
+ */
+var ControlParameters = function ControlParameters()
+{
+  this.name = new Name();
+  this.faceId = null;
+  // TODO: Add "Uri" string.
+  this.localControlFeature = null;
+  this.origin = null;
+  this.cost = null;
+  this.forwardingFlags = new ForwardingFlags();
+  // TODO: Add "Strategy" name.
+  this.expirationPeriod = null;
+};
+
+exports.ControlParameters = ControlParameters;
+
+/**
+ * Encode this ControlParameters for a particular wire format.
+ * @param {WireFormat} wireFormat (optional) A WireFormat object  used to encode
+ * this object. If omitted, use WireFormat.getDefaultWireFormat().
+ * @returns {Blob} The encoded buffer in a Blob object.
+ */
+ControlParameters.prototype.wireEncode = function(wireFormat)
+{
+  wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
+  return wireFormat.encodeControlParameters(this);
+};
+
+/**
+ * Decode the input using a particular wire format and update this
+ * ControlParameters.
+ * @param {Blob|Buffer} input The buffer with the bytes to decode.
+ * @param {WireFormat} wireFormat (optional) A WireFormat object used to decode
+ * this object. If omitted, use WireFormat.getDefaultWireFormat().
+ */
+ControlParameters.prototype.wireDecode = function(input, wireFormat)
+{
+  wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
+  // If input is a blob, get its buf().
+  var decodeBuffer = typeof input === 'object' && input instanceof Blob ?
+                     input.buf() : input;
+  wireFormat.decodeControlParameters(this, decodeBuffer);
+};
+
+/**
+ * Get the name.
+ * @returns {Name} The name.
+ */
+ControlParameters.prototype.getName = function()
+{
+  return this.name;
+};
+
+/**
+ * Get the face ID.
+ * @returns {number} The face ID, or null if not specified.
+ */
+ControlParameters.prototype.getFaceId = function()
+{
+  return this.faceId;
+};
+
+/**
+ * Get the local control feature value.
+ * @returns {number} The local control feature value, or null if not specified.
+ */
+ControlParameters.prototype.getLocalControlFeature = function()
+{
+  return this.localControlFeature;
+};
+
+/**
+ * Get the origin value.
+ * @returns {number} The origin value, or null if not specified.
+ */
+ControlParameters.prototype.getOrigin = function()
+{
+  return this.origin;
+};
+
+/**
+ * Get the cost value.
+ * @returns {number} The cost value, or null if not specified.
+ */
+ControlParameters.prototype.getCost = function()
+{
+  return this.cost;
+};
+
+/**
+ * Get the ForwardingFlags object.
+ * @returns {ForwardingFlags} The ForwardingFlags object.
+ */
+ControlParameters.prototype.getForwardingFlags = function()
+{
+  return this.forwardingFlags;
+};
+
+/**
+ * Get the expiration period.
+ * @returns {number} The expiration period in milliseconds, or null if not specified.
+ */
+ControlParameters.prototype.getExpirationPeriod = function()
+{
+  return this.expirationPeriod;
+};
+
+/**
+ * Set the name to a copy of the given Name.
+ * @param {Name} name The new Name to copy.
+ */
+ControlParameters.prototype.setName = function(name)
+{
+  this.name = typeof name === 'object' && name instanceof Name ?
+              new Name(name) : new Name();
+};
+
+/**
+ * Set the Face ID.
+ * @param {number} faceId The new face ID, or null for not specified.
+ */
+ControlParameters.prototype.setFaceId = function(faceId)
+{
+  this.faceId = faceId;
+};
+
+/**
+ * Set the local control feature value.
+ * @param {number} localControlFeature The new local control feature value, or
+ * null for not specified.
+ */
+ControlParameters.prototype.setLocalControlFeature = function(localControlFeature)
+{
+  this.localControlFeature = localControlFeature;
+};
+
+/**
+ * Set the origin value.
+ * @param {number} origin The new origin value, or null for not specified.
+ */
+ControlParameters.prototype.setOrigin = function(origin)
+{
+  this.origin = origin;
+};
+
+/**
+ * Set the cost value.
+ * @param {number} cost The new cost value, or null for not specified.
+ */
+ControlParameters.prototype.setCost = function(cost)
+{
+  this.cost = cost;
+};
+
+/**
+ * Set the cost value.
+ * @param {number} forwardingFlags The new cost value, or null for not specified.
+ */
+ControlParameters.prototype.setForwardingFlags = function(forwardingFlags)
+{
+  this.forwardingFlags =
+    typeof forwardingFlags === 'object' && forwardingFlags instanceof ForwardingFlags ?
+      new ForwardingFlags(forwardingFlags) : new ForwardingFlags();
+};
+
+/**
+ * Set the expiration period.
+ * @param {number} expirationPeriod The expiration period in milliseconds, or
+ * null for not specified.
+ */
+ControlParameters.prototype.setExpirationPeriod = function(expirationPeriod)
+{
+  this.expirationPeriod = expirationPeriod;
+};
+
+},{"./encoding/wire-format.js":56,"./forwarding-flags.js":61,"./name.js":67}],40:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN Data object.
@@ -7194,7 +7406,7 @@ exports.UpcallInfo = UpcallInfo;
  * A copy of the GNU General Public License is in the file COPYING.
  */
 
-var cryptoJS = require("./crypto.js");
+var Crypto = require("./crypto.js");
 var Blob = require('./util/blob.js').Blob;
 var SignedBlob = require('./util/signed-blob.js').SignedBlob;
 var BinaryXMLEncoder = require('./encoding/binary-xml-encoder.js').BinaryXMLEncoder;
@@ -7379,7 +7591,7 @@ Data.prototype.sign = function(wireFormat)
     this.getSignature().setSignature(new Buffer(128));
     this.wireEncode(wireFormat);
   }
-  var rsa = cryptoJS.createSign('RSA-SHA256');
+  var rsa = Crypto.createSign('RSA-SHA256');
   rsa.update(this.wireEncoding.signedBuf());
 
   var sig = new Buffer
@@ -7396,7 +7608,7 @@ Data.prototype.verify = function(/*Key*/ key)
     throw new Error('Cannot verify Data without a public key.');
 
   if (Data.verifyUsesString == null) {
-    var hashResult = cryptoJS.createHash('sha256').digest();
+    var hashResult = Crypto.createHash('sha256').digest();
     // If the has result is a string, we assume that this is a version of
     //   crypto where verify also uses a string signature.
     Data.verifyUsesString = (typeof hashResult === 'string');
@@ -7405,7 +7617,7 @@ Data.prototype.verify = function(/*Key*/ key)
   if (this.wireEncoding == null || this.wireEncoding.isNull())
     // Need to encode to set wireEncoding.
     this.wireEncode();
-  var verifier = cryptoJS.createVerify('RSA-SHA256');
+  var verifier = Crypto.createVerify('RSA-SHA256');
   verifier.update(this.wireEncoding.signedBuf());
   var signatureBytes = Data.verifyUsesString ?
     DataUtils.toString(this.signature.getSignature().buf()) : this.signature.getSignature().buf();
@@ -7537,7 +7749,7 @@ ContentObject.prototype = new Data();
 exports.ContentObject = ContentObject;
 
 }).call(this,require("buffer").Buffer)
-},{"./crypto.js":37,"./encoding/binary-xml-encoder.js":41,"./encoding/binary-xml-wire-format.js":43,"./encoding/data-utils.js":44,"./encoding/wire-format.js":55,"./key-locator.js":62,"./meta-info.js":65,"./name.js":66,"./security/key-manager.js":77,"./sha256-with-rsa-signature.js":84,"./util/blob.js":88,"./util/ndn-protoco-id-tags.js":92,"./util/signed-blob.js":94,"buffer":5}],40:[function(require,module,exports){
+},{"./crypto.js":37,"./encoding/binary-xml-encoder.js":42,"./encoding/binary-xml-wire-format.js":44,"./encoding/data-utils.js":45,"./encoding/wire-format.js":56,"./key-locator.js":63,"./meta-info.js":66,"./name.js":67,"./security/key-manager.js":78,"./sha256-with-rsa-signature.js":85,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"./util/signed-blob.js":96,"buffer":5}],41:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class is used to decode ndnb binary elements (blob, type/value pairs).
@@ -8265,7 +8477,7 @@ BinaryXMLDecoder.prototype.seek = function(offset)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../log.js":64,"../util/ndn-protoco-id-tags.js":92,"../util/ndn-time.js":93,"./data-utils.js":44,"./decoding-exception.js":45,"buffer":5}],41:[function(require,module,exports){
+},{"../log.js":65,"../util/ndn-protoco-id-tags.js":94,"../util/ndn-time.js":95,"./data-utils.js":45,"./decoding-exception.js":46,"buffer":5}],42:[function(require,module,exports){
 /**
  * This class is used to encode ndnb binary elements (blob, type/value pairs).
  *
@@ -8713,7 +8925,7 @@ BinaryXMLEncoder.prototype.getReducedOstream = function()
   return this.ostream.slice(0, this.offset);
 };
 
-},{"../log.js":64,"../util/dynamic-buffer.js":89,"../util/ndn-protoco-id-tags.js":92,"./data-utils.js":44}],42:[function(require,module,exports){
+},{"../log.js":65,"../util/dynamic-buffer.js":91,"../util/ndn-protoco-id-tags.js":94,"./data-utils.js":45}],43:[function(require,module,exports){
 /**
  * This class uses BinaryXMLDecoder to follow the structure of a ndnb binary element to
  * determine its end.
@@ -8921,7 +9133,7 @@ BinaryXMLStructureDecoder.prototype.seek = function(offset)
   this.offset = offset;
 };
 
-},{"../util/dynamic-buffer.js":89,"./binary-xml-decoder.js":40}],43:[function(require,module,exports){
+},{"../util/dynamic-buffer.js":91,"./binary-xml-decoder.js":41}],44:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -8972,13 +9184,22 @@ BinaryXmlWireFormat.instance = null;
 /**
  * Encode interest as Binary XML and return the encoding.
  * @param {Interest} interest The Interest to encode.
- * @returns {Blob} A Blob containing the encoding.
+ * @returns {object} An associative array with fields
+ * (encoding, signedPortionBeginOffset, signedPortionEndOffset) where encoding
+ * is a Blob containing the encoding, signedPortionBeginOffset is the offset in
+ * the encoding of the beginning of the signed portion, and
+ * signedPortionEndOffset is the offset in the encoding of the end of the signed
+ * portion. The signed portion starts from the first name component and ends
+ * just before the final name component (which is assumed to be a signature for
+ * a signed interest).
  */
 BinaryXmlWireFormat.prototype.encodeInterest = function(interest)
 {
   var encoder = new BinaryXMLEncoder();
-  BinaryXmlWireFormat.encodeInterest(interest, encoder);
-  return new Blob(encoder.getReducedOstream(), false);
+  var offsets = BinaryXmlWireFormat.encodeInterest(interest, encoder);
+  return { encoding: new Blob(encoder.getReducedOstream(), false),
+           signedPortionBeginOffset: offsets.signedPortionBeginOffset,
+           signedPortionEndOffset: offsets.signedPortionEndOffset };
 };
 
 /**
@@ -9062,12 +9283,19 @@ BinaryXmlWireFormat.get = function()
  * Encode the interest by calling the operations on the encoder.
  * @param {Interest} interest
  * @param {BinaryXMLEncoder} encoder
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
  */
 BinaryXmlWireFormat.encodeInterest = function(interest, encoder)
 {
   encoder.writeElementStartDTag(NDNProtocolDTags.Interest);
 
-  interest.getName().to_ndnb(encoder);
+  var offsets = interest.getName().to_ndnb(encoder);
 
   if (null != interest.getMinSuffixComponents())
     encoder.writeDTagElement(NDNProtocolDTags.MinSuffixComponents, interest.getMinSuffixComponents());
@@ -9107,6 +9335,7 @@ BinaryXmlWireFormat.encodeInterest = function(interest, encoder)
     encoder.writeDTagElement(NDNProtocolDTags.Nonce, interest.getNonce());
 
   encoder.writeElementClose();
+  return offsets;
 };
 
 /**
@@ -9271,7 +9500,7 @@ BinaryXmlWireFormat.decodeData = function(data, decoder)
            signedPortionEndOffset: signedPortionEndOffset };
 };
 
-},{"../exclude.js":56,"../key-locator.js":62,"../meta-info.js":65,"../name.js":66,"../publisher-public-key-digest.js":68,"../sha256-with-rsa-signature.js":84,"../util/blob.js":88,"../util/ndn-protoco-id-tags.js":92,"./binary-xml-decoder.js":40,"./binary-xml-encoder.js":41,"./data-utils.js":44,"./wire-format.js":55}],44:[function(require,module,exports){
+},{"../exclude.js":57,"../key-locator.js":63,"../meta-info.js":66,"../name.js":67,"../publisher-public-key-digest.js":69,"../sha256-with-rsa-signature.js":85,"../util/blob.js":89,"../util/ndn-protoco-id-tags.js":94,"./binary-xml-decoder.js":41,"./binary-xml-encoder.js":42,"./data-utils.js":45,"./wire-format.js":56}],45:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class contains utilities to help parse the data
@@ -9299,7 +9528,9 @@ BinaryXmlWireFormat.decodeData = function(data, decoder)
  * A DataUtils has static methods for converting data.
  * @constructor
  */
-var DataUtils = {};
+var DataUtils = function DataUtils()
+{
+};
 
 exports.DataUtils = DataUtils;
 
@@ -9592,7 +9823,7 @@ DataUtils.shuffle = function(array)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],45:[function(require,module,exports){
+},{"buffer":5}],46:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9630,7 +9861,7 @@ DecodingException.prototype.name = "DecodingException";
 
 exports.DecodingException = DecodingException;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9741,7 +9972,7 @@ ElementReader.prototype.onReceivedData = function(/* Buffer */ data)
   }
 };
 
-},{"../log.js":64,"./binary-xml-structure-decoder.js":42,"./data-utils.js":44,"./tlv/tlv-structure-decoder.js":53,"./tlv/tlv.js":54}],47:[function(require,module,exports){
+},{"../log.js":65,"./binary-xml-structure-decoder.js":43,"./data-utils.js":45,"./tlv/tlv-structure-decoder.js":54,"./tlv/tlv.js":55}],48:[function(require,module,exports){
 /**
  * This file contains utilities to help encode and decode NDN objects.
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -9994,7 +10225,7 @@ function encodeToBinaryInterest(interest) { return interest.wireEncode().buf(); 
  */
 function encodeToBinaryContentObject(data) { return data.wireEncode().buf(); }
 
-},{"../data.js":39,"../face-instance.js":57,"../forwarding-entry.js":59,"../interest.js":61,"../key-locator.js":62,"../key.js":63,"../log.js":64,"./binary-xml-decoder.js":40,"./binary-xml-encoder.js":41,"./data-utils.js":44,"./wire-format.js":55}],48:[function(require,module,exports){
+},{"../data.js":40,"../face-instance.js":58,"../forwarding-entry.js":60,"../interest.js":62,"../key-locator.js":63,"../key.js":64,"../log.js":65,"./binary-xml-decoder.js":41,"./binary-xml-encoder.js":42,"./data-utils.js":45,"./wire-format.js":56}],49:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -10219,7 +10450,7 @@ ProtobufTlv._decodeFieldValue = function(field, tlvType, decoder, endOffset)
     throw new Error("ProtobufTlv.decode: Unknown field type");
 };
 
-},{"../util/blob.js":88,"./tlv/tlv-decoder.js":51,"./tlv/tlv-encoder.js":52,"protobufjs/dist/ProtoBuf.js":96}],49:[function(require,module,exports){
+},{"../util/blob.js":89,"./tlv/tlv-decoder.js":52,"./tlv/tlv-encoder.js":53,"protobufjs/dist/ProtoBuf.js":98}],50:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -10240,7 +10471,7 @@ ProtobufTlv._decodeFieldValue = function(field, tlvType, decoder, endOffset)
  * A copy of the GNU General Public License is in the file COPYING.
  */
 
-var cryptoJS = require('../crypto.js');
+var Crypto = require('../crypto.js');
 var Blob = require('../util/blob.js').Blob;
 var Tlv = require('./tlv/tlv.js').Tlv;
 var TlvEncoder = require('./tlv/tlv-encoder.js').TlvEncoder;
@@ -10250,6 +10481,7 @@ var Exclude = require('../exclude.js').Exclude;
 var ContentType = require('../meta-info.js').ContentType;
 var KeyLocatorType = require('../key-locator.js').KeyLocatorType;
 var Sha256WithRsaSignature = require('../sha256-with-rsa-signature.js').Sha256WithRsaSignature;
+var ForwardingFlags = require('../forwarding-flags.js').ForwardingFlags;
 var PublisherPublicKeyDigest = require('../publisher-public-key-digest.js').PublisherPublicKeyDigest;
 var DecodingException = require('./decoding-exception.js').DecodingException;
 
@@ -10275,11 +10507,18 @@ Tlv0_1WireFormat.instance = null;
 /**
  * Encode the interest using NDN-TLV and return a Buffer.
  * @param {Interest} interest The Interest object to encode.
- * @returns {Blob} A Blob containing the encoding.
+ * @returns {object} An associative array with fields
+ * (encoding, signedPortionBeginOffset, signedPortionEndOffset) where encoding
+ * is a Blob containing the encoding, signedPortionBeginOffset is the offset in
+ * the encoding of the beginning of the signed portion, and
+ * signedPortionEndOffset is the offset in the encoding of the end of the signed
+ * portion. The signed portion starts from the first name component and ends
+ * just before the final name component (which is assumed to be a signature for
+ * a signed interest).
  */
 Tlv0_1WireFormat.prototype.encodeInterest = function(interest)
 {
-  var encoder = new TlvEncoder();
+  var encoder = new TlvEncoder(256);
   var saveLength = encoder.getLength();
 
   // Encode backwards.
@@ -10290,7 +10529,7 @@ Tlv0_1WireFormat.prototype.encodeInterest = function(interest)
   // Encode the Nonce as 4 bytes.
   if (interest.getNonce().isNull() || interest.getNonce().size() == 0)
     // This is the most common case. Generate a nonce.
-    encoder.writeBlobTlv(Tlv.Nonce, cryptoJS.randomBytes(4));
+    encoder.writeBlobTlv(Tlv.Nonce, Crypto.randomBytes(4));
   else if (interest.getNonce().size() < 4) {
     var nonce = Buffer(4);
     // Copy existing nonce bytes.
@@ -10298,7 +10537,7 @@ Tlv0_1WireFormat.prototype.encodeInterest = function(interest)
 
     // Generate random bytes for remaining bytes in the nonce.
     for (var i = interest.getNonce().size(); i < 4; ++i)
-      nonce[i] = cryptoJS.randomBytes(1)[0];
+      nonce[i] = Crypto.randomBytes(1)[0];
 
     encoder.writeBlobTlv(Tlv.Nonce, nonce);
   }
@@ -10310,11 +10549,21 @@ Tlv0_1WireFormat.prototype.encodeInterest = function(interest)
     encoder.writeBlobTlv(Tlv.Nonce, interest.getNonce().buf().slice(0, 4));
 
   Tlv0_1WireFormat.encodeSelectors(interest, encoder);
-  Tlv0_1WireFormat.encodeName(interest.getName(), encoder);
+  var tempOffsets = Tlv0_1WireFormat.encodeName(interest.getName(), encoder);
+  var signedPortionBeginOffsetFromBack =
+    encoder.getLength() - tempOffsets.signedPortionBeginOffset;
+  var signedPortionEndOffsetFromBack =
+    encoder.getLength() - tempOffsets.signedPortionEndOffset;
 
   encoder.writeTypeAndLength(Tlv.Interest, encoder.getLength() - saveLength);
+  var signedPortionBeginOffset =
+    encoder.getLength() - signedPortionBeginOffsetFromBack;
+  var signedPortionEndOffset =
+    encoder.getLength() - signedPortionEndOffsetFromBack;
 
-  return new Blob(encoder.getOutput(), false);
+  return { encoding: new Blob(encoder.getOutput(), false),
+           signedPortionBeginOffset: signedPortionBeginOffset,
+           signedPortionEndOffset: signedPortionEndOffset };
 };
 
 /**
@@ -10416,11 +10665,127 @@ Tlv0_1WireFormat.prototype.decodeData = function(data, input)
   var signedPortionEndOffset = decoder.getOffset();
   // TODO: The library needs to handle other signature types than
   //   SignatureSha256WithRsa.
-  data.getSignature().setSignature(decoder.readBlobTlv(Tlv.SignatureValue));
+  data.getSignature().setSignature
+    (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
 
   decoder.finishNestedTlvs(endOffset);
   return { signedPortionBeginOffset: signedPortionBeginOffset,
            signedPortionEndOffset: signedPortionEndOffset };
+};
+
+/**
+ * Encode controlParameters as NDN-TLV and return the encoding.
+ * @param {ControlParameters} controlParameters The ControlParameters object to
+ * encode.
+ * @returns {Blob} A Blob containing the encoding.
+ */
+Tlv0_1WireFormat.prototype.encodeControlParameters = function(controlParameters)
+{
+  var encoder = new TlvEncoder(256);
+  var saveLength = encoder.getLength();
+
+  // Encode backwards.
+  encoder.writeOptionalNonNegativeIntegerTlv
+    (Tlv.ControlParameters_ExpirationPeriod,
+     controlParameters.getExpirationPeriod());
+
+  // TODO: Encode Strategy.
+
+  var flags = controlParameters.getForwardingFlags().getNfdForwardingFlags();
+  if (flags != new ForwardingFlags().getNfdForwardingFlags())
+      // The flags are not the default value.
+      encoder.writeNonNegativeIntegerTlv
+        (Tlv.ControlParameters_Flags, flags);
+
+  encoder.writeOptionalNonNegativeIntegerTlv
+    (Tlv.ControlParameters_Cost, controlParameters.getCost());
+  encoder.writeOptionalNonNegativeIntegerTlv
+    (Tlv.ControlParameters_Origin, controlParameters.getOrigin());
+  encoder.writeOptionalNonNegativeIntegerTlv
+    (Tlv.ControlParameters_LocalControlFeature,
+     controlParameters.getLocalControlFeature());
+
+  // TODO: Encode Uri.
+
+  encoder.writeOptionalNonNegativeIntegerTlv
+    (Tlv.FaceID, controlParameters.getFaceId());
+  Tlv0_1WireFormat.encodeName(controlParameters.getName(), encoder);
+
+  encoder.writeTypeAndLength
+    (Tlv.ControlParameters_ControlParameters, encoder.getLength() - saveLength);
+
+  return new Blob(encoder.getOutput(), false);
+};
+
+/**
+ * Encode signature as a SignatureInfo and return the encoding.
+ * @param {Signature} signature An object of a subclass of Signature to encode.
+ * @returns {Blob} A Blob containing the encoding.
+ */
+Tlv0_1WireFormat.prototype.encodeSignatureInfo = function(signature)
+{
+  var encoder = new TlvEncoder(256);
+  // TODO: This assumes it is a Sha256WithRsaSignature.
+  Tlv0_1WireFormat.encodeSignatureSha256WithRsaValue
+    (signature, encoder, signature.getKeyLocator());
+  
+  return new Blob(encoder.getOutput(), false);
+};
+
+// SignatureHolder is used by decodeSignatureInfoAndValue.
+Tlv0_1WireFormat.SignatureHolder = function Tlv0_1WireFormatSignatureHolder()
+{
+};
+
+Tlv0_1WireFormat.SignatureHolder.prototype.setSignature = function(signature)
+{
+  this.signature = signature;
+};
+
+Tlv0_1WireFormat.SignatureHolder.prototype.getSignature = function()
+{
+  return this.signature;
+};
+
+/**
+ * Decode signatureInfo as a signature info and signatureValue as the related
+ * SignatureValue, and return a new object which is a subclass of Signature.
+ * @param {Buffer} signatureInfo The buffer with the signature info bytes to
+ * decode.
+ * @param {Buffer} signatureValue The buffer with the signature value to decode.
+ * @returns {Signature} A new object which is a subclass of Signature.
+ */
+Tlv0_1WireFormat.prototype.decodeSignatureInfoAndValue = function
+  (signatureInfo, signatureValue)
+{
+  // Use a SignatureHolder to imitate a Data object for decodeSignatureInfo.
+  var signatureHolder = new Tlv0_1WireFormat.SignatureHolder();
+  var decoder = new TlvDecoder(signatureInfo);
+  Tlv0_1WireFormat.decodeSignatureInfo(signatureHolder, decoder);
+
+  decoder = TlvDecoder(signatureValue);
+  // TODO: The library needs to handle other signature types than
+  //   SignatureSha256WithRsa.
+  signatureHolder.getSignature().setSignature
+    (new Blob(decoder.readBlobTlv(Tlv.SignatureValue), true));
+
+  return signatureHolder.getSignature();
+};
+
+/**
+ * Encode the signatureValue in the Signature object as a SignatureValue (the
+ * signature bits) and return the encoding.
+ * @param {Signature} signature An object of a subclass of Signature with the
+ * signature value to encode.
+ * @returns {Blob} A Blob containing the encoding.
+ */
+Tlv0_1WireFormat.prototype.encodeSignatureValue = function(signature)
+{
+  var encoder = new TlvEncoder(256);
+  // TODO: This assumes it is a Sha256WithRsaSignature.
+  encoder.writeBlobTlv(Tlv.SignatureValue, signature.getSignature().buf());
+
+  return new Blob(encoder.getOutput(), false);
 };
 
 /**
@@ -10435,15 +10800,44 @@ Tlv0_1WireFormat.get = function()
   return Tlv0_1WireFormat.instance;
 };
 
+/**
+ * Encode the name to the encoder.
+ * @param {Name} name The name to encode.
+ * @param {TlvEncoder} encoder The encoder to receive the encoding.
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
+ */
 Tlv0_1WireFormat.encodeName = function(name, encoder)
 {
   var saveLength = encoder.getLength();
 
   // Encode the components backwards.
-  for (var i = name.size() - 1; i >= 0; --i)
+  var signedPortionEndOffsetFromBack;
+  for (var i = name.size() - 1; i >= 0; --i) {
     encoder.writeBlobTlv(Tlv.NameComponent, name.get(i).getValue().buf());
+    if (i == name.size() - 1)
+      signedPortionEndOffsetFromBack = encoder.getLength();
+  }
 
+  var signedPortionBeginOffsetFromBack = encoder.getLength();
   encoder.writeTypeAndLength(Tlv.Name, encoder.getLength() - saveLength);
+
+  var signedPortionBeginOffset =
+    encoder.getLength() - signedPortionBeginOffsetFromBack;
+  var signedPortionEndOffset;
+  if (name.size() == 0)
+    // There is no "final component", so set signedPortionEndOffset arbitrarily.
+    signedPortionEndOffset = signedPortionBeginOffset;
+  else
+    signedPortionEndOffset = encoder.getLength() - signedPortionEndOffsetFromBack;
+
+  return { signedPortionBeginOffset: signedPortionBeginOffset,
+           signedPortionEndOffset: signedPortionEndOffset };
 };
 
 Tlv0_1WireFormat.decodeName = function(name, decoder)
@@ -10715,7 +11109,7 @@ Tlv0_1WireFormat.decodeMetaInfo = function(metaInfo, decoder)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../crypto.js":37,"../exclude.js":56,"../key-locator.js":62,"../meta-info.js":65,"../publisher-public-key-digest.js":68,"../sha256-with-rsa-signature.js":84,"../util/blob.js":88,"./decoding-exception.js":45,"./tlv/tlv-decoder.js":51,"./tlv/tlv-encoder.js":52,"./tlv/tlv.js":54,"./wire-format.js":55,"buffer":5}],50:[function(require,module,exports){
+},{"../crypto.js":37,"../exclude.js":57,"../forwarding-flags.js":61,"../key-locator.js":63,"../meta-info.js":66,"../publisher-public-key-digest.js":69,"../sha256-with-rsa-signature.js":85,"../util/blob.js":89,"./decoding-exception.js":46,"./tlv/tlv-decoder.js":52,"./tlv/tlv-encoder.js":53,"./tlv/tlv.js":55,"./wire-format.js":56,"buffer":5}],51:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -10775,7 +11169,7 @@ TlvWireFormat.get = function()
 // This module will be loaded because WireFormat loads it.
 WireFormat.setDefaultWireFormat(TlvWireFormat.get());
 
-},{"./tlv-0_1-wire-format.js":49,"./wire-format.js":55}],51:[function(require,module,exports){
+},{"./tlv-0_1-wire-format.js":50,"./wire-format.js":56}],52:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11114,7 +11508,7 @@ TlvDecoder.prototype.seek = function(offset)
   this.offset = offset;
 };
 
-},{"../decoding-exception.js":45}],52:[function(require,module,exports){
+},{"../decoding-exception.js":46}],53:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11224,22 +11618,18 @@ TlvEncoder.prototype.writeTypeAndLength = function(type, length)
 };
 
 /**
- * Write the type, then the length of the encoded value then encode value as a
- * non-negative integer and write it to this.output just before this.length from
- * the back. Advance this.length.
- * @param {number} type The type of the TLV.
+ * Write value as a non-negative integer and write it to this.output just before
+ * this.length from the back. Advance this.length.
  * @param {number} value The non-negative integer to encode.
  */
-TlvEncoder.prototype.writeNonNegativeIntegerTlv = function(type, value)
+TlvEncoder.prototype.writeNonNegativeInteger = function(value)
 {
   if (value < 0)
     throw new Error("TLV integer value may not be negative");
 
   // JavaScript doesn't distinguish int from float, so round.
-  value = Math.round(value)
+  value = Math.round(value);
 
-  // Write backwards.
-  var saveNBytes = this.length;
   if (value < 253) {
     this.length += 1;
     this.output.ensureLengthFromBack(this.length);
@@ -11274,7 +11664,20 @@ TlvEncoder.prototype.writeNonNegativeIntegerTlv = function(type, value)
     this.output.array[offset + 6] = (value >> 8) & 0xff;
     this.output.array[offset + 7] = value & 0xff;
   }
+};
 
+/**
+ * Write the type, then the length of the encoded value then encode value as a
+ * non-negative integer and write it to this.output just before this.length from
+ * the back. Advance this.length.
+ * @param {number} type The type of the TLV.
+ * @param {number} value The non-negative integer to encode.
+ */
+TlvEncoder.prototype.writeNonNegativeIntegerTlv = function(type, value)
+{
+  // Write backwards.
+  var saveNBytes = this.length;
+  this.writeNonNegativeInteger(value);
   this.writeTypeAndLength(type, this.length - saveNBytes);
 };
 
@@ -11334,7 +11737,7 @@ TlvEncoder.prototype.getOutput = function()
   return this.output.array.slice(this.output.array.length - this.length);
 };
 
-},{"../../util/dynamic-buffer.js":89}],53:[function(require,module,exports){
+},{"../../util/dynamic-buffer.js":91}],54:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -11559,7 +11962,7 @@ TlvStructureDecoder.prototype.seek = function(offset)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./tlv-decoder.js":51,"buffer":5}],54:[function(require,module,exports){
+},{"./tlv-decoder.js":52,"buffer":5}],55:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11631,9 +12034,26 @@ Tlv.StatusText =       140;
 Tlv.SignatureType_DigestSha256 = 0;
 Tlv.SignatureType_SignatureSha256WithRsa = 1;
 
-},{}],55:[function(require,module,exports){
+Tlv.ContentType_Default = 0;
+Tlv.ContentType_Link =    1;
+Tlv.ContentType_Key =     2;
+
+Tlv.NfdCommand_ControlResponse = 101;
+Tlv.NfdCommand_StatusCode =      102;
+Tlv.NfdCommand_StatusText =      103;
+
+Tlv.ControlParameters_ControlParameters =   104;
+Tlv.ControlParameters_FaceId =              105;
+Tlv.ControlParameters_Uri =                 114;
+Tlv.ControlParameters_LocalControlFeature = 110;
+Tlv.ControlParameters_Origin =              111;
+Tlv.ControlParameters_Cost =                106;
+Tlv.ControlParameters_Flags =               108;
+Tlv.ControlParameters_Strategy =            107;
+Tlv.ControlParameters_ExpirationPeriod =    109;
+
+},{}],56:[function(require,module,exports){
 /**
- * This class represents Interest Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
  *
@@ -11664,7 +12084,14 @@ exports.WireFormat = WireFormat;
 /**
  * Encode interest and return the encoding.  Your derived class should override.
  * @param {Interest} interest The Interest to encode.
- * @returns {Blob} A Blob containing the encoding.
+ * @returns {object} An associative array with fields
+ * (encoding, signedPortionBeginOffset, signedPortionEndOffset) where encoding
+ * is a Blob containing the encoding, signedPortionBeginOffset is the offset in
+ * the encoding of the beginning of the signed portion, and
+ * signedPortionEndOffset is the offset in the encoding of the end of the signed
+ * portion. The signed portion starts from the first name component and ends
+ * just before the final name component (which is assumed to be a signature for
+ * a signed interest).
  * @throws Error This always throws an "unimplemented" error. The derived class should override.
  */
 WireFormat.prototype.encodeInterest = function(interest)
@@ -11719,6 +12146,73 @@ WireFormat.prototype.decodeData = function(data, input)
 };
 
 /**
+ * Encode controlParameters and return the encoding.  Your derived class should
+ * override.
+ * @param {ControlParameters} controlParameters The ControlParameters object to
+ * encode.
+ * @returns {Blob} A Blob containing the encoding.
+ * @throws Error This always throws an "unimplemented" error. The derived class should override.
+ */
+WireFormat.prototype.encodeControlParameters = function(controlParameters)
+{
+  throw new Error("encodeControlParameters is unimplemented in the base WireFormat class.  You should use a derived class.");
+};
+
+/**
+ * Decode input as a controlParameters and set the fields of the
+ * controlParameters object. Your derived class should override.
+ * @param {ControlParameters} controlParameters The ControlParameters object
+ * whose fields are updated.
+ * @param {Buffer} input The buffer with the bytes to decode.
+ * @throws Error This always throws an "unimplemented" error. The derived class should override.
+ */
+WireFormat.prototype.decodeControlParameters = function(controlParameters, input)
+{
+  throw new Error("decodeControlParameters is unimplemented in the base WireFormat class.  You should use a derived class.");
+};
+
+/**
+ * Encode signature as a SignatureInfo and return the encoding. Your derived
+ * class should override.
+ * @param {Signature} signature An object of a subclass of Signature to encode.
+ * @returns {Blob} A Blob containing the encoding.
+ * @throws Error This always throws an "unimplemented" error. The derived class should override.
+ */
+WireFormat.prototype.encodeSignatureInfo = function(signature)
+{
+  throw new Error("encodeSignatureInfo is unimplemented in the base WireFormat class.  You should use a derived class.");
+};
+
+/**
+ * Decode signatureInfo as a signature info and signatureValue as the related
+ * SignatureValue, and return a new object which is a subclass of Signature.
+ * Your derived class should override.
+ * @param {Buffer} signatureInfo The buffer with the signature info bytes to
+ * decode.
+ * @param {Buffer} signatureValue The buffer with the signature value to decode.
+ * @returns {Signature} A new object which is a subclass of Signature.
+ * @throws Error This always throws an "unimplemented" error. The derived class should override.
+ */
+WireFormat.prototype.decodeSignatureInfoAndValue = function
+  (signatureInfo, signatureValue)
+{
+  throw new Error("decodeSignatureInfoAndValue is unimplemented in the base WireFormat class.  You should use a derived class.");
+};
+
+/**
+ * Encode the signatureValue in the Signature object as a SignatureValue (the
+ * signature bits) and return the encoding. Your derived class should override.
+ * @param {Signature} signature An object of a subclass of Signature with the
+ * signature value to encode.
+ * @returns {Blob} A Blob containing the encoding.
+ * @throws Error This always throws an "unimplemented" error. The derived class should override.
+ */
+WireFormat.prototype.encodeSignatureValue = function(signature)
+{
+  throw new Error("encodeSignatureValue is unimplemented in the base WireFormat class.  You should use a derived class.");
+};
+
+/**
  * Set the static default WireFormat used by default encoding and decoding
  * methods.
  * @param wireFormat {WireFormat} An object of a subclass of WireFormat.
@@ -11743,7 +12237,7 @@ WireFormat.getDefaultWireFormat = function()
 // to avoid problems with cycles of require.
 var TlvWireFormat = require('./tlv-wire-format.js').TlvWireFormat;
 
-},{"./tlv-wire-format.js":50}],56:[function(require,module,exports){
+},{"./tlv-wire-format.js":51}],57:[function(require,module,exports){
 /**
  * This class represents an Interest Exclude.
  * Copyright (C) 2014 Regents of the University of California.
@@ -11996,7 +12490,7 @@ Exclude.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./encoding/binary-xml-decoder.js":40,"./encoding/binary-xml-encoder.js":41,"./encoding/data-utils.js":44,"./name.js":66,"./util/blob.js":88,"./util/ndn-protoco-id-tags.js":92}],57:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./encoding/data-utils.js":45,"./name.js":67,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94}],58:[function(require,module,exports){
 /**
  * This class represents Face Instances
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -12123,7 +12617,7 @@ FaceInstance.prototype.getElementLabel = function()
 };
 
 
-},{"./publisher-public-key-digest.js":68,"./util/ndn-protoco-id-tags.js":92}],58:[function(require,module,exports){
+},{"./publisher-public-key-digest.js":69,"./util/ndn-protoco-id-tags.js":94}],59:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents the top-level object for communicating with an NDN host.
@@ -12152,6 +12646,7 @@ var Interest = require('./interest.js').Interest;
 var Data = require('./data.js').Data;
 var MetaInfo = require('./meta-info.js').MetaInfo;
 var ForwardingEntry = require('./forwarding-entry.js').ForwardingEntry;
+var ControlParameters = require('./control-parameters.js').ControlParameters;
 var TlvWireFormat = require('./encoding/tlv-wire-format.js').TlvWireFormat;
 var BinaryXmlWireFormat = require('./encoding/binary-xml-wire-format.js').BinaryXmlWireFormat;
 var Tlv = require('./encoding/tlv/tlv.js').Tlv;
@@ -12168,6 +12663,7 @@ var UpcallInfo = require('./closure.js').UpcallInfo;
 var Transport = require('./transport/transport.js').Transport;
 var TcpTransport = require('./transport/tcp-transport.js').TcpTransport;
 var UnixTransport = require('./transport/unix-transport.js').UnixTransport;
+var CommandInterestGenerator = require('./util/command-interest-generator.js').CommandInterestGenerator;
 var fs = require('fs');
 var LOG = require('./log.js').Log.LOG;
 
@@ -12209,14 +12705,13 @@ var Face = function Face(transportOrSettings, connectionInfo)
     throw new Error("The necessary JavaScript support is not available on this platform.");
 
   var settings;
-  console.log("INSTACEOF!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   if (typeof transportOrSettings == 'object' && transportOrSettings instanceof Transport) {
     this.getConnectionInfo = null;
     this.transport = transportOrSettings;
     this.connectionInfo = (connectionInfo || null);
     // Use defaults for other settings.
     settings = {};
-    console.log("instance passed")
+
     if (this.connectionInfo == null) {
       if (this.transport && this.transport.__proto__ &&
           this.transport.__proto__.name == "UnixTransport") {
@@ -12292,6 +12787,9 @@ var Face = function Face(transportOrSettings, connectionInfo)
   this.ndndid = null;
   // This is used by reconnectAndExpressInterest.
   this.onConnectedCallbacks = [];
+  this.commandKeyChain = null;
+  this.commandCertificateName = new Name();
+  this.commandInterestGenerator = new CommandInterestGenerator();
 };
 
 exports.Face = Face;
@@ -12663,7 +13161,7 @@ Face.prototype.expressInterestWithClosure = function(interest, closure)
       console.log('ERROR: connectionInfo is NOT SET');
     else {
       var thisFace = this;
-      this.connectAndExecute(function() {
+      this.connectAndExecute(function() { 
         thisFace.reconnectAndExpressInterest(pendingInterestId, interest, closure);
       });
     }
@@ -12782,7 +13280,7 @@ Face.prototype.removePendingInterest = function(pendingInterestId)
 {
   if (pendingInterestId == null)
     return;
-
+  
   // Go backwards through the list so we can erase entries.
   // Remove all entries even though pendingInterestId should be unique.
   var count = 0;
@@ -12808,6 +13306,73 @@ Face.prototype.removePendingInterest = function(pendingInterestId)
 };
 
 /**
+ * Set the KeyChain and certificate name used to sign command interests (e.g. 
+ * for registerPrefix).
+ * @param {KeyChain} keyChain The KeyChain object for signing interests, which 
+ * must remain valid for the life of this Face. You must create the KeyChain 
+ * object and pass it in. You can create a default KeyChain for your system with 
+ * the default KeyChain constructor.
+ * @param {Name} certificateName The certificate name for signing interests.
+ * This makes a copy of the Name. You can get the default certificate name with
+ * keyChain.getDefaultCertificateName() .
+ */
+Face.prototype.setCommandSigningInfo = function(keyChain, certificateName)
+{
+  this.commandKeyChain = keyChain;
+  this.commandCertificateName = new Name(certificateName);
+};
+
+/**
+ * Set the certificate name used to sign command interest (e.g. for
+ * registerPrefix), using the KeyChain that was set with setCommandSigningInfo.
+ * @param {Name} certificateName The certificate name for signing interest. This 
+ * makes a copy of the Name.
+ */
+Face.prototype.setCommandCertificateName = function(certificateName)
+{
+  this.commandCertificateName = new Name(certificateName);
+};
+
+/**
+ * Append a timestamp component and a random value component to interest's name. 
+ * Then use the keyChain and certificateName from setCommandSigningInfo to sign 
+ * the interest. If the interest lifetime is not set, this sets it.
+ * @note This method is an experimental feature. See the API docs for more
+ * detail at
+ * http://named-data.net/doc/ndn-ccl-api/face.html#face-makecommandinterest-method .
+ * @param {Interest} interest The interest whose name is appended with
+ * components.
+ * @param {WireFormat} wireFormat (optional) A WireFormat object used to encode
+ * the SignatureInfo and to encode the interest name for signing.  If omitted,
+ * use WireFormat.getDefaultWireFormat().
+ */
+Face.prototype.makeCommandInterest = function(interest, wireFormat)
+{
+  wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
+  this.nodeMakeCommandInterest
+    (interest, this.commandKeyChain, this.commandCertificateName, wireFormat);
+};
+
+/**
+ * Append a timestamp component and a random value component to interest's name.
+ * Then use the keyChain and certificateName from setCommandSigningInfo to sign
+ * the interest. If the interest lifetime is not set, this sets it.
+ * @param {Interest} interest The interest whose name is appended with
+ * components.
+ * @param {KeyChain} keyChain The KeyChain for calling sign.
+ * @param {Name} certificateName The certificate name of the key to use for
+ * signing.
+ * @param {WireFormat} wireFormat A WireFormat object used to encode
+ * the SignatureInfo and to encode the interest name for signing.
+ */
+Face.prototype.nodeMakeCommandInterest = function
+  (interest, keyChain, certificateName, wireFormat)
+{
+  this.commandInterestGenerator.generate
+    (interest, keyChain, certificateName, wireFormat);
+};
+
+/**
  * Register prefix with the connected NDN hub and call onInterest when a matching interest is received.
  * This uses the form:
  * registerPrefix(name, onInterest, onRegisterFailed [, flags]).
@@ -12823,8 +13388,11 @@ Face.prototype.removePendingInterest = function(pendingInterestId)
  * @param {function} onRegisterFailed If register prefix fails for any reason,
  * this calls onRegisterFailed(prefix) where:
  *   prefix is the prefix given to registerPrefix.
- * @param {ForwardingFlags} flags (optional) The flags for finer control of which interests are forward to the application.
+ * @param {ForwardingFlags} flags (optional) The ForwardingFlags object for finer control of which interests are forward to the application.
  * If omitted, use the default flags defined by the default ForwardingFlags constructor.
+ * @param {number} intFlags (optional) (only for the deprecated form of
+ * registerPrefix) The integer NDNx flags for finer control of which interests
+ * are forward to the application.
  * @returns {number} The registered prefix ID which can be used with
  * removeRegisteredPrefix.
  */
@@ -12836,21 +13404,31 @@ Face.prototype.registerPrefix = function(prefix, arg2, arg3, arg4)
   // registerPrefix(Name prefix, Closure closure, int flags); // deprecated
   if (arg2 && arg2.upcall && typeof arg2.upcall == 'function') {
     // Assume arg2 is the deprecated use with Closure.
-    if (arg3)
-      return this.registerPrefixWithClosure(prefix, arg2, arg3);
+    if (arg3) {
+      var flags;
+      if (typeof flags === 'number') {
+        // Assume this deprecated form is only called for NDNx.
+        flags = new ForwardingFlags();
+        flags.setForwardingEntryFlags(arg3);
+      }
+      else
+        // Assume arg3 is already a ForwardingFlags.
+        flags = arg3;
+      return this.registerPrefixWithClosure(prefix, arg2, flags);
+    }
     else
-      return this.registerPrefixWithClosure(prefix, arg2);
+      return this.registerPrefixWithClosure(prefix, arg2, new ForwardingFlags());
   }
 
   // registerPrefix(Name prefix, function onInterest, function onRegisterFailed);
   // registerPrefix(Name prefix, function onInterest, function onRegisterFailed, ForwardingFlags flags);
   var onInterest = arg2;
   var onRegisterFailed = (arg3 ? arg3 : function() {});
-  var intFlags = (arg4 ? arg4.getForwardingEntryFlags() : new ForwardingFlags().getForwardingEntryFlags());
+  var flags = (arg4 ? arg4 : new ForwardingFlags());
   return this.registerPrefixWithClosure
     (prefix, new Face.CallbackClosure(null, null, onInterest, prefix, this.transport),
-     intFlags, onRegisterFailed);
-}
+     flags, onRegisterFailed);
+};
 
 /**
  * A private method to register the prefix with the host, receive the data and call
@@ -12858,7 +13436,7 @@ Face.prototype.registerPrefix = function(prefix, arg2, arg3, arg4)
  * @deprecated Use registerPrefix with callback functions, not Closure.
  * @param {Name} prefix
  * @param {Closure} closure
- * @param {number} intFlags
+ * @param {ForwardingFlags} flags
  * @param {function} onRegisterFailed (optional) If called from the
  * non-deprecated registerPrefix, call onRegisterFailed(prefix) if registration
  * fails.
@@ -12866,25 +13444,33 @@ Face.prototype.registerPrefix = function(prefix, arg2, arg3, arg4)
  * removeRegisteredPrefix.
  */
 Face.prototype.registerPrefixWithClosure = function
-  (prefix, closure, intFlags, onRegisterFailed)
+  (prefix, closure, flags, onRegisterFailed)
 {
-  intFlags = intFlags | 3;
-
   var registeredPrefixId = RegisteredPrefix.getNextRegisteredPrefixId();
   var thisFace = this;
   var onConnected = function() {
-    if (thisFace.ndndid == null) {
-      // Fetch ndndid first, then register.
-      var interest = new Interest(Face.ndndIdFetcher);
-      interest.setInterestLifetimeMilliseconds(4000);
-      if (LOG > 3) console.log('Expressing interest for ndndid from ndnd.');
-      thisFace.reconnectAndExpressInterest
-        (null, interest, new Face.FetchNdndidClosure
-         (thisFace, registeredPrefixId, prefix, closure, intFlags, onRegisterFailed));
+    // If we have an _ndndId, we know we already connected to NDNx.
+    if (thisFace.ndndid != null || thisFace.commandKeyChain == null) {
+      // Assume we are connected to a legacy NDNx server.
+
+      if (thisFace.ndndid == null) {
+        // Fetch ndndid first, then register.
+        var interest = new Interest(Face.ndndIdFetcher);
+        interest.setInterestLifetimeMilliseconds(4000);
+        if (LOG > 3) console.log('Expressing interest for ndndid from ndnd.');
+        thisFace.reconnectAndExpressInterest
+          (null, interest, new Face.FetchNdndidClosure
+           (thisFace, registeredPrefixId, prefix, closure, flags, onRegisterFailed));
+      }
+      else
+        thisFace.registerPrefixHelper
+          (registeredPrefixId, prefix, closure, flags, onRegisterFailed);
     }
     else
-      thisFace.registerPrefixHelper
-        (registeredPrefixId, prefix, closure, flags, onRegisterFailed);
+      // The application set the KeyChain for signing NFD interests.
+      thisFace.nfdRegisterPrefix
+        (registeredPrefixId, prefix, closure, flags, onRegisterFailed,
+         thisFace.commandKeyChain, thisFace.commandCertificateName);
   };
 
   if (this.connectionInfo == null) {
@@ -12913,7 +13499,7 @@ Face.FetchNdndidClosure = function FetchNdndidClosure
   this.registeredPrefixId = registeredPrefixId;
   this.prefix = prefix;
   this.callerClosure = callerClosure;
-  this.flags = flags;
+  this.flags = flags; // FOrwardingFlags
   this.onRegisterFailed = onRegisterFailed;
 };
 
@@ -12943,26 +13529,57 @@ Face.FetchNdndidClosure.prototype.upcall = function(kind, upcallInfo)
 
   return Closure.RESULT_OK;
 };
+
 /**
  * This is a closure to receive the response Data packet from the register
  * prefix interest sent to the connected NDN hub. If this gets a bad response
  * or a timeout, call onRegisterFailed.
  */
 Face.RegisterResponseClosure = function RegisterResponseClosure
-  (prefix, onRegisterFailed)
+  (face, prefix, callerClosure, onRegisterFailed, flags, wireFormat, isNfdCommand)
 {
   // Inherit from Closure.
   Closure.call(this);
 
+  this.face = face;
   this.prefix = prefix;
+  this.callerClosure = callerClosure;
   this.onRegisterFailed = onRegisterFailed;
+  this.flags = flags;
+  this.wireFormat = wireFormat;
+  this.isNfdCommand = isNfdCommand;
 };
 
 Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
 {
   if (kind == Closure.UPCALL_INTEREST_TIMED_OUT) {
-    if (this.onRegisterFailed)
-      this.onRegisterFailed(this.prefix);
+    // We timed out waiting for the response.
+    if (this.isNfdCommand) {
+      // The application set the commandKeyChain, but we may be connected to NDNx.
+      if (this.face.ndndid == null) {
+        // Fetch ndndid first, then register.
+        // Pass 0 for registeredPrefixId since the entry was already added to
+        //   registeredPrefixTable_ on the first try.
+        var interest = new Interest(Face.ndndIdFetcher);
+        interest.setInterestLifetimeMilliseconds(4000);
+        this.face.reconnectAndExpressInterest
+          (null, interest, new Face.FetchNdndidClosure
+           (this.face, 0, this.prefix, this.closure, this.flags, this.onRegisterFailed));
+      }
+      else
+        // Pass 0 for registeredPrefixId since the entry was already added to
+        //   registeredPrefixTable_ on the first try.
+        this.face.registerPrefixHelper
+          (0, this.prefix, this.closure, this.flags, this.onRegisterFailed);
+    }
+    else {
+      // An NDNx command was sent because there is no commandKeyChain, so we
+      //   can't try an NFD command. Or it was sent from this callback after
+      //   trying an NFD command. Fail.
+      if (this.onRegisterFailed)
+        this.onRegisterFailed(this.prefix);
+    }
+    
     return Closure.RESULT_OK;
   }
   if (!(kind == Closure.UPCALL_CONTENT ||
@@ -12970,21 +13587,57 @@ Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
     // The upcall is not for us.  Don't expect this to happen.
     return Closure.RESULT_ERR;
 
-  var expectedName = new Name("/ndnx/.../selfreg");
-  // Got a response. Do a quick check of expected name components.
-  if (upcallInfo.data.getName().size() < 4 ||
-      !upcallInfo.data.getName().get(0).equals(expectedName.get(0)) ||
-      !upcallInfo.data.getName().get(2).equals(expectedName.get(2))) {
-    this.onRegisterFailed(this.prefix);
-    return;
+  if (this.isNfdCommand) {
+    // Decode responseData->getContent() and check for a success code.
+    // TODO: Move this into the TLV code.
+    var statusCode;
+    try {
+        var decoder = new TlvDecoder(upcallInfo.data.getContent().buf());
+        decoder.readNestedTlvsStart(Tlv.NfdCommand_ControlResponse);
+        statusCode = decoder.readNonNegativeIntegerTlv(Tlv.NfdCommand_StatusCode);
+    }
+    catch (e) {
+        // Error decoding the ControlResponse.
+        if (this.onRegisterFailed)
+          this.onRegisterFailed(this.prefix);
+        return Closure.RESULT_OK;
+    }
+
+    // Status code 200 is "OK".
+    if (statusCode != 200) {
+      if (this.onRegisterFailed)
+        this.onRegisterFailed(this.prefix);
+    }
+
+    // Otherwise, silently succeed.
+  }
+  else {
+    var expectedName = new Name("/ndnx/.../selfreg");
+    // Got a response. Do a quick check of expected name components.
+    if (upcallInfo.data.getName().size() < 4 ||
+        !upcallInfo.data.getName().get(0).equals(expectedName.get(0)) ||
+        !upcallInfo.data.getName().get(2).equals(expectedName.get(2))) {
+      this.onRegisterFailed(this.prefix);
+      return Closure.RESULT_OK;
+    }
+
+    // Otherwise, silently succeed.
   }
 
-  // Otherwise, silently succeed.
   return Closure.RESULT_OK;
 };
 
 /**
  * Do the work of registerPrefix once we know we are connected with an ndndid.
+ * @param {type} registeredPrefixId The
+ * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got so it
+ * could return it to the caller. If this is 0, then don't add to
+ * registeredPrefixTable (assuming it has already been done).
+ * @param {Name} prefix
+ * @param {Closure} closure
+ * @param {ForwardingFlags} flags
+ * @param {function} onRegisterFailed
+ * @returns {undefined}
  */
 Face.prototype.registerPrefixHelper = function
   (registeredPrefixId, prefix, closure, flags, onRegisterFailed)
@@ -13001,7 +13654,9 @@ Face.prototype.registerPrefixHelper = function
     return;
   }
 
-  var fe = new ForwardingEntry('selfreg', prefix, null, null, flags, null);
+  // A ForwardingEntry is only used with NDNx.
+  var fe = new ForwardingEntry
+    ('selfreg', prefix, null, null, flags.getForwardingEntryFlags(), null);
 
   // Always encode as BinaryXml until we support TLV for ForwardingEntry.
   var encoder = new BinaryXMLEncoder();
@@ -13028,11 +13683,73 @@ Face.prototype.registerPrefixHelper = function
   interest.setScope(1);
   if (LOG > 3) console.log('Send Interest registration packet.');
 
-  Face.registeredPrefixTable.push
-    (new RegisteredPrefix(registeredPrefixId, prefix, closure));
+  if (registeredPrefixId != 0)
+    Face.registeredPrefixTable.push
+      (new RegisteredPrefix(registeredPrefixId, prefix, closure));
 
   this.reconnectAndExpressInterest
-    (null, interest, new Face.RegisterResponseClosure(prefix, onRegisterFailed));
+    (null, interest, new Face.RegisterResponseClosure
+     (this, prefix, closure, onRegisterFailed, flags, BinaryXmlWireFormat.get(), false));
+};
+
+/**
+ * Do the work of registerPrefix to register with NFD.
+ * @param {number} registeredPrefixId The 
+ * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got so it 
+ * could return it to the caller. If this is 0, then don't add to 
+ * registeredPrefixTable (assuming it has already been done).
+ * @param {Name} prefix
+ * @param {Closure} closure
+ * @param {ForwardingFlags} flags
+ * @param {function} onRegisterFailed
+ * @param {KeyChain} commandKeyChain
+ * @param {Name} commandCertificateName
+ */
+Face.prototype.nfdRegisterPrefix = function
+  (registeredPrefixId, prefix, closure, flags, onRegisterFailed, commandKeyChain,
+   commandCertificateName)
+{
+  var removeRequestIndex = -1;
+  if (removeRequestIndex != null)
+    removeRequestIndex = Face.registeredPrefixRemoveRequests.indexOf
+      (registeredPrefixId);
+  if (removeRequestIndex >= 0) {
+    // removeRegisteredPrefix was called with the registeredPrefixId returned by
+    //   registerPrefix before we got here, so don't add a registeredPrefixTable
+    //   entry.
+    Face.registeredPrefixRemoveRequests.splice(removeRequestIndex, 1);
+    return;
+  }
+
+  if (commandKeyChain == null)
+      throw new Error
+        ("registerPrefix: The command KeyChain has not been set. You must call setCommandSigningInfo.");
+  if (commandCertificateName.size() == 0)
+      throw new Error
+        ("registerPrefix: The command certificate name has not been set. You must call setCommandSigningInfo.");
+
+  var controlParameters = new ControlParameters();
+  controlParameters.setName(prefix);
+
+  var commandInterest = new Interest(new Name("/localhost/nfd/rib/register"));
+  // NFD only accepts TlvWireFormat packets.
+  commandInterest.getName().append
+    (controlParameters.wireEncode(TlvWireFormat.get()));
+  this.nodeMakeCommandInterest
+    (commandInterest, commandKeyChain, commandCertificateName,
+     TlvWireFormat.get());
+  // The interest is answered by the local host, so set a short timeout.
+  commandInterest.setInterestLifetimeMilliseconds(2000.0);
+
+  if (registeredPrefixId != 0)
+      // Save the onInterest callback and send the registration interest.
+      Face.registeredPrefixTable.push
+        (new RegisteredPrefix(registeredPrefixId, prefix, closure));
+
+  this.reconnectAndExpressInterest
+    (null, commandInterest, new Face.RegisterResponseClosure
+     (this, prefix, closure, onRegisterFailed, flags,
+      TlvWireFormat.get(), true));
 };
 
 /**
@@ -13339,7 +14056,7 @@ NDN.OPENED = Face.OPENED;
 NDN.CLOSED = Face.CLOSED;
 
 }).call(this,require("buffer").Buffer)
-},{"./closure.js":38,"./data.js":39,"./encoding/binary-xml-decoder.js":40,"./encoding/binary-xml-encoder.js":41,"./encoding/binary-xml-wire-format.js":43,"./encoding/data-utils.js":44,"./encoding/tlv-wire-format.js":50,"./encoding/tlv/tlv-decoder.js":51,"./encoding/tlv/tlv.js":54,"./forwarding-entry.js":59,"./forwarding-flags.js":60,"./interest.js":61,"./key-locator.js":62,"./key.js":63,"./log.js":64,"./meta-info.js":65,"./name.js":66,"./security/key-manager.js":77,"./transport/tcp-transport.js":36,"./transport/transport.js":85,"./transport/unix-transport.js":86,"./util/ndn-protoco-id-tags.js":92,"buffer":5,"crypto":11,"fs":1}],59:[function(require,module,exports){
+},{"./closure.js":38,"./control-parameters.js":39,"./data.js":40,"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./encoding/binary-xml-wire-format.js":44,"./encoding/data-utils.js":45,"./encoding/tlv-wire-format.js":51,"./encoding/tlv/tlv-decoder.js":52,"./encoding/tlv/tlv.js":55,"./forwarding-entry.js":60,"./forwarding-flags.js":61,"./interest.js":62,"./key-locator.js":63,"./key.js":64,"./log.js":65,"./meta-info.js":66,"./name.js":67,"./security/key-manager.js":78,"./transport/tcp-transport.js":36,"./transport/transport.js":86,"./transport/unix-transport.js":87,"./util/command-interest-generator.js":90,"./util/ndn-protoco-id-tags.js":94,"buffer":5,"crypto":11,"fs":1}],60:[function(require,module,exports){
 /**
  * This class represents Forwarding Entries
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -13360,6 +14077,7 @@ NDN.CLOSED = Face.CLOSED;
  * A copy of the GNU General Public License is in the file COPYING.
  */
 
+var ForwardingFlags = require('./forwarding-flags.js').ForwardingFlags;
 var NDNProtocolDTags = require('./util/ndn-protoco-id-tags.js').NDNProtocolDTags;
 var PublisherPublicKeyDigest = require('./publisher-public-key-digest.js').PublisherPublicKeyDigest;
 var Name = require('./name.js').Name;
@@ -13385,15 +14103,6 @@ var ForwardingEntry = function ForwardingEntry(action, prefixName, ndndId, faceI
 };
 
 exports.ForwardingEntry = ForwardingEntry;
-
-ForwardingEntry.ACTIVE         = 1;
-ForwardingEntry.CHILD_INHERIT  = 2;
-ForwardingEntry.ADVERTISE      = 4;
-ForwardingEntry.LAST           = 8;
-ForwardingEntry.CAPTURE       = 16;
-ForwardingEntry.LOCAL         = 32;
-ForwardingEntry.TAP           = 64;
-ForwardingEntry.CAPTURE_OK   = 128;
 
 ForwardingEntry.prototype.from_ndnb = function(
   //XMLDecoder
@@ -13444,7 +14153,7 @@ ForwardingEntry.prototype.to_ndnb = function(
 
 ForwardingEntry.prototype.getElementLabel = function() { return NDNProtocolDTags.ForwardingEntry; }
 
-},{"./name.js":66,"./publisher-public-key-digest.js":68,"./util/ndn-protoco-id-tags.js":92}],60:[function(require,module,exports){
+},{"./forwarding-flags.js":61,"./name.js":67,"./publisher-public-key-digest.js":69,"./util/ndn-protoco-id-tags.js":94}],61:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -13463,8 +14172,6 @@ ForwardingEntry.prototype.getElementLabel = function() { return NDNProtocolDTags
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * A copy of the GNU General Public License is in the file COPYING.
  */
-
-var ForwardingEntry = require('./forwarding-entry.js').ForwardingEntry;
 
 /**
  * A ForwardingFlags object holds the flags which specify how the forwarding daemon should forward an interest for
@@ -13486,6 +14193,18 @@ var ForwardingFlags = function ForwardingFlags()
 
 exports.ForwardingFlags = ForwardingFlags;
 
+ForwardingFlags.ForwardingEntryFlags_ACTIVE         = 1;
+ForwardingFlags.ForwardingEntryFlags_CHILD_INHERIT  = 2;
+ForwardingFlags.ForwardingEntryFlags_ADVERTISE      = 4;
+ForwardingFlags.ForwardingEntryFlags_LAST           = 8;
+ForwardingFlags.ForwardingEntryFlags_CAPTURE       = 16;
+ForwardingFlags.ForwardingEntryFlags_LOCAL         = 32;
+ForwardingFlags.ForwardingEntryFlags_TAP           = 64;
+ForwardingFlags.ForwardingEntryFlags_CAPTURE_OK   = 128;
+
+ForwardingFlags.NfdForwardingFlags_CHILD_INHERIT = 1;
+ForwardingFlags.NfdForwardingFlags_CAPTURE       = 2;
+
 /**
  * Get an integer with the bits set according to the flags as used by the ForwardingEntry message.
  * @returns {number} An integer with the bits set.
@@ -13495,21 +14214,21 @@ ForwardingFlags.prototype.getForwardingEntryFlags = function()
   var result = 0;
 
   if (this.active)
-    result |= ForwardingEntry.ACTIVE;
+    result |= ForwardingFlags.ForwardingEntryFlags_ACTIVE;
   if (this.childInherit)
-    result |= ForwardingEntry.CHILD_INHERIT;
+    result |= ForwardingFlags.ForwardingEntryFlags_CHILD_INHERIT;
   if (this.advertise)
-    result |= ForwardingEntry.ADVERTISE;
+    result |= ForwardingFlags.ForwardingEntryFlags_ADVERTISE;
   if (this.last)
-    result |= ForwardingEntry.LAST;
+    result |= ForwardingFlags.ForwardingEntryFlags_LAST;
   if (this.capture)
-    result |= ForwardingEntry.CAPTURE;
+    result |= ForwardingFlags.ForwardingEntryFlags_CAPTURE;
   if (this.local)
-    result |= ForwardingEntry.LOCAL;
+    result |= ForwardingFlags.ForwardingEntryFlags_LOCAL;
   if (this.tap)
-    result |= ForwardingEntry.TAP;
+    result |= ForwardingFlags.ForwardingEntryFlags_TAP;
   if (this.captureOk)
-    result |= ForwardingEntry.CAPTURE_OK;
+    result |= ForwardingFlags.ForwardingEntryFlags_CAPTURE_OK;
 
   return result;
 };
@@ -13520,14 +14239,44 @@ ForwardingFlags.prototype.getForwardingEntryFlags = function()
  */
 ForwardingFlags.prototype.setForwardingEntryFlags = function(forwardingEntryFlags)
 {
-  this.active = ((forwardingEntryFlags & ForwardingEntry.ACTIVE) != 0);
-  this.childInherit = ((forwardingEntryFlags & ForwardingEntry.CHILD_INHERIT) != 0);
-  this.advertise = ((forwardingEntryFlags & ForwardingEntry.ADVERTISE) != 0);
-  this.last = ((forwardingEntryFlags & ForwardingEntry.LAST) != 0);
-  this.capture = ((forwardingEntryFlags & ForwardingEntry.CAPTURE) != 0);
-  this.local = ((forwardingEntryFlags & ForwardingEntry.LOCAL) != 0);
-  this.tap = ((forwardingEntryFlags & ForwardingEntry.TAP) != 0);
-  this.captureOk = ((forwardingEntryFlags & ForwardingEntry.CAPTURE_OK) != 0);
+  this.active = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_ACTIVE) != 0);
+  this.childInherit = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_CHILD_INHERIT) != 0);
+  this.advertise = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_ADVERTISE) != 0);
+  this.last = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_LAST) != 0);
+  this.capture = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_CAPTURE) != 0);
+  this.local = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_LOCAL) != 0);
+  this.tap = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_TAP) != 0);
+  this.captureOk = ((forwardingEntryFlags & ForwardingFlags.ForwardingEntryFlags_CAPTURE_OK) != 0);
+};
+
+/**
+ * Get an integer with the bits set according to the NFD forwarding flags as
+ * used in the ControlParameters of the command interest.
+ * @returns {number} An integer with the bits set.
+ */
+ForwardingFlags.prototype.getNfdForwardingFlags = function()
+{
+  var result = 0;
+
+  if (this.childInherit)
+    result |= ForwardingFlags.NfdForwardingFlags_CHILD_INHERIT;
+  if (this.capture)
+    result |= ForwardingFlags.NfdForwardingFlags_CAPTURE;
+
+  return result;
+};
+
+/**
+ * Set the flags according to the NFD forwarding flags as used in the
+ * ControlParameters of the command interest.
+ * @param {number} nfdForwardingFlags An integer with the bits set.
+ */
+ForwardingFlags.prototype.setNfdForwardingFlags = function(nfdForwardingFlags)
+{
+  this.childInherit =
+    ((nfdForwardingFlags & ForwardingFlags.NfdForwardingFlags_CHILD_INHERIT) != 0);
+  this.capture =
+    ((nfdForwardingFlags & ForwardingFlags.NfdForwardingFlags_CAPTURE) != 0);
 };
 
 /**
@@ -13626,7 +14375,7 @@ ForwardingFlags.prototype.setTap = function(value) { this.tap = value; };
  */
 ForwardingFlags.prototype.setCaptureOk = function(value) { this.captureOk = value; };
 
-},{"./forwarding-entry.js":59}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents Interest Objects
@@ -13891,7 +14640,7 @@ Interest.prototype.setName = function(name)
   // The object has changed, so the nonce is invalid.
   this.nonce = null;
 
-  this.name = typeof name === 'object' && name instanceof Interest ?
+  this.name = typeof name === 'object' && name instanceof Name ?
               new Name(name) : new Name();
 };
 
@@ -14050,7 +14799,8 @@ Interest.prototype.toUri = function()
 Interest.prototype.wireEncode = function(wireFormat)
 {
   wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
-  return wireFormat.encodeInterest(this);
+  var result = wireFormat.encodeInterest(this);
+  return result.encoding;
 };
 
 /**
@@ -14107,7 +14857,7 @@ Interest.prototype.decode = function(input, wireFormat)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-wire-format.js":43,"./encoding/wire-format.js":55,"./exclude.js":56,"./key-locator.js":62,"./name.js":66,"./publisher-public-key-digest.js":68,"./util/blob.js":88,"buffer":5}],62:[function(require,module,exports){
+},{"./encoding/binary-xml-wire-format.js":44,"./encoding/wire-format.js":56,"./exclude.js":57,"./key-locator.js":63,"./name.js":67,"./publisher-public-key-digest.js":69,"./util/blob.js":89,"buffer":5}],63:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN KeyLocator object.
@@ -14423,7 +15173,7 @@ KeyName.prototype.getElementLabel = function() { return NDNProtocolDTags.KeyName
 
 
 }).call(this,require("buffer").Buffer)
-},{"./log.js":64,"./name.js":66,"./publisher-id.js":67,"./util/blob.js":88,"./util/ndn-protoco-id-tags.js":92,"buffer":5}],63:[function(require,module,exports){
+},{"./log.js":65,"./name.js":67,"./publisher-id.js":68,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"buffer":5}],64:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents Key Objects
@@ -14576,7 +15326,7 @@ Key.createFromPEM = function(obj)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/data-utils.js":44,"./log.js":64,"buffer":5,"crypto":11}],64:[function(require,module,exports){
+},{"./encoding/data-utils.js":45,"./log.js":65,"buffer":5,"crypto":11}],65:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -14609,9 +15359,9 @@ exports.Log = Log;
  * LOG is the level for logging debugging statements.  0 means no log messages.
  * @type Number
  */
-Log.LOG = 0
+Log.LOG = 0;
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN Data MetaInfo object.
@@ -14943,7 +15693,7 @@ SignedInfo.prototype = new MetaInfo(null, null, null, null, null, null, true);
 exports.SignedInfo = SignedInfo;
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":40,"./encoding/binary-xml-encoder.js":41,"./key-locator.js":62,"./log.js":64,"./name.js":66,"./publisher-public-key-digest.js":68,"./security/key-manager.js":77,"./util/blob.js":88,"./util/ndn-protoco-id-tags.js":92,"./util/ndn-time.js":93,"buffer":5}],66:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./key-locator.js":63,"./log.js":65,"./name.js":67,"./publisher-public-key-digest.js":69,"./security/key-manager.js":78,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"./util/ndn-time.js":95,"buffer":5}],67:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents a Name as an array of components where each is a byte array.
@@ -15267,17 +16017,45 @@ Name.prototype.from_ndnb = function(/*XMLDecoder*/ decoder)
   ++this.changeCount;
 };
 
-Name.prototype.to_ndnb = function(/*XMLEncoder*/ encoder)
+/**
+ * Encode this name to the encoder.
+ * @param {BinaryXMLEncoder} encoder The encoder to receive the encoding.
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
+ */
+Name.prototype.to_ndnb = function(encoder)
 {
   if (this.components == null)
     throw new Error("CANNOT ENCODE EMPTY CONTENT NAME");
 
   encoder.writeElementStartDTag(this.getElementLabel());
+  var signedPortionBeginOffset = encoder.offset;
+  var signedPortionEndOffset;
+
   var count = this.size();
-  for (var i=0; i < count; i++)
-    encoder.writeDTagElement(NDNProtocolDTags.Component, this.components[i].getValue().buf());
+  if (count == 0)
+    // There is no "final component", so set signedPortionEndOffset arbitrarily.
+    signedPortionEndOffset = signedPortionBeginOffset;
+  else {
+    for (var i = 0; i < count; i++) {
+      if (i == count - 1)
+        // We will begin the final component.
+        signedPortionEndOffset = encoder.offset;
+
+      encoder.writeDTagElement
+        (NDNProtocolDTags.Component, this.components[i].getValue().buf());
+    }
+  }
 
   encoder.writeElementClose();
+
+  return { signedPortionBeginOffset: signedPortionBeginOffset,
+           signedPortionEndOffset: signedPortionEndOffset };
 };
 
 Name.prototype.getElementLabel = function()
@@ -15715,7 +16493,7 @@ Name.prototype.getChangeCount = function()
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":40,"./encoding/binary-xml-encoder.js":41,"./encoding/data-utils.js":44,"./log.js":64,"./util/blob.js":88,"./util/ndn-protoco-id-tags.js":92,"buffer":5}],67:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./encoding/data-utils.js":45,"./log.js":65,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"buffer":5}],68:[function(require,module,exports){
 /**
  * This class represents Publisher and PublisherType Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -15842,7 +16620,7 @@ PublisherID.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./encoding/decoding-exception.js":45,"./util/ndn-protoco-id-tags.js":92}],68:[function(require,module,exports){
+},{"./encoding/decoding-exception.js":46,"./util/ndn-protoco-id-tags.js":94}],69:[function(require,module,exports){
 /**
  * This class represents PublisherPublicKeyDigest Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -15925,7 +16703,7 @@ PublisherPublicKeyDigest.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./log.js":64,"./util/ndn-protoco-id-tags.js":92}],69:[function(require,module,exports){
+},{"./log.js":65,"./util/ndn-protoco-id-tags.js":94}],70:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -15978,7 +16756,7 @@ IdentityCertificate.certificateNameToPublicKeyName = function(certificateName)
     (tmpName.getSubName(i + 1, tmpName.size() - i - 1));
 };
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -16072,7 +16850,7 @@ PublicKey.prototype.getKeyDer = function()
   return this.keyDer;
 };
 
-},{"../security-exception.js":82,"../security-types.js":83}],71:[function(require,module,exports){
+},{"../security-exception.js":83,"../security-types.js":84}],72:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -16407,7 +17185,7 @@ IdentityManager.certificateNameToPublicKeyName = function(certificateName)
     (i + 1, tmpName.size() - i - 1));
 };
 }).call(this,require("buffer").Buffer)
-},{"../../data.js":39,"../../encoding/wire-format.js":55,"../../key-locator.js":62,"../../name.js":66,"../../sha256-with-rsa-signature.js":84,"../security-exception.js":82,"buffer":5}],72:[function(require,module,exports){
+},{"../../data.js":40,"../../encoding/wire-format.js":56,"../../key-locator.js":63,"../../name.js":67,"../../sha256-with-rsa-signature.js":85,"../security-exception.js":83,"buffer":5}],73:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -16676,7 +17454,7 @@ IdentityStorage.prototype.setDefaultCertificateNameForKey = function
   throw new Error("IdentityStorage.setDefaultCertificateNameForKey is not implemented");
 };
 
-},{"../../name.js":66,"../security-exception.js":82}],73:[function(require,module,exports){
+},{"../../name.js":67,"../security-exception.js":83}],74:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -16995,7 +17773,7 @@ MemoryIdentityStorage.prototype.setDefaultCertificateNameForKey = function
   throw new Error("MemoryIdentityStorage.setDefaultCertificateNameForKey is not implemented");
 };
 
-},{"../../data.js":39,"../../encoding/data-utils.js":44,"../../name.js":66,"../../util/blob.js":88,"../security-exception.js":82,"../security-types.js":83,"./identity-storage.js":72}],74:[function(require,module,exports){
+},{"../../data.js":40,"../../encoding/data-utils.js":45,"../../name.js":67,"../../util/blob.js":89,"../security-exception.js":83,"../security-types.js":84,"./identity-storage.js":73}],75:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -17164,7 +17942,7 @@ MemoryPrivateKeyStorage.prototype.doesKeyExist = function(keyName, keyClass)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../../encoding/data-utils.js":44,"../../util/blob.js":88,"../certificate/public-key.js":70,"../security-exception.js":82,"../security-types.js":83,"./private-key-storage.js":75,"buffer":5,"crypto":11}],75:[function(require,module,exports){
+},{"../../encoding/data-utils.js":45,"../../util/blob.js":89,"../certificate/public-key.js":71,"../security-exception.js":83,"../security-types.js":84,"./private-key-storage.js":76,"buffer":5,"crypto":11}],76:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -17285,7 +18063,7 @@ PrivateKeyStorage.prototype.doesKeyExist = function(keyName, keyClass)
   throw new Error("PrivateKeyStorage.doesKeyExist is not implemented");
 };
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -17310,6 +18088,7 @@ var Name = require('../name.js').Name;
 var Interest = require('../interest.js').Interest;
 var Data = require('../data.js').Data;
 var KeyLocatorType = require('../key-locator.js').KeyLocatorType;
+var Sha256WithRsaSignature = require('../sha256-with-rsa-signature.js').Sha256WithRsaSignature;
 var WireFormat = require('../encoding/wire-format.js').WireFormat;
 var Tlv = require('../encoding/tlv/tlv.js').Tlv;
 var TlvEncoder = require('../encoding/tlv/tlv-encoder.js').TlvEncoder;
@@ -17572,7 +18351,7 @@ KeyChain.prototype.signInterest = function(interest, certificateName, wireFormat
   wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
 
   // TODO: Handle signature algorithms other than Sha256WithRsa.
-  var signature = Sha256WithRsaSignature();
+  var signature = new Sha256WithRsaSignature();
   signature.getKeyLocator().setType(KeyLocatorType.KEYNAME);
   signature.getKeyLocator().setKeyName(certificateName.getPrefix(-1));
 
@@ -17583,7 +18362,7 @@ KeyChain.prototype.signInterest = function(interest, certificateName, wireFormat
   interest.getName().append(new Name.Component());
   // Encode once to get the signed portion.
   var encoding = interest.wireEncode(wireFormat);
-  var signedSignature = this.sign(encoding.toSignedBuffer(), certificateName);
+  var signedSignature = this.sign(encoding.buf(), certificateName);
 
   // Remove the empty signature and append the real one.
   var encoder = new TlvEncoder(256);
@@ -17785,7 +18564,7 @@ KeyChain.prototype.onCertificateInterestTimeout = function
     onVerifyFailed(data);
 };
 
-},{"../data.js":39,"../encoding/tlv/tlv-encoder.js":52,"../encoding/tlv/tlv.js":54,"../encoding/wire-format.js":55,"../interest.js":61,"../key-locator.js":62,"../name.js":66,"./security-exception.js":82}],77:[function(require,module,exports){
+},{"../data.js":40,"../encoding/tlv/tlv-encoder.js":53,"../encoding/tlv/tlv.js":55,"../encoding/wire-format.js":56,"../interest.js":62,"../key-locator.js":63,"../name.js":67,"../sha256-with-rsa-signature.js":85,"./security-exception.js":83}],78:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Meki Cheraoui
@@ -17874,7 +18653,7 @@ KeyManager.prototype.getKey = function()
 var globalKeyManager = globalKeyManager || new KeyManager();
 exports.globalKeyManager = globalKeyManager;
 
-},{"../key.js":63}],78:[function(require,module,exports){
+},{"../key.js":64}],79:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -17983,7 +18762,7 @@ NoVerifyPolicyManager.prototype.inferSigningIdentity = function(dataName)
   return new Name();
 };
 
-},{"../../name.js":66,"./policy-manager.js":79}],79:[function(require,module,exports){
+},{"../../name.js":67,"./policy-manager.js":80}],80:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18094,7 +18873,7 @@ PolicyManager.prototype.inferSigningIdentity = function(dataName)
   throw new Error("PolicyManager.inferSigningIdentity is not implemented");
 };
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18334,7 +19113,7 @@ SelfVerifyPolicyManager.verifySha256WithRsaSignature = function
   return verifier.verify(keyPem, signatureBytes);
 };
 
-},{"../../data.js":39,"../../encoding/data-utils.js":44,"../../encoding/wire-format.js":55,"../../key-locator.js":62,"../../name.js":66,"../certificate/identity-certificate.js":69,"../security-exception.js":82,"./policy-manager.js":79,"crypto":11}],81:[function(require,module,exports){
+},{"../../data.js":40,"../../encoding/data-utils.js":45,"../../encoding/wire-format.js":56,"../../key-locator.js":63,"../../name.js":67,"../certificate/identity-certificate.js":70,"../security-exception.js":83,"./policy-manager.js":80,"crypto":11}],82:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18382,7 +19161,7 @@ var ValidationRequest = function ValidationRequest
 
 exports.ValidationRequest = ValidationRequest;
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18421,7 +19200,7 @@ SecurityException.prototype.name = "SecurityException";
 
 exports.SecurityException = SecurityException;
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18496,7 +19275,7 @@ EncryptMode.DEFAULT = 1;
 EncryptMode.CFB_AES = 2;
 // EncryptMode.CBC_AES
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN Data Signature object.
@@ -18703,7 +19482,7 @@ Signature.prototype = new Sha256WithRsaSignature();
 exports.Signature = Signature;
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":40,"./encoding/binary-xml-encoder.js":41,"./key-locator.js":62,"./log.js":64,"./util/blob.js":88,"./util/ndn-protoco-id-tags.js":92,"buffer":5}],85:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./key-locator.js":63,"./log.js":65,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"buffer":5}],86:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18739,7 +19518,7 @@ exports.Transport = Transport;
 Transport.ConnectionInfo = function TransportConnectionInfo()
 {
 };
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -18796,8 +19575,8 @@ UnixTransport.ConnectionInfo = function UnixTransportConnectionInfo(filePath)
 {
   // Call the base constructor.
   Transport.ConnectionInfo .call(this);
-  console.log("editlive", filePath)
-  this.filePath = filePath
+
+  this.filePath = filePath;
 };
 
 UnixTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
@@ -18845,13 +19624,11 @@ UnixTransport.prototype.connect = function
   this.elementReader = new ElementReader(elementListener);
 
   var net = require('net');
-  console.log(connectionInfo.filePath)
   this.socket = new net.createConnection(connectionInfo.filePath);
 
   var thisTransport = this;
 
   this.socket.on('data', function(data) {
-    console.log("socket got data")
     if (typeof data == 'object') {
       // Make a copy of data (maybe a Buffer or a String)
       var buf = new Buffer(data);
@@ -18873,8 +19650,8 @@ UnixTransport.prototype.connect = function
     onopenCallback();
   });
 
-  this.socket.on('error', function(er) {
-    if (LOG > 3) console.log('socket.onerror: Unix socket error', er);
+  this.socket.on('error', function() {
+    if (LOG > 3) console.log('socket.onerror: Unix socket error');
   });
 
   this.socket.on('close', function() {
@@ -18908,10 +19685,8 @@ UnixTransport.prototype.close = function()
   if (LOG > 3) console.log('Unix socket connection closed.');
 };
 
-module.exports = {UnixTransport: UnixTransport}
-
 }).call(this,require("buffer").Buffer)
-},{"../encoding/element-reader.js":46,"../log.js":64,"./transport.js":85,"buffer":5,"net":1}],87:[function(require,module,exports){
+},{"../encoding/element-reader.js":47,"../log.js":65,"./transport.js":86,"buffer":5,"net":1}],88:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -19122,7 +19897,7 @@ WebSocketTransport.prototype.close = function()
 
 
 }).call(this,require("buffer").Buffer)
-},{"../encoding/element-reader.js":46,"../log.js":64,"./transport.js":85,"buffer":5}],88:[function(require,module,exports){
+},{"../encoding/element-reader.js":47,"../log.js":65,"./transport.js":86,"buffer":5}],89:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013 Regents of the University of California.
@@ -19262,7 +20037,89 @@ Blob.prototype.equals = function(other)
   }
 };
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],89:[function(require,module,exports){
+},{"buffer":5}],90:[function(require,module,exports){
+/**
+ * Copyright (C) 2014 Regents of the University of California.
+ * @author: Jeff Thompson <jefft0@remap.ucla.edu>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU General Public License is in the file COPYING.
+ */
+
+var WireFormat = require('../encoding/wire-format.js').WireFormat;
+var TlvEncoder = require('../encoding/tlv/tlv-encoder.js').TlvEncoder;
+var Blob = require('./blob.js').Blob;
+
+/**
+ * A CommandInterestGenerator keeps track of a timestamp and generates command
+ * interests according to the NFD Signed Command Interests protocol:
+ * http://redmine.named-data.net/projects/nfd/wiki/Command_Interests
+ *
+ * Create a new CommandInterestGenerator and initialize the timestamp to now.
+ * @constructor
+ */
+var CommandInterestGenerator = function CommandInterestGenerator()
+{
+  this.lastTimestamp = Math.round(new Date().getTime());
+};
+
+exports.CommandInterestGenerator = CommandInterestGenerator;
+
+/**
+ * Append a timestamp component and a random value component to interest's name.
+ * This ensures that the timestamp is greater than the timestamp used in the
+ * previous call. Then use keyChain to sign the interest which appends a
+ * SignatureInfo component and a component with the signature bits. If the
+ * interest lifetime is not set, this sets it.
+ * @param {Interest} interest The interest whose name is append with components.
+ * @param {KeyChain} keyChain The KeyChain for calling sign.
+ * @param {Name} certificateName The certificate name of the key to use for
+ * signing.
+ * @param {WireFormat} wireFormat (optional) A WireFormat object used to encode 
+ * the SignatureInfo and to encode interest name for signing. If omitted, use
+ * WireFormat.getDefaultWireFormat().
+ */
+CommandInterestGenerator.prototype.generate = function
+  (interest, keyChain, certificateName, wireFormat)
+{
+  wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
+
+  var timestamp = Math.round(new Date().getTime());
+  while (timestamp <= this.lastTimestamp)
+    timestamp += 1.0;
+
+  // The timestamp is encoded as a TLV nonNegativeInteger.
+  var encoder = new TlvEncoder(8);
+  encoder.writeNonNegativeInteger(timestamp);
+  interest.getName().append(new Blob(encoder.getOutput(), false));
+
+  // The random value is a TLV nonNegativeInteger too, but we know it is 8
+  // bytes, so we don't need to call the nonNegativeInteger encoder.
+  interest.getName().append(new Blob(require("crypto").randomBytes(8), false));
+
+  keyChain.sign(interest, certificateName, wireFormat);
+
+  if (interest.getInterestLifetimeMilliseconds() == null ||
+      interest.getInterestLifetimeMilliseconds() < 0)
+    // The caller has not set the interest lifetime, so set it here.
+    interest.setInterestLifetimeMilliseconds(1000.0);
+
+  // We successfully signed the interest, so update the timestamp.
+  this.lastTimestamp = timestamp;
+};
+
+},{"../encoding/tlv/tlv-encoder.js":53,"../encoding/wire-format.js":56,"./blob.js":89,"crypto":11}],91:[function(require,module,exports){
 (function (Buffer){
 /**
  * Encapsulate a Buffer and support dynamic reallocation.
@@ -19391,7 +20248,7 @@ DynamicBuffer.prototype.slice = function(begin, end)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],90:[function(require,module,exports){
+},{"buffer":5}],92:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -19661,7 +20518,7 @@ MemoryContentCache.StaleTimeContent.prototype.isStale = function(nowMilliseconds
   return this.staleTimeMilliseconds <= nowMilliseconds;
 };
 
-},{"../name.js":66}],91:[function(require,module,exports){
+},{"../name.js":67}],93:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -19816,7 +20673,7 @@ NameEnumeration.endsWithSegmentNumber = function(name) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../encoding/binary-xml-decoder.js":40,"../encoding/data-utils.js":44,"../name.js":66,"./ndn-protoco-id-tags.js":92,"buffer":5}],92:[function(require,module,exports){
+},{"../encoding/binary-xml-decoder.js":41,"../encoding/data-utils.js":45,"../name.js":67,"./ndn-protoco-id-tags.js":94,"buffer":5}],94:[function(require,module,exports){
 /**
  * This class contains all NDNx tags
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -19987,7 +20844,7 @@ var NDNProtocolDTagsStrings = [
 
 exports.NDNProtocolDTagsStrings = NDNProtocolDTagsStrings;
 
-},{}],93:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 /**
  * This class represents NDNTime Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -20033,7 +20890,7 @@ NDNTime.prototype.getJavascriptDate = function()
   return d
 };
 
-},{"../log.js":64}],94:[function(require,module,exports){
+},{"../log.js":65}],96:[function(require,module,exports){
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -20143,9 +21000,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
   return this.signedPortionEndOffset;
 };
 
-},{"./blob.js":88}],95:[function(require,module,exports){
+},{"./blob.js":89}],97:[function(require,module,exports){
 (function(){
-    
+
     // Copyright (c) 2005  Tom Wu
     // All Rights Reserved.
     // See "LICENSE" for details.
@@ -21355,6 +22212,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
     // JSBN-specific extension
     BigInteger.prototype.square = bnSquare;
 
+    // Expose the Barrett function
+    BigInteger.prototype.Barrett = Barrett
+
     // BigInteger interfaces not implemented in jsbn:
 
     // BigInteger(int signum, byte[] magnitude)
@@ -21368,9 +22228,10 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
     } else {
         this.BigInteger = BigInteger;
     }
-    
+
 }).call(this);
-},{}],96:[function(require,module,exports){
+
+},{}],98:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
 
@@ -21411,7 +22272,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
          * @const
          * @expose
          */
-        ProtoBuf.VERSION = "3.2.2";
+        ProtoBuf.VERSION = "3.6.0";
 
         /**
          * Wire types.
@@ -21600,6 +22461,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
         ProtoBuf.convertFieldsToCamelCase = false;
 
         /**
+         * By default, messages are populated with (setX, set_x) accessors for each field. This can be disabled by
+         *  setting this to `false` prior to building messages.
+         * @type {boolean}
+         * @expose
+         */
+        ProtoBuf.populateAccessors = true;
+
+        /**
          * @alias ProtoBuf.Util
          * @expose
          */
@@ -21734,9 +22603,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
         /**
          * Language expressions.
-         * @exports ProtoBuf.Lang
-         * @type {Object.<string,string|RegExp>}
-         * @namespace
+         * @type {!Object.<string,string|!RegExp>}
          * @expose
          */
         ProtoBuf.Lang = {
@@ -21995,29 +22862,29 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                     "options": {},
                     "services": []
                 };
-                var token, header = true;
+                var token, head = true;
                 while(token = this.tn.next()) {
                     switch (token) {
                         case 'package':
-                            if (!header || topLevel["package"] !== null)
+                            if (!head || topLevel["package"] !== null)
                                 throw Error("Illegal package at line "+this.tn.line);
                             topLevel["package"] = this._parsePackage(token);
                             break;
                         case 'import':
-                            if (!header)
+                            if (!head)
                                 throw Error("Illegal import at line "+this.tn.line);
                             topLevel.imports.push(this._parseImport(token));
                             break;
                         case 'message':
                             this._parseMessage(topLevel, null, token);
-                            header = false;
+                            head = false;
                             break;
                         case 'enum':
                             this._parseEnum(topLevel, token);
-                            header = false;
+                            head = false;
                             break;
                         case 'option':
-                            if (!header)
+                            if (!head)
                                 throw Error("Illegal option at line "+this.tn.line);
                             this._parseOption(topLevel, token);
                             break;
@@ -22059,6 +22926,25 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 else if (Lang.NUMBER_FLT.test(val))
                     return sign*parseFloat(val);
                 throw Error("Illegal number at line "+this.tn.line+": "+(sign < 0 ? '-' : '')+val);
+            };
+
+            /**
+             * Parses a (possibly multiline) string.
+             * @param {string} context Context description
+             * @returns {string}
+             * @private
+             */
+            Parser.prototype._parseString = function(context) {
+                var value = "", token;
+                do {
+                    token = this.tn.next(); // Known to be = this.tn.stringEndsWith
+                    value += this.tn.next();
+                    token = this.tn.next();
+                    if (token !== this.tn.stringEndsWith)
+                        throw Error("Illegal end of string in "+context+" at line "+this.tn.line+": "+token+" ('"+this.tn.stringEndsWith+"' expected)");
+                    token = this.tn.peek();
+                } while (token === Lang.STRINGOPEN || token === Lang.STRINGOPEN_SQ);
+                return value;
             };
 
             /**
@@ -22115,15 +23001,13 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @private
              */
             Parser.prototype._parseImport = function(token) {
-                token = this.tn.next();
+                token = this.tn.peek();
                 if (token === "public")
-                    token = this.tn.next();
+                    this.tn.next(),
+                    token = this.tn.peek();
                 if (token !== Lang.STRINGOPEN && token !== Lang.STRINGOPEN_SQ)
                     throw Error("Illegal import at line "+this.tn.line+": "+token+" ('"+Lang.STRINGOPEN+"' or '"+Lang.STRINGOPEN_SQ+"' expected)");
-                var imported = this.tn.next();
-                token = this.tn.next();
-                if (token !== this.tn.stringEndsWith)
-                    throw Error("Illegal import at line "+this.tn.line+": "+token+" ('"+this.tn.stringEndsWith+"' expected)");
+                var imported = this._parseString("root");
                 token = this.tn.next();
                 if (token !== Lang.END)
                     throw Error("Illegal import at line "+this.tn.line+": "+token+" ('"+Lang.END+"' expected)");
@@ -22161,13 +23045,11 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 if (token !== Lang.EQUAL)
                     throw Error("Illegal option operator in message "+parent.name+", option "+name+" at line "+this.tn.line+": "+token+" ('"+Lang.EQUAL+"' expected)");
                 var value;
-                token = this.tn.next();
-                if (token === Lang.STRINGOPEN || token === Lang.STRINGOPEN_SQ) {
-                    value = this.tn.next();
-                    token = this.tn.next();
-                    if (token !== this.tn.stringEndsWith)
-                        throw Error("Illegal end of option value in message "+parent.name+", option "+name+" at line "+this.tn.line+": "+token+" ('"+this.tn.stringEndsWith+"' expected)");
-                } else {
+                token = this.tn.peek();
+                if (token === Lang.STRINGOPEN || token === Lang.STRINGOPEN_SQ)
+                    value = this._parseString("message "+parent.name+", option "+name);
+                else {
+                    this.tn.next();
                     if (Lang.NUMBER.test(token))
                         value = this._parseNumber(token, true);
                     else if (Lang.BOOL.test(token))
@@ -22461,18 +23343,15 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 if (token !== Lang.EQUAL)
                     throw Error("Illegal field option operation in message "+msg.name+"#"+fld.name+" at line "+this.tn.line+": "+token+" ('=' expected)");
                 var value;
-                token = this.tn.next();
+                token = this.tn.peek();
                 if (token === Lang.STRINGOPEN || token === Lang.STRINGOPEN_SQ) {
-                    value = this.tn.next();
-                    token = this.tn.next();
-                    if (token != this.tn.stringEndsWith)
-                        throw Error("Illegal end of field value in message "+msg.name+"#"+fld.name+", option "+name+" at line "+this.tn.line+": "+token+" ('"+this.tn.stringEndsWith+"' expected)");
+                    value = this._parseString("message "+msg.name+"#"+fld.name);
                 } else if (Lang.NUMBER.test(token, true))
-                    value = this._parseNumber(token, true);
+                    value = this._parseNumber(this.tn.next(), true);
                 else if (Lang.BOOL.test(token))
-                    value = token.toLowerCase() === 'true';
+                    value = this.tn.next().toLowerCase() === 'true';
                 else if (Lang.TYPEREF.test(token))
-                    value = token; // TODO: Resolve?
+                    value = this.tn.next(); // TODO: Resolve?
                 else
                     throw Error("Illegal field option value in message "+msg.name+"#"+fld.name+", option "+name+" at line "+this.tn.line+": "+token);
                 fld["options"][name] = value;
@@ -22766,9 +23645,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 var children = [];
                 for (var i=0, k=this.children.length; i<k; ++i)
                     if (this.children[i] instanceof type)
-                        // We also need to distinguish between Field and ExtensionField which is an instance of Field
-                        if (type !== Message.Field || !(this.children[i] instanceof Message.ExtensionField))
-                            children.push(this.children[i]);
+                        children.push(this.children[i]);
                 return children;
             };
 
@@ -22782,9 +23659,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 var other;
                 if (other = this.getChild(child.name)) {
                     // Try to revert camelcase transformation on collision
-                    if (other instanceof Message.Field && other.name !== other.originalName && !this.hasChild(other.originalName))
+                    if (other instanceof Message.Field && other.name !== other.originalName && this.getChild(other.originalName) === null)
                         other.name = other.originalName; // Revert previous first (effectively keeps both originals)
-                    else if (child instanceof Message.Field && child.name !== child.originalName && !this.hasChild(child.originalName))
+                    else if (child instanceof Message.Field && child.name !== child.originalName && this.getChild(child.originalName) === null)
                         child.name = child.originalName;
                     else
                         throw Error("Duplicate name in namespace "+this.toString(true)+": "+child.name);
@@ -22793,52 +23670,32 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
             };
 
             /**
-             * Tests if this namespace has a child with the specified name.
-             * @param {string|number} nameOrId Child name or id
-             * @returns {boolean} true if there is one, else false
-             * @expose
-             */
-            Namespace.prototype.hasChild = function(nameOrId) {
-                return this._indexOf(nameOrId) > -1;
-            };
-
-            /**
-             * Gets a child by its name.
+             * Gets a child by its name or id.
              * @param {string|number} nameOrId Child name or id
              * @return {?ProtoBuf.Reflect.T} The child or null if not found
              * @expose
              */
             Namespace.prototype.getChild = function(nameOrId) {
-                var index = this._indexOf(nameOrId);
-                return index > -1 ? this.children[index] : null;
-            };
-
-            /**
-             * Returns child index by its name or id.
-             * @param {string|number} nameOrId Child name or id
-             * @return {Number} The child index
-             * @private
-             */
-            Namespace.prototype._indexOf = function(nameOrId) {
                 var key = typeof nameOrId === 'number' ? 'id' : 'name';
-                for (var i=0; i<this.children.length; i++)
-                    if (typeof this.children[i][key] !== 'undefined' && this.children[i][key] == nameOrId)
-                        return i;
-                return -1;
+                for (var i=0, k=this.children.length; i<k; ++i)
+                    if (this.children[i][key] === nameOrId)
+                        return this.children[i];
+                return null;
             };
 
             /**
              * Resolves a reflect object inside of this namespace.
              * @param {string} qn Qualified name to resolve
              * @param {boolean=} excludeFields Excludes fields, defaults to `false`
-             * @return {ProtoBuf.Reflect.Namespace|null} The resolved type or null if not found
+             * @return {?ProtoBuf.Reflect.Namespace} The resolved type or null if not found
              * @expose
              */
             Namespace.prototype.resolve = function(qn, excludeFields) {
-                var part = qn.split(".");
-                var ptr = this, i=0;
-                if (part[i] == "") { // Fully qualified name, e.g. ".My.Message'
-                    while (ptr.parent != null)
+                var part = qn.split("."),
+                    ptr = this,
+                    i = 0;
+                if (part[i] === "") { // Fully qualified name, e.g. ".My.Message'
+                    while (ptr.parent !== null)
                         ptr = ptr.parent;
                     i++;
                 }
@@ -22870,8 +23727,8 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
             Namespace.prototype.build = function() {
                 /** @dict */
                 var ns = {};
-                var children = this.getChildren(), child;
-                for (var i=0, k=children.length; i<k; ++i) {
+                var children = this.children;
+                for (var i=0, k=children.length, child; i<k; ++i) {
                     child = children[i];
                     if (child instanceof Namespace)
                         ns[child.name] = child.build();
@@ -22886,9 +23743,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @return {Object.<string,*>}
              */
             Namespace.prototype.buildOpt = function() {
-                var opt = {};
-                var keys = Object.keys(this.options);
-                for (var i=0; i<keys.length; i++) {
+                var opt = {},
+                    keys = Object.keys(this.options);
+                for (var i=0, k=keys.length; i<k; ++i) {
                     var key = keys[i],
                         val = this.options[keys[i]];
                     // TODO: Options are not resolved, yet.
@@ -22956,6 +23813,22 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                  * @expose
                  */
                 this.isGroup = !!isGroup;
+
+                // The following cached collections are used to efficiently iterate over or look up fields when decoding.
+
+                /**
+                 * Cached fields.
+                 * @type {?Array.<!ProtoBuf.Reflect.Message.Field>}
+                 * @private
+                 */
+                this._fields = null;
+
+                /**
+                 * Cached fields by id.
+                 * @type {?Object.<number,!ProtoBuf.Reflect.Message.Field>}
+                 * @private
+                 */
+                this._fieldsById = null;
             };
 
             // Extends Namespace
@@ -22970,9 +23843,10 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @expose
              */
             Message.prototype.build = function(rebuild) {
-                if (this.clazz && !rebuild) return this.clazz;
+                if (this.clazz && !rebuild)
+                    return this.clazz;
 
-                // We need to create a prototyped Message class in an isolated scope
+                // Create the runtime Message class in its own scope
                 var clazz = (function(ProtoBuf, T) {
 
                     var fields = T.getChildren(ProtoBuf.Reflect.Message.Field);
@@ -22981,46 +23855,44 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * Constructs a new runtime Message.
                      * @name ProtoBuf.Builder.Message
                      * @class Barebone of all runtime messages.
-                     * @param {Object.<string,*>|...[string]} values Preset values
+                     * @param {!Object.<string,*>|string} values Preset values
+                     * @param {...string} var_args
                      * @constructor
                      * @throws {Error} If the message cannot be created
                      */
-                    var Message = function(values) {
+                    var Message = function(values, var_args) {
                         ProtoBuf.Builder.Message.call(this);
-                        var i, field;
 
-                        // Create fields on the object itself to allow setting and getting through Message#fieldname
-                        for (i=0; i<fields.length; i++) {
-                            field = fields[i];
-                            this[field.name] = (field.repeated) ? [] : null;
+                        // Create fields on the object itself and set default values
+                        for (var i=0, k=fields.length, field; i<k; ++i) {
+                            this[(field = fields[i]).name] = field.repeated ? [] : null;
+                            if (field.required && field.defaultValue !== null)
+                                this[field.name] = field.defaultValue;
                         }
-                        // Set the default values
-                        for (i=0; i<fields.length; i++) {
-                            field = fields[i];
-                            if (typeof field.options['default'] != 'undefined') {
-                                try {
-                                    this.$set(field.name, field.options['default']); // Should not throw
-                                } catch (e) {
-                                    throw Error("[INTERNAL] "+e);
-                                }
-                            }
-                        }
-                        // Set field values from a values object
-                        if (arguments.length == 1 && typeof values == 'object' &&
-                            /* not another Message */ typeof values.encode != 'function' &&
-                            /* not a repeated field */ !ProtoBuf.Util.isArray(values) &&
-                            /* not a ByteBuffer */ !(values instanceof ByteBuffer) &&
-                            /* not an ArrayBuffer */ !(values instanceof ArrayBuffer) &&
-                            /* not a Long */ !(ProtoBuf.Long && values instanceof ProtoBuf.Long)) {
-                            var keys = Object.keys(values);
-                            for (i=0; i<keys.length; i++)
-                                this.$set(keys[i], values[keys[i]]); // May throw
-                            // Else set field values from arguments, in correct order
-                        } else
-                            for (i=0; i<arguments.length; i++)
-                                if (i<fields.length)
+
+                        if (arguments.length > 0) {
+                            // Set field values from a values object
+                            if (arguments.length === 1 && typeof values === 'object' &&
+                                /* not another Message */ typeof values.encode !== 'function' &&
+                                /* not a repeated field */ !ProtoBuf.Util.isArray(values) &&
+                                /* not a ByteBuffer */ !(values instanceof ByteBuffer) &&
+                                /* not an ArrayBuffer */ !(values instanceof ArrayBuffer) &&
+                                /* not a Long */ !(ProtoBuf.Long && values instanceof ProtoBuf.Long)) {
+                                var keys = Object.keys(values);
+                                for (i=0, k=keys.length; i<k; ++i)
+                                    this.$set(keys[i], values[keys[i]]); // May throw
+                            } else // set field values from arguments, in declaration order
+                                for (i=0, k=arguments.length; i<k; ++i)
                                     this.$set(fields[i].name, arguments[i]); // May throw
+                        }
                     };
+
+                    /**
+                     * The message's reflection type.
+                     * @name ProtoBuf.Builder.Message#$type
+                     * @type {!ProtoBuf.Reflect.Message}
+                     * @expose
+                     */
 
                     // Extends ProtoBuf.Builder.Message
                     Message.prototype = Object.create(ProtoBuf.Builder.Message.prototype);
@@ -23066,17 +23938,29 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @function
                      * @param {string} key Key
                      * @param {*} value Value to set
-                     * @param {boolean=} noAssert Whether to assert the value or not (asserts by default)
+                     * @param {boolean=} noAssert Whether to not assert for an actual field / proper value type, defaults to `false`
+                     * @returns {!ProtoBuf.Builder.Message} this
                      * @throws {Error} If the value cannot be set
                      * @expose
                      */
                     Message.prototype.set = function(key, value, noAssert) {
+                        if (key && typeof key === 'object') {
+                            for (var i in key)
+                                if (key.hasOwnProperty(i))
+                                    this.$set(i, key[i], noAssert);
+                            return this;
+                        }
+                        if (noAssert) {
+                            this[key] = value;
+                            return this;
+                        }
                         var field = T.getChild(key);
                         if (!field)
                             throw Error(this+"#"+key+" is not a field: undefined");
                         if (!(field instanceof ProtoBuf.Reflect.Message.Field))
                             throw Error(this+"#"+key+" is not a field: "+field.toString(true));
-                        this[field.name] = noAssert ? value : field.verifyValue(value); // May throw
+                        this[field.name] = field.verifyValue(value); // May throw
+                        return this;
                     };
 
                     /**
@@ -23096,11 +23980,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @name ProtoBuf.Builder.Message#get
                      * @function
                      * @param {string} key Key
+                     * @param {boolean=} noAssert Whether to no assert for an actual field, defaults to `false`
                      * @return {*} Value
                      * @throws {Error} If there is no such field
                      * @expose
                      */
-                    Message.prototype.get = function(key) {
+                    Message.prototype.get = function(key, noAssert) {
+                        if (noAssert)
+                            return this[key];
                         var field = T.getChild(key);
                         if (!field || !(field instanceof ProtoBuf.Reflect.Message.Field))
                             throw Error(this+"#"+key+" is not a field: undefined");
@@ -23124,74 +24011,78 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
                     for (var i=0; i<fields.length; i++) {
                         var field = fields[i];
+                        // no setters for extension fields as these are named by their fqn
+                        if (field instanceof ProtoBuf.Reflect.Message.ExtensionField)
+                            continue;
 
-                        (function(field) {
-                            // set/get[SomeValue]
-                            var Name = field.originalName.replace(/(_[a-zA-Z])/g, function(match) {
-                                return match.toUpperCase().replace('_','');
-                            });
-                            Name = Name.substring(0,1).toUpperCase()+Name.substring(1);
+                        if (ProtoBuf.populateAccessors)
+                            (function(field) {
+                                // set/get[SomeValue]
+                                var Name = field.originalName.replace(/(_[a-zA-Z])/g, function(match) {
+                                    return match.toUpperCase().replace('_','');
+                                });
+                                Name = Name.substring(0,1).toUpperCase()+Name.substring(1);
 
-                            // set/get_[some_value]
-                            var name = field.originalName.replace(/([A-Z])/g, function(match) {
-                                return "_"+match;
-                            });
+                                // set/get_[some_value]
+                                var name = field.originalName.replace(/([A-Z])/g, function(match) {
+                                    return "_"+match;
+                                });
 
-                            /**
-                             * Sets a value. This method is present for each field, but only if there is no name conflict with
-                             * another field.
-                             * @name ProtoBuf.Builder.Message#set[SomeField]
-                             * @function
-                             * @param {*} value Value to set
-                             * @abstract
-                             * @throws {Error} If the value cannot be set
-                             */
-                            if (!T.hasChild("set"+Name))
-                                Message.prototype["set"+Name] = function(value) {
-                                    this.$set(field.name, value);
-                                };
+                                /**
+                                 * Sets a value. This method is present for each field, but only if there is no name conflict with
+                                 * another field.
+                                 * @name ProtoBuf.Builder.Message#set[SomeField]
+                                 * @function
+                                 * @param {*} value Value to set
+                                 * @abstract
+                                 * @throws {Error} If the value cannot be set
+                                 */
+                                if (T.getChild("set"+Name) === null)
+                                    Message.prototype["set"+Name] = function(value) {
+                                        this.$set(field.name, value);
+                                    };
 
-                            /**
-                             * Sets a value. This method is present for each field, but only if there is no name conflict with
-                             * another field.
-                             * @name ProtoBuf.Builder.Message#set_[some_field]
-                             * @function
-                             * @param {*} value Value to set
-                             * @abstract
-                             * @throws {Error} If the value cannot be set
-                             */
-                            if (!T.hasChild("set_"+name))
-                                Message.prototype["set_"+name] = function(value) {
-                                    this.$set(field.name, value);
-                                };
+                                /**
+                                 * Sets a value. This method is present for each field, but only if there is no name conflict with
+                                 * another field.
+                                 * @name ProtoBuf.Builder.Message#set_[some_field]
+                                 * @function
+                                 * @param {*} value Value to set
+                                 * @abstract
+                                 * @throws {Error} If the value cannot be set
+                                 */
+                                if (T.getChild("set_"+name) === null)
+                                    Message.prototype["set_"+name] = function(value) {
+                                        this.$set(field.name, value);
+                                    };
 
-                            /**
-                             * Gets a value. This method is present for each field, but only if there is no name conflict with
-                             * another field.
-                             * @name ProtoBuf.Builder.Message#get[SomeField]
-                             * @function
-                             * @abstract
-                             * @return {*} The value
-                             */
-                            if (!T.hasChild("get"+Name))
-                                Message.prototype["get"+Name] = function() {
-                                    return this.$get(field.name); // Does not throw, field exists
-                                }
+                                /**
+                                 * Gets a value. This method is present for each field, but only if there is no name conflict with
+                                 * another field.
+                                 * @name ProtoBuf.Builder.Message#get[SomeField]
+                                 * @function
+                                 * @abstract
+                                 * @return {*} The value
+                                 */
+                                if (T.getChild("get"+Name) === null)
+                                    Message.prototype["get"+Name] = function() {
+                                        return this.$get(field.name); // Does not throw, field exists
+                                    };
 
-                            /**
-                             * Gets a value. This method is present for each field, but only if there is no name conflict with
-                             * another field.
-                             * @name ProtoBuf.Builder.Message#get_[some_field]
-                             * @function
-                             * @return {*} The value
-                             * @abstract
-                             */
-                            if (!T.hasChild("get_"+name))
-                                Message.prototype["get_"+name] = function() {
-                                    return this.$get(field.name); // Does not throw, field exists
-                                };
+                                /**
+                                 * Gets a value. This method is present for each field, but only if there is no name conflict with
+                                 * another field.
+                                 * @name ProtoBuf.Builder.Message#get_[some_field]
+                                 * @function
+                                 * @return {*} The value
+                                 * @abstract
+                                 */
+                                if (T.getChild("get_"+name) === null)
+                                    Message.prototype["get_"+name] = function() {
+                                        return this.$get(field.name); // Does not throw, field exists
+                                    };
 
-                        })(field);
+                            })(field);
                     }
 
                     // En-/decoding
@@ -23201,6 +24092,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @name ProtoBuf.Builder.Message#$encode
                      * @function
                      * @param {(!ByteBuffer|boolean)=} buffer ByteBuffer to encode to. Will create a new one and flip it if omitted.
+                     * @param {boolean=} noVerify Whether to not verify field values, defaults to `false`
                      * @return {!ByteBuffer} Encoded message as a ByteBuffer
                      * @throws {Error} If the message cannot be encoded or if required fields are missing. The later still
                      *  returns the encoded ByteBuffer in the `encoded` property on the error.
@@ -23209,13 +24101,17 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @see ProtoBuf.Builder.Message#encodeHex
                      * @see ProtoBuf.Builder.Message#encodeAB
                      */
-                    Message.prototype.encode = function(buffer) {
+                    Message.prototype.encode = function(buffer, noVerify) {
+                        if (typeof buffer === 'boolean')
+                            noVerify = buffer,
+                            buffer = undefined;
                         var isNew = false;
                         if (!buffer)
-                            buffer = new ByteBuffer(), isNew = true;
+                            buffer = new ByteBuffer(),
+                            isNew = true;
                         var le = buffer.littleEndian;
                         try {
-                            T.encode(this, buffer.LE());
+                            T.encode(this, buffer.LE(), noVerify);
                             return (isNew ? buffer.flip() : buffer).LE(le);
                         } catch (e) {
                             buffer.LE(le);
@@ -23248,7 +24144,8 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                     Message.prototype.encodeDelimited = function(buffer) {
                         var isNew = false;
                         if (!buffer)
-                            buffer = new ByteBuffer(), isNew = true;
+                            buffer = new ByteBuffer(),
+                            isNew = true;
                         var enc = new ByteBuffer().LE();
                         T.encode(this, enc).flip();
                         buffer.writeVarint32(enc.remaining());
@@ -23506,7 +24403,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                         return T.toString();
                     };
 
-                    // Static
+                    // Properties
 
                     /**
                      * Options.
@@ -23514,27 +24411,45 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @type {Object.<string,*>}
                      * @expose
                      */
-                    var $options; // for cc
+                    var $options; // cc
+
+                    /**
+                     * Reflection type.
+                     * @name ProtoBuf.Builder.Message#$type
+                     * @type {!ProtoBuf.Reflect.Message}
+                     * @expose
+                     */
+                    var $type; // cc
 
                     if (Object.defineProperty)
-                        Object.defineProperty(Message, '$options', { "value": T.buildOpt() });
+                        Object.defineProperty(Message, '$options', { "value": T.buildOpt() }),
+                        Object.defineProperty(Message.prototype, "$type", {
+                            get: function() { return T; }
+                        });
 
                     return Message;
 
                 })(ProtoBuf, this);
 
-                // Static enums and prototyped sub-messages
-                var children = this.getChildren();
-                for (var i=0; i<children.length; i++) {
-                    if (children[i] instanceof Enum)
-                        clazz[children[i]['name']] = children[i].build();
-                    else if (children[i] instanceof Message)
-                        clazz[children[i]['name']] = children[i].build();
-                    else if (children[i] instanceof Message.Field) {
+                // Static enums and prototyped sub-messages / cached collections
+                this._fields = [];
+                this._fieldsById = [];
+                for (var i=0, k=this.children.length, child; i<k; i++) {
+                    child = this.children[i];
+                    if (child instanceof Enum)
+                        clazz[child['name']] = child.build();
+                    else if (child instanceof Message)
+                        clazz[child['name']] = child.build();
+                    else if (child instanceof Message.Field)
+                        child.build(),
+                        this._fields.push(child),
+                        this._fieldsById[child.id] = child;
+                    else if (child instanceof Extension) {
                         // Ignore
                     } else
                         throw Error("Illegal reflect child of "+this.toString(true)+": "+children[i].toString(true));
                 }
+
                 return this.clazz = clazz;
             };
 
@@ -23542,20 +24457,22 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * Encodes a runtime message's contents to the specified buffer.
              * @param {!ProtoBuf.Builder.Message} message Runtime message to encode
              * @param {ByteBuffer} buffer ByteBuffer to write to
+             * @param {boolean=} noVerify Whether to not verify field values, defaults to `false`
              * @return {ByteBuffer} The ByteBuffer for chaining
              * @throws {Error} If required fields are missing or the message cannot be encoded for another reason
              * @expose
              */
-            Message.prototype.encode = function(message, buffer) {
-                var fields = this.getChildren(Message.Field),
-                    fieldMissing = null;
-                for (var i=0, val; i<fields.length; i++) {
-                    val = message.$get(fields[i].name);
-                    if (fields[i].required && val === null) {
+            Message.prototype.encode = function(message, buffer, noVerify) {
+                var fieldMissing = null,
+                    field;
+                for (var i=0, k=this._fields.length, val; i<k; ++i) {
+                    field = this.children[i];
+                    val = message[field.name];
+                    if (field.required && val === null) {
                         if (fieldMissing === null)
-                            fieldMissing = fields[i];
+                            fieldMissing = field;
                     } else
-                        fields[i].encode(val, buffer);
+                        field.encode(noVerify ? val : field.verifyValue(val), buffer);
                 }
                 if (fieldMissing !== null) {
                     var err = Error("Missing at least one required field for "+this.toString(true)+": "+fieldMissing);
@@ -23573,14 +24490,13 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @expose
              */
             Message.prototype.calculate = function(message) {
-                var fields = this.getChildren(Message.Field),
-                    n = 0;
-                for (var i=0, val; i<fields.length; i++) {
-                    val = message.$get(fields[i].name);
-                    if (fields[i].required && val === null)
-                       throw Error("Missing at least one required field for "+this.toString(true)+": "+fields[i]);
+                for (var n=0, i=0, k=this._fields.length, field, val; i<k; ++i) {
+                    field = this._fields[i];
+                    val = message[field.name];
+                    if (field.required && val === null)
+                       throw Error("Missing at least one required field for "+this.toString(true)+": "+field);
                     else
-                        n += fields[i].calculate(val);
+                        n += field.calculate(val);
                 }
                 return n;
             };
@@ -23637,10 +24553,10 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              */
             Message.prototype.decode = function(buffer, length, expectedGroupEndId) {
                 length = typeof length === 'number' ? length : -1;
-                var start = buffer.offset;
-                var msg = new (this.clazz)();
-                var tag, wireType, id;
-                while (buffer.offset < start+length || (length == -1 && buffer.remaining() > 0)) {
+                var start = buffer.offset,
+                    msg = new (this.clazz)(),
+                    tag, wireType, id, field;
+                while (buffer.offset < start+length || (length === -1 && buffer.remaining() > 0)) {
                     tag = buffer.readVarint32();
                     wireType = tag & 0x07;
                     id = tag >> 3;
@@ -23649,8 +24565,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                             throw Error("Illegal group end indicator for "+this.toString(true)+": "+id+" ("+(expectedGroupEndId ? expectedGroupEndId+" expected" : "not a group")+")");
                         break;
                     }
-                    var field = this.getChild(id); // Message.Field only
-                    if (!field) {
+                    if (!(field = this._fieldsById[id])) {
                         // "messages created by your new code can be parsed by your old code: old binaries simply ignore the new field when parsing."
                         switch (wireType) {
                             case ProtoBuf.WIRE_TYPES.VARINT:
@@ -23675,19 +24590,22 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                         continue;
                     }
                     if (field.repeated && !field.options["packed"])
-                        msg.$add(field.name, field.decode(wireType, buffer), true);
+                        msg[field.name].push(field.decode(wireType, buffer));
                     else
-                        msg.$set(field.name, field.decode(wireType, buffer), true);
+                        msg[field.name] = field.decode(wireType, buffer);
                 }
 
-                // Check if all required fields are present
-                var fields = this.getChildren(ProtoBuf.Reflect.Field);
-                for (var i=0; i<fields.length; i++)
-                    if (fields[i].required && msg[fields[i].name] === null) {
-                        var err = Error("Missing at least one required field for "+this.toString(true)+": "+fields[i].name);
-                        err["decoded"] = msg; // Still expose what we got
-                        throw(err);
-                    }
+                // Check if all required fields are present and set default values for optional fields that are not
+                for (var i=0, k=this._fields.length; i<k; ++i) {
+                    field = this._fields[i];
+                    if (msg[field.name] === null)
+                        if (field.required) {
+                            var err = Error("Missing at least one required field for "+this.toString(true)+": "+field.name);
+                            err["decoded"] = msg; // Still expose what we got
+                            throw(err);
+                        } else if (field.defaultValue !== null)
+                            msg[field.name] = field.defaultValue;
+                }
                 return msg;
             };
 
@@ -23705,7 +24623,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @param {string} type Data type, e.g. int32
              * @param {string} name Field name
              * @param {number} id Unique field id
-             * @param {Object.<string.*>=} options Options
+             * @param {Object.<string,*>=} options Options
              * @constructor
              * @extends ProtoBuf.Reflect.T
              */
@@ -23722,14 +24640,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                  * @type {boolean}
                  * @expose
                  */
-                this.required = rule == "required";
+                this.required = rule === "required";
 
                 /**
                  * Message field repeated flag.
                  * @type {boolean}
                  * @expose
                  */
-                this.repeated = rule == "repeated";
+                this.repeated = rule === "repeated";
 
                 /**
                  * Message field type. Type reference string if unresolved, protobuf type if resolved.
@@ -23761,6 +24679,13 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 this.options = options || {};
 
                 /**
+                 * Default value.
+                 * @type {*}
+                 * @expose
+                 */
+                this.defaultValue = null;
+
+                /**
                  * Original field name.
                  * @type {string}
                  * @expose
@@ -23768,7 +24693,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 this.originalName = this.name; // Used to revert camelcase transformation on naming collisions
 
                 // Convert field names to camel case notation if the override is set
-                if (ProtoBuf.convertFieldsToCamelCase) {
+                if (ProtoBuf.convertFieldsToCamelCase && !(this instanceof Message.ExtensionField)) {
                     this.name = this.name.replace(/_([a-zA-Z])/g, function($0, $1) {
                         return $1.toUpperCase();
                     });
@@ -23777,6 +24702,16 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
             // Extends T
             Field.prototype = Object.create(T.prototype);
+
+            /**
+             * Builds the field.
+             * @override
+             * @expose
+             */
+            Field.prototype.build = function() {
+                this.defaultValue = typeof this.options['default'] !== 'undefined'
+                    ? this.verifyValue(this.options['default']) : null;
+            };
 
             /**
              * Makes a Long from a value.
@@ -23917,6 +24852,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                             fail(typeof value, "object expected");
                         if (value instanceof this.resolvedType.clazz)
                             return value;
+                        if (value instanceof ProtoBuf.Builder.Message) {
+                            // Mismatched type: Convert to object (see: https://github.com/dcodeIO/ProtoBuf.js/issues/180)
+                            var obj = {};
+                            for (var i in value)
+                                if (value.hasOwnProperty(i))
+                                    obj[i] = value[i];
+                            value = obj;
+                        }
                         // Else let's try to construct one from a key-value object
                         return new (this.resolvedType.clazz)(value); // May throw for a hundred of reasons
                     }
@@ -23928,14 +24871,13 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
             /**
              * Encodes the specified field value to the specified buffer.
-             * @param {*} value Field value
+             * @param {*} value Verified field value
              * @param {ByteBuffer} buffer ByteBuffer to encode to
              * @return {ByteBuffer} The ByteBuffer for chaining
              * @throws {Error} If the field cannot be encoded
              * @expose
              */
             Field.prototype.encode = function(value, buffer) {
-                value = this.verifyValue(value); // May throw
                 if (this.type === null || typeof this.type !== 'object')
                     throw Error("[INTERNAL] Unresolved type in "+this.toString(true)+": "+this.type);
                 if (value === null || (this.repeated && value.length == 0))
@@ -23954,8 +24896,8 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                             var start = buffer.offset; // Remember where the contents begin
                             for (i=0; i<value.length; i++)
                                 this.encodeValue(value[i], buffer);
-                            var len = buffer.offset-start;
-                            var varintLen = ByteBuffer.calculateVarint32(len);
+                            var len = buffer.offset-start,
+                                varintLen = ByteBuffer.calculateVarint32(len);
                             if (varintLen > 1) { // We need to move the contents
                                 var contents = buffer.slice(start, buffer.offset);
                                 start += varintLen-1;
@@ -24319,12 +25261,19 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @param {string} type Data type, e.g. int32
              * @param {string} name Field name
              * @param {number} id Unique field id
-             * @param {Object.<string.*>=} options Options
+             * @param {Object.<string,*>=} options Options
              * @constructor
              * @extends ProtoBuf.Reflect.Message.Field
              */
             var ExtensionField = function(message, rule, type, name, id, options) {
                 Field.call(this, message, rule, type, name, id, options);
+
+                /**
+                 * Extension reference.
+                 * @type {!ProtoBuf.Reflect.Extension}
+                 * @expose
+                 */
+                this.extension;
             };
 
             // Extends Field
@@ -24341,7 +25290,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @exports ProtoBuf.Reflect.Enum
              * @param {!ProtoBuf.Reflect.T} parent Parent Reflect object
              * @param {string} name Enum name
-             * @param {Object.<string.*>=} options Enum options
+             * @param {Object.<string,*>=} options Enum options
              * @constructor
              * @extends ProtoBuf.Reflect.Namespace
              */
@@ -24370,9 +25319,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @expose
              */
             Enum.prototype.build = function() {
-                var enm = {};
-                var values = this.getChildren(Enum.Value);
-                for (var i=0; i<values.length; i++)
+                var enm = {},
+                    values = this.getChildren(Enum.Value);
+                for (var i=0, k=values.length; i<k; ++i)
                     enm[values[i]['name']] = values[i]['id'];
                 if (Object.defineProperty)
                     Object.defineProperty(enm, '$options', { "value": this.buildOpt() });
@@ -24420,6 +25369,34 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
             Reflect.Enum.Value = Value;
 
             /**
+             * An extension (field).
+             * @exports ProtoBuf.Reflect.Extension
+             * @constructor
+             * @param {ProtoBuf.Reflect.T} parent Parent object
+             * @param {string} name Object name
+             * @param {!ProtoBuf.Reflect.Message.Field} field Extension field
+             */
+            var Extension = function(parent, name, field) {
+                T.call(this, parent, name);
+
+                /**
+                 * Extended message field.
+                 * @type {!ProtoBuf.Reflect.Message.Field}
+                 * @expose
+                 */
+                this.field = field;
+            };
+
+            // Extends T
+            Extension.prototype = Object.create(T.prototype);
+
+            /**
+             * @alias ProtoBuf.Reflect.Extension
+             * @expose
+             */
+            Reflect.Extension = Extension;
+
+            /**
              * Constructs a new Service.
              * @exports ProtoBuf.Reflect.Service
              * @param {!ProtoBuf.Reflect.Namespace} root Root
@@ -24455,7 +25432,10 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @expose
              */
             Service.prototype.build = function(rebuild) {
-                if (this.clazz && !rebuild) return this.clazz;
+                if (this.clazz && !rebuild)
+                    return this.clazz;
+
+                // Create the runtime Service class in its own scope
                 return this.clazz = (function(ProtoBuf, T) {
 
                     /**
@@ -24745,7 +25725,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                     if (!Lang.NAME.test(part[i]))
                         throw Error("Illegal package: "+part[i]);
                 for (i=0; i<part.length; i++) {
-                    if (!this.ptr.hasChild(part[i])) // Keep existing namespace
+                    if (this.ptr.getChild(part[i]) === null) // Keep existing namespace
                         this.ptr.addChild(new Reflect.Namespace(this.ptr, part[i], options));
                     this.ptr = this.ptr.getChild(part[i]);
                 }
@@ -24881,7 +25861,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                 // Create fields
                                 if (def["fields"] && def["fields"].length > 0) {
                                     for (i=0; i<def["fields"].length; i++) { // i=Fields
-                                        if (obj.hasChild(def['fields'][i]['id']))
+                                        if (obj.getChild(def['fields'][i]['id']) !== null)
                                             throw Error("Duplicate field id in message "+obj.name+": "+def['fields'][i]['id']);
                                         if (def["fields"][i]["options"]) {
                                             subObj = Object.keys(def["fields"][i]["options"]);
@@ -24940,17 +25920,17 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                 obj = this.ptr.resolve(def["ref"]);
                                 if (obj) {
                                     for (i=0; i<def["fields"].length; i++) { // i=Fields
-                                        if (obj.hasChild(def['fields'][i]['id']))
+                                        if (obj.getChild(def['fields'][i]['id']) !== null)
                                             throw Error("Duplicate extended field id in message "+obj.name+": "+def['fields'][i]['id']);
                                         if (def['fields'][i]['id'] < obj.extensions[0] || def['fields'][i]['id'] > obj.extensions[1])
                                             throw Error("Illegal extended field id in message "+obj.name+": "+def['fields'][i]['id']+" ("+obj.extensions.join(' to ')+" expected)");
-                                        // TODO: See #161
-                                        /* subObj = new (this.ptr instanceof Reflect.Message ? Reflect.Message.ExtensionField : Reflect.Message.Field)(obj, def["fields"][i]["rule"], def["fields"][i]["type"], def["fields"][i]["name"], def["fields"][i]["id"], def["fields"][i]["options"]);
-                                        if (this.ptr instanceof Reflect.Message)
-                                            this.ptr.addChild(subObj);
-                                        else
-                                            obj.addChild(subObj); */
-                                        obj.addChild(new Reflect.Message.Field(obj, def["fields"][i]["rule"], def["fields"][i]["type"], def["fields"][i]["name"], def["fields"][i]["id"], def["fields"][i]["options"]));
+                                        // see #161: Extensions use their fully qualified name as their runtime key and...
+                                        var fld = new Reflect.Message.ExtensionField(obj, def["fields"][i]["rule"], def["fields"][i]["type"], this.ptr.fqn()+'.'+def["fields"][i]["name"], def["fields"][i]["id"], def["fields"][i]["options"]);
+                                        // ...are added on top of the current namespace as an extension which is used for resolving their type later on
+                                        var ext = new Reflect.Extension(this.ptr, def["fields"][i]["name"], fld);
+                                        fld.extension = ext;
+                                        this.ptr.addChild(ext);
+                                        obj.addChild(fld);
                                     }
                                 } else if (!/\.?google\.protobuf\./.test(def["ref"])) // Silently skip internal extensions
                                     throw Error("Extended message "+def["ref"]+" is not defined");
@@ -25118,14 +26098,15 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                     return; // Done (already resolved)
                 if (this.ptr instanceof Reflect.Namespace) {
                     // Build all children
-                    var children = this.ptr.getChildren();
-                    for (var i=0; i<children.length; i++)
-                        this.ptr = children[i], this.resolveAll();
+                    var children = this.ptr.children;
+                    for (var i= 0, k=children.length; i<k; ++i)
+                        this.ptr = children[i],
+                        this.resolveAll();
                 } else if (this.ptr instanceof Reflect.Message.Field) {
                     if (!Lang.TYPE.test(this.ptr.type)) { // Resolve type...
                         if (!Lang.TYPEREF.test(this.ptr.type))
                             throw Error("Illegal type reference in "+this.ptr.toString(true)+": "+this.ptr.type);
-                        res = this.ptr.parent.resolve(this.ptr.type, true);
+                        res = (this.ptr instanceof Reflect.Message.ExtensionField ? this.ptr.extension.parent : this.ptr.parent).resolve(this.ptr.type, true);
                         if (!res)
                             throw Error("Unresolvable type reference in "+this.ptr.toString(true)+": "+this.ptr.type);
                         this.ptr.resolvedType = res;
@@ -25153,6 +26134,8 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                         // Should not happen as nothing else is implemented
                         throw Error("Illegal service type in "+this.ptr.toString(true));
                     }
+                } else if (this.ptr instanceof ProtoBuf.Reflect.Extension) {
+                    // There are no runtime counterparts to extensions
                 } else
                     throw Error("Illegal object in namespace: "+typeof(this.ptr)+":"+this.ptr);
                 this.reset();
@@ -25381,97 +26364,97 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
 })(this);
 
-},{"bytebuffer":97,"fs":1,"path":22}],97:[function(require,module,exports){
+},{"bytebuffer":99,"fs":1,"path":22}],99:[function(require,module,exports){
 /*
  ByteBuffer.js (c) 2013-2014 Daniel Wirtz <dcode@dcode.io>
  This version of ByteBuffer.js uses an ArrayBuffer (AB) as its backing buffer and is compatible with modern browsers.
  Released under the Apache License, Version 2.0
  see: https://github.com/dcodeIO/ByteBuffer.js for details
 */
-(function(r){function s(l){function d(a,b,c){"undefined"===typeof a&&(a=d.DEFAULT_CAPACITY);"undefined"===typeof b&&(b=d.DEFAULT_ENDIAN);"undefined"===typeof c&&(c=d.DEFAULT_NOASSERT);if(!c){a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);if("boolean"!==typeof b)throw new TypeError("Illegal littleEndian: Not a boolean");if("boolean"!==typeof c)throw new TypeError("Illegal noAssert: Not a boolean");}this.buffer=0===a?r:new ArrayBuffer(a);this.view=0===a?null:new DataView(this.buffer);
-this.offset=0;this.markedOffset=-1;this.limit=a;this.littleEndian="undefined"!==typeof b?!!b:!1;this.noAssert=!!c}d.VERSION="3.1.0";d.LITTLE_ENDIAN=!0;d.BIG_ENDIAN=!1;d.DEFAULT_CAPACITY=16;d.DEFAULT_ENDIAN=d.BIG_ENDIAN;d.DEFAULT_NOASSERT=!1;d.Long=l||null;var r=new ArrayBuffer(0);d.allocate=function(a,b,c){return new d(a,b,c)};d.concat=function(a,b,c,e){if("boolean"===typeof b||"string"!==typeof b)e=c,c=b,b=void 0;for(var h=0,f=0,g=a.length,n;f<g;++f)d.isByteBuffer(a[f])||(a[f]=d.wrap(a[f],b)),n=
-a[f].limit-a[f].offset,0<n&&(h+=n);if(0===h)return new d(0,c,e);b=new d(h,c,e);e=new Uint8Array(b.buffer);for(f=0;f<g;)c=a[f++],n=c.limit-c.offset,0>=n||(e.set((new Uint8Array(c.buffer)).subarray(c.offset,c.limit),b.offset),b.offset+=n);b.limit=b.offset;b.offset=0;return b};d.isByteBuffer=function(a){return a&&a instanceof d};d.type=function(){return ArrayBuffer};d.wrap=function(a,b,c,e){"string"!==typeof b&&(e=c,c=b,b=void 0);if("string"===typeof a)switch("undefined"===typeof b&&(b="utf8"),b){case "base64":return d.fromBase64(a,
-c);case "hex":return d.fromHex(a,c);case "binary":return d.fromBinary(a,c);case "utf8":return d.fromUTF8(a,c);case "debug":return d.fromDebug(a,c);default:throw new TypeError("Unsupported encoding: "+b);}if(null===a||"object"!==typeof a)throw new TypeError("Illegal buffer: null or non-object");if(d.isByteBuffer(a))return b=d.prototype.clone.call(a),b.markedOffset=-1,b;if(a instanceof Uint8Array)b=new d(0,c,e),0<a.length&&(b.buffer=a.buffer,b.offset=a.byteOffset,b.limit=a.byteOffset+a.length,b.view=
-0<a.length?new DataView(a.buffer):null);else if(a instanceof ArrayBuffer)b=new d(0,c,e),0<a.byteLength&&(b.buffer=a,b.offset=0,b.limit=a.byteLength,b.view=0<a.byteLength?new DataView(a):null);else if("[object Array]"===Object.prototype.toString.call(a))for(b=new d(a.length,c,e),b.limit=a.length,i=0;i<a.length;++i)b.view.setUint8(i,a[i]);else throw new TypeError("Illegal buffer");return b};d.prototype.writeInt8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==
-typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt8(b-1,a);c&&(this.offset+=1);return this};d.prototype.writeByte=d.prototype.writeInt8;d.prototype.readInt8=function(a){var b=
-"undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}a=this.view.getInt8(a);b&&(this.offset+=1);return a};d.prototype.readByte=d.prototype.readInt8;d.prototype.writeUint8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||
-0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint8(b-1,a);c&&(this.offset+=1);return this};d.prototype.readUint8=function(a){var b="undefined"===typeof a;b&&(a=this.offset);
-if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}a=this.view.getUint8(a);b&&(this.offset+=1);return a};d.prototype.writeInt16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==
-typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.writeShort=d.prototype.writeInt16;d.prototype.readInt16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==
-typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getInt16(a,this.littleEndian);b&&(this.offset+=2);return a};d.prototype.readShort=d.prototype.readInt16;d.prototype.writeUint16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");
-a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.readUint16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%
-1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getUint16(a,this.littleEndian);b&&(this.offset+=2);return a};d.prototype.writeInt32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.writeInt=d.prototype.writeInt32;d.prototype.readInt32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+
-a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getInt32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readInt=d.prototype.readInt32;d.prototype.writeUint32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.readUint32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||
-a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getUint32(a,this.littleEndian);b&&(this.offset+=4);return a};l&&(d.prototype.writeInt64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=l.fromNumber(a);else if(!(a&&a instanceof l))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=l.fromNumber(a));b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},d.prototype.writeLong=d.prototype.writeInt64,d.prototype.readInt64=
-function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new l(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!1):new l(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!1);b&&(this.offset+=8);return a},d.prototype.readLong=d.prototype.readInt64,
-d.prototype.writeUint64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=l.fromNumber(a);else if(!(a&&a instanceof l))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=l.fromNumber(a));
-b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},d.prototype.readUint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
-a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new l(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!0):new l(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!0);b&&(this.offset+=8);return a});d.prototype.writeFloat32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=
-0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.writeFloat=d.prototype.writeFloat32;d.prototype.readFloat32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");
-a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getFloat32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readFloat=d.prototype.readFloat32;d.prototype.writeFloat64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat64(b-8,a,this.littleEndian);c&&(this.offset+=8);return this};d.prototype.writeDouble=d.prototype.writeFloat64;d.prototype.readFloat64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+
-a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.view.getFloat64(a,this.littleEndian);b&&(this.offset+=8);return a};d.prototype.readDouble=d.prototype.readFloat64;d.MAX_VARINT32_BYTES=5;d.calculateVarint32=function(a){a>>>=0;return 128>a?1:16384>a?2:2097152>a?3:268435456>a?4:5};d.zigZagEncode32=function(a){return((a|=0)<<1^a>>31)>>>0};d.zigZagDecode32=function(a){return a>>>1^-(a&1)|0};d.prototype.writeVarint32=
-function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=d.calculateVarint32(a);b+=e;var h=this.buffer.byteLength;b>h&&this.resize((h*=2)>b?h:b);b-=e;this.view.setUint8(b,
-e=a|128);a>>>=0;128<=a?(e=a>>7|128,this.view.setUint8(b+1,e),16384<=a?(e=a>>14|128,this.view.setUint8(b+2,e),2097152<=a?(e=a>>21|128,this.view.setUint8(b+3,e),268435456<=a?(this.view.setUint8(b+4,a>>28&15),e=5):(this.view.setUint8(b+3,e&127),e=4)):(this.view.setUint8(b+2,e&127),e=3)):(this.view.setUint8(b+1,e&127),e=2)):(this.view.setUint8(b,e&127),e=1);return c?(this.offset+=e,this):e};d.prototype.writeVarint32ZigZag=function(a,b){return this.writeVarint32(d.zigZagEncode32(a),b)};d.prototype.readVarint32=
-function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=0,e=0,d;do d=this.view.getUint8(a+c),5>c&&(e|=(d&127)<<7*c>>>0),++c;while(128===(d&128));e|=0;return b?(this.offset+=c,e):{value:e,length:c}};d.prototype.readVarint32ZigZag=function(a){a=this.readVarint32(a);
-"object"===typeof a?a.value=d.zigZagDecode32(a.value):a=d.zigZagDecode32(a);return a};l&&(d.MAX_VARINT64_BYTES=10,d.calculateVarint64=function(a){"number"===typeof a&&(a=l.fromNumber(a));var b=a.toInt()>>>0,c=a.shiftRightUnsigned(28).toInt()>>>0;a=a.shiftRightUnsigned(56).toInt()>>>0;return 0==a?0==c?16384>b?128>b?1:2:2097152>b?3:4:16384>c?128>c?5:6:2097152>c?7:8:128>a?9:10},d.zigZagEncode64=function(a){"number"===typeof a?a=l.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftLeft(1).xor(a.shiftRight(63)).toUnsigned()},
-d.zigZagDecode64=function(a){"number"===typeof a?a=l.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftRightUnsigned(1).xor(a.and(l.ONE).toSigned().negate()).toSigned()},d.prototype.writeVarint64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=l.fromNumber(a);else if(!(a&&a instanceof l))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a?a=l.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());var e=d.calculateVarint64(a),h=a.toInt()>>>0,f=a.shiftRightUnsigned(28).toInt()>>>0,g=a.shiftRightUnsigned(56).toInt()>>>0;b+=e;var n=this.buffer.byteLength;b>n&&this.resize((n*=2)>b?n:b);b-=e;switch(e){case 10:this.view.setUint8(b+9,g>>>7&1);case 9:this.view.setUint8(b+8,9!==
-e?g|128:g&127);case 8:this.view.setUint8(b+7,8!==e?f>>>21|128:f>>>21&127);case 7:this.view.setUint8(b+6,7!==e?f>>>14|128:f>>>14&127);case 6:this.view.setUint8(b+5,6!==e?f>>>7|128:f>>>7&127);case 5:this.view.setUint8(b+4,5!==e?f|128:f&127);case 4:this.view.setUint8(b+3,4!==e?h>>>21|128:h>>>21&127);case 3:this.view.setUint8(b+2,3!==e?h>>>14|128:h>>>14&127);case 2:this.view.setUint8(b+1,2!==e?h>>>7|128:h>>>7&127);case 1:this.view.setUint8(b,1!==e?h|128:h&127)}return c?(this.offset+=e,this):e},d.prototype.writeVarint64ZigZag=
-function(a,b){return this.writeVarint64(d.zigZagEncode64(a),b)},d.prototype.readVarint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=a,e=0,d=0,f=0,g=0,g=this.view.getUint8(a++),e=g&127;if(g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<7,g&128&&
-(g=this.view.getUint8(a++),e|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),d=g&127,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<7,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),f=g&127,g&128&&(g=this.view.getUint8(a++),f|=(g&127)<<7,g&128))))))))))throw Error("Data must be corrupt: Buffer overrun");e=l.from28Bits(e,d,f,!1);return b?(this.offset=a,e):{value:e,length:a-
-c}},d.prototype.readVarint64ZigZag=function(a){(a=this.readVarint64(a))&&a.value instanceof l?a.value=d.zigZagDecode64(a.value):a=d.zigZagDecode64(a);return a});d.prototype.writeCString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);var e,d=a.length;if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(e=0;e<d;++e)if(0===a.charCodeAt(e))throw new RangeError("Illegal str: Contains NULL-characters");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}e=b;d=k.b(k.a(a))[1];b+=d+1;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=d+1;k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));this.view.setUint8(b++,0);return c?(this.offset=b-e,this):d};d.prototype.readCString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+
-a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=a,e,d=-1;k.d(function(){if(0===d)return null;if(a>=this.limit)throw RangeError("Illegal range: Truncated data, "+a+" < "+this.limit);return 0===(d=this.view.getUint8(a++))?null:d}.bind(this),e=k.c(),!0);return b?(this.offset=a,e()):{string:e(),length:a-c}};d.prototype.writeIString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==
-typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,d;d=k.b(k.a(a),this.noAssert)[1];b+=4+d;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=4+d;this.view.setUint32(b,d,this.littleEndian);b+=4;k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));
-if(b!==e+4+d)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+4+d));return c?(this.offset=b,this):b-e};d.prototype.readIString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}var c=0,e=a,c=this.view.getUint32(a,this.littleEndian);a+=
-4;var d=a+c;k.d(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c=k.c(),this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-e}};d.METRICS_CHARS="c";d.METRICS_BYTES="b";d.prototype.writeUTF8String=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+
-this.buffer.byteLength);}var e,d=b;e=k.b(k.a(a))[1];b+=e;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=e;k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));return c?(this.offset=b,this):b-d};d.prototype.writeString=d.prototype.writeUTF8String;d.calculateUTF8Chars=function(a){return k.b(k.a(a))[0]};d.calculateUTF8Bytes=function(a){return k.b(k.a(a))[1]};d.prototype.readUTF8String=function(a,b,c){"number"===typeof b&&(c=b,b=void 0);var e="undefined"===typeof c;e&&(c=this.offset);
-"undefined"===typeof b&&(b=d.METRICS_CHARS);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");a|=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}var h=0,f=c,g;if(b===d.METRICS_CHARS){g=k.c();k.i(function(){return h<a&&c<this.limit?this.view.getUint8(c++):null}.bind(this),
-function(a){++h;k.g(a,g)}.bind(this));if(h!==a)throw new RangeError("Illegal range: Truncated data, "+h+" == "+a);return e?(this.offset=c,g()):{string:g(),length:c-f}}if(b===d.METRICS_BYTES){if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+a>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+"+a+") <= "+this.buffer.byteLength);}var n=c+a;k.d(function(){return c<n?this.view.getUint8(c++):null}.bind(this),
-g=k.c(),this.noAssert);if(c!==n)throw new RangeError("Illegal range: Truncated data, "+c+" == "+n);return e?(this.offset=c,g()):{string:g(),length:c-f}}throw new TypeError("Unsupported metrics: "+b);};d.prototype.readString=d.prototype.readUTF8String;d.prototype.writeVString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+
-" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,h,f;h=k.b(k.a(a),this.noAssert)[1];f=d.calculateVarint32(h);b+=f+h;var g=this.buffer.byteLength;b>g&&this.resize((g*=2)>b?g:b);b-=f+h;b+=this.writeVarint32(h,b);k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));if(b!==e+h+f)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+h+f));return c?(this.offset=b,this):b-e};d.prototype.readVString=
-function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=this.readVarint32(a),e=a;a+=c.length;var c=c.value,d=a+c,c=k.c();k.d(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c,this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-
-e}};d.prototype.append=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;c+=b;var h=this.buffer.byteLength;c>h&&this.resize((h*=
-2)>c?h:c);(new Uint8Array(this.buffer,c-b)).set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit));a.offset+=b;e&&(this.offset+=b);return this};d.prototype.appendTo=function(a,b){a.append(this,b);return this};d.prototype.assert=function(a){this.noAssert=!a;return this};d.prototype.capacity=function(){return this.buffer.byteLength};d.prototype.clear=function(){this.offset=0;this.limit=this.buffer.byteLength;this.markedOffset=-1;return this};d.prototype.clone=function(a){var b=new d(0,this.littleEndian,
-this.noAssert);a?(a=new ArrayBuffer(this.buffer.byteLength),(new Uint8Array(a)).set(this.buffer),b.buffer=a,b.view=new DataView(a)):(b.buffer=this.buffer,b.view=this.view);b.offset=this.offset;b.markedOffset=this.markedOffset;b.limit=this.limit;return b};d.prototype.compact=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||
-0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(0===a&&b===this.buffer.byteLength)return this;var c=b-a;if(0===c)return this.buffer=r,this.view=null,0<=this.markedOffset&&(this.markedOffset-=a),this.limit=this.offset=0,this;var e=new ArrayBuffer(c);(new Uint8Array(e)).set((new Uint8Array(this.buffer)).subarray(a,b));this.buffer=e;this.view=new DataView(e);
-0<=this.markedOffset&&(this.markedOffset-=a);this.offset=0;this.limit=c;return this};d.prototype.copy=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);
-}if(a===b)return new d(0,this.littleEndian,this.noAssert);var c=b-a,e=new d(c,this.littleEndian,this.noAssert);e.offset=0;e.limit=c;0<=e.markedOffset&&(e.markedOffset-=a);this.copyTo(e,0,a,b);return e};d.prototype.copyTo=function(a,b,c,e){var h,f;if(!this.noAssert&&!d.isByteBuffer(a))throw new TypeError("Illegal target: Not a ByteBuffer");b=(f="undefined"===typeof b)?a.offset:b|0;c=(h="undefined"===typeof c)?this.offset:c|0;e="undefined"===typeof e?this.limit:e|0;if(0>b||b>a.buffer.byteLength)throw new RangeError("Illegal target range: 0 <= "+
-b+" <= "+a.buffer.byteLength);if(0>c||e>this.buffer.byteLength)throw new RangeError("Illegal source range: 0 <= "+c+" <= "+this.buffer.byteLength);var g=e-c;if(0===g)return a;a.ensureCapacity(b+g);(new Uint8Array(a.buffer)).set((new Uint8Array(this.buffer)).subarray(c,e),b);h&&(this.offset+=g);f&&(a.offset+=g);return this};d.prototype.ensureCapacity=function(a){var b=this.buffer.byteLength;return b<a?this.resize((b*=2)>a?b:a):this};d.prototype.fill=function(a,b,c){var e="undefined"===typeof b;e&&
-(b=this.offset);"string"===typeof a&&0<a.length&&(a=a.charCodeAt(0));"undefined"===typeof b&&(b=this.offset);"undefined"===typeof c&&(c=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal begin: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal end: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
-b+" <= "+c+" <= "+this.buffer.byteLength);}if(b>=c)return this;for(;b<c;)this.view.setUint8(b++,a);e&&(this.offset=b);return this};d.prototype.flip=function(){this.limit=this.offset;this.offset=0;return this};d.prototype.mark=function(a){a="undefined"===typeof a?this.offset:a;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+0) <= "+this.buffer.byteLength);
-}this.markedOffset=a;return this};d.prototype.order=function(a){if(!this.noAssert&&"boolean"!==typeof a)throw new TypeError("Illegal littleEndian: Not a boolean");this.littleEndian=!!a;return this};d.prototype.LE=function(a){this.littleEndian="undefined"!==typeof a?!!a:!0;return this};d.prototype.BE=function(a){this.littleEndian="undefined"!==typeof a?!a:!1;return this};d.prototype.prepend=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=
-this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;var h=b-c,f;if(0<h){var g=new ArrayBuffer(this.buffer.byteLength+h);f=new Uint8Array(g);f.set((new Uint8Array(this.buffer)).subarray(c,this.buffer.byteLength),b);this.buffer=g;this.view=
-new DataView(g);this.offset+=h;0<=this.markedOffset&&(this.markedOffset+=h);this.limit+=h;c+=h}else f=new Uint8Array(this.buffer);f.set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit),c-b);a.offset=a.limit;e&&(this.offset-=b);return this};d.prototype.prependTo=function(a,b){a.prepend(this,b);return this};d.prototype.printDebug=function(a){"function"!==typeof a&&(a=console.log.bind(console));a(this.toString()+"\n-------------------------------------------------------------------\n"+this.toDebug(!0))};
-d.prototype.remaining=function(){return this.limit-this.offset};d.prototype.reset=function(){0<=this.markedOffset?(this.offset=this.markedOffset,this.markedOffset=-1):this.offset=0;return this};d.prototype.resize=function(a){if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal capacity: "+a+" (not an integer)");a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);}this.buffer.byteLength<a&&(a=new ArrayBuffer(a),(new Uint8Array(a)).set(new Uint8Array(this.buffer)),
-this.buffer=a,this.view=new DataView(a));return this};d.prototype.reverse=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return this;
-Array.prototype.reverse.call((new Uint8Array(this.buffer)).subarray(a,b));this.view=new DataView(this.buffer);return this};d.prototype.skip=function(a){if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");a|=0}var b=this.offset+a;if(!this.noAssert&&(0>b||b>this.buffer.byteLength))throw new RangeError("Illegal length: 0 <= "+this.offset+" + "+a+" <= "+this.buffer.byteLength);this.offset=b;return this};d.prototype.slice=function(a,b){"undefined"===
-typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c=this.clone();c.offset=a;c.limit=b;return c};d.prototype.toBuffer=function(a){var b=this.offset,c=this.limit;
-if(b>c)var e=b,b=c,c=e;if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal limit: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+b+" <= "+c+" <= "+this.buffer.byteLength);}if(!a&&0===b&&c===this.buffer.byteLength)return this.buffer;if(b===c)return r;a=new ArrayBuffer(c-b);(new Uint8Array(a)).set((new Uint8Array(this.buffer)).subarray(b,
-c),0);return a};d.prototype.toArrayBuffer=d.prototype.toBuffer;d.prototype.toString=function(a){if("undefined"===typeof a)return"ByteBufferAB(offset="+this.offset+",markedOffset="+this.markedOffset+",limit="+this.limit+",capacity="+this.capacity()+")";switch(a){case "utf8":return this.toUTF8();case "base64":return this.toBase64();case "hex":return this.toHex();case "binary":return this.toBinary();case "debug":return this.toDebug();case "columns":return this.o();default:throw Error("Unsupported encoding: "+
-a);}};var m="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",m=m+"";d.prototype.toBase64=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+
-this.buffer.byteLength);}if(a===b)return"";for(var c,e,d,f,g,k,l="";a<b;)c=this.view.getUint8(a++),e=(f=a<b)?this.view.getUint8(a++):0,d=(g=a<b)?this.view.getUint8(a++):0,k=c>>2,c=(c&3)<<4|e>>4,e=(e&15)<<2|d>>6,d&=63,g||(d=64,f||(e=64)),l+=m.charAt(k)+m.charAt(c)+m.charAt(e)+m.charAt(d);return l};d.fromBase64=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%4)throw new TypeError("Illegal str: Length not a multiple of 4");}var e=a.length,
-h=0,f;for(f=a.length-1;0<=f;--f)if("="===a.charAt(f))h++;else break;if(2<h)throw new TypeError("Illegal str: Suffix is too large");if(0===e)return new d(0,b,c);var g,k,l,p=new d(e/4*3-h,b,c);for(b=f=0;f<e;){h=m.indexOf(a.charAt(f++));g=f<e?m.indexOf(a.charAt(f++)):0;k=f<e?m.indexOf(a.charAt(f++)):0;l=f<e?m.indexOf(a.charAt(f++)):0;if(!c&&(0>h||0>g||0>k||0>l))throw new TypeError("Illegal str: Contains non-base64 characters");p.view.setUint8(b++,h<<2|g>>4);64!==k&&(p.view.setUint8(b++,g<<4&240|k>>2,
-b),64!==l&&p.view.setUint8(b++,k<<6&192|l))}p.limit=b;return p};d.btoa=function(a){return d.fromBinary(a).toBase64()};d.atob=function(a){return d.fromBase64(a).toBinary()};d.prototype.toBinary=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
-a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return"";for(var c=[];a<b;)c.push(this.view.getUint8(a++));return String.fromCharCode.apply(String,c)};d.fromBinary=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(var e=0,h=a.length,f=new d(h,b,c);e<h;){b=a.charCodeAt(e);if(!c&&255<b)throw new TypeError("Illegal charCode at "+e+": 0 <= "+b+" <= 255");f.view.setUint8(e++,b)}f.limit=h;return f};d.prototype.toDebug=function(a){for(var b=-1,c=this.buffer.byteLength,
-e,d="",f="",g="";b<c;){-1!==b&&(e=this.view.getUint8(b),d=16>e?d+("0"+e.toString(16).toUpperCase()):d+e.toString(16).toUpperCase(),a&&(f+=32<e&&127>e?String.fromCharCode(e):"."));++b;if(a&&0<b&&0===b%16&&b!==c){for(;51>d.length;)d+=" ";g+=d+f+"\n";d=f=""}d=b===this.offset&&b===this.limit?d+(b===this.markedOffset?"!":"|"):b===this.offset?d+(b===this.markedOffset?"[":"<"):b===this.limit?d+(b===this.markedOffset?"]":">"):d+(b===this.markedOffset?"'":a||0!==b&&b!==c?" ":"")}if(a&&" "!==d){for(;51>d.length;)d+=
-" ";g+=d+f+"\n"}return a?g:d};d.fromDebug=function(a,b,c){var e=a.length;b=new d((e+1)/3|0,b,c);for(var h=0,f=0,g,k=!1,l=!1,p=!1,m=!1,q=!1;h<e;){switch(g=a.charAt(h++)){case "!":if(!c){if(l||p||m){q=!0;break}l=p=m=!0}b.offset=b.markedOffset=b.limit=f;k=!1;break;case "|":if(!c){if(l||m){q=!0;break}l=m=!0}b.offset=b.limit=f;k=!1;break;case "[":if(!c){if(l||p){q=!0;break}l=p=!0}b.offset=b.markedOffset=f;k=!1;break;case "<":if(!c){if(l){q=!0;break}l=!0}b.offset=f;k=!1;break;case "]":if(!c){if(m||p){q=
-!0;break}m=p=!0}b.limit=b.markedOffset=f;k=!1;break;case ">":if(!c){if(m){q=!0;break}m=!0}b.limit=f;k=!1;break;case "'":if(!c){if(p){q=!0;break}p=!0}b.markedOffset=f;k=!1;break;case " ":k=!1;break;default:if(!c&&k){q=!0;break}g=parseInt(g+a.charAt(h++),16);if(!c&&(isNaN(g)||0>g||255<g))throw new TypeError("Illegal str: Not a debug encoded string");b.view.setUint8(f++,g);k=!0}if(q)throw new TypeError("Illegal str: Invalid symbol at "+h);}if(!c){if(!l||!m)throw new TypeError("Illegal str: Missing offset or limit");
-if(f<b.buffer.byteLength)throw new TypeError("Illegal str: Not a debug encoded string (is it hex?) "+f+" < "+e);}return b};d.prototype.toHex=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
-a+" <= "+b+" <= "+this.buffer.byteLength);}for(var c=Array(b-a),e;a<b;)e=this.view.getUint8(a++),16>e?c.push("0",e.toString(16)):c.push(e.toString(16));return c.join("")};d.fromHex=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%2)throw new TypeError("Illegal str: Length not a multiple of 2");}var e=a.length;b=new d(e/2|0,b);for(var h,f=0,g=0;f<e;f+=2){h=parseInt(a.substring(f,f+2),16);if(!c&&(!isFinite(h)||0>h||255<h))throw new TypeError("Illegal str: Contains non-hex characters");
-b.view.setUint8(g++,h)}b.limit=g;return b};var k=function(){var a={j:function(a,c){var e=null;"number"===typeof a&&(e=a,a=function(){return null});for(;null!==e||null!==(e=a());)128>e?c(e&127):(2048>e?c(e>>6&31|192):(65536>e?c(e>>12&15|224):(c(e>>18&7|240),c(e>>12&63|128)),c(e>>6&63|128)),c(e&63|128)),e=null},i:function(a,c){function e(a){a=a.slice(0,a.indexOf(null));var b=Error(a.toString());b.name="TruncatedError";b.bytes=a;throw b;}for(var d,f,g,k;null!==(d=a());)if(0===(d&128))c(d);else if(192===
-(d&224))null===(f=a())&&e([d,f]),c((d&31)<<6|f&63);else if(224===(d&240))null!==(f=a())&&null!==(g=a())||e([d,f,g]),c((d&15)<<12|(f&63)<<6|g&63);else if(240===(d&248))null!==(f=a())&&null!==(g=a())&&null!==(k=a())||e([d,f,g,k]),c((d&7)<<18|(f&63)<<12|(g&63)<<6|k&63);else throw RangeError("Illegal starting byte: "+d);},f:function(a,c){for(var e,d=null;null!==(e=null!==d?d:a());)55296<=e&&57343>=e&&null!==(d=a())&&56320<=d&&57343>=d?(c(1024*(e-55296)+d-56320+65536),d=null):c(e);null!==d&&c(d)},g:function(a,
-c){var e=null;"number"===typeof a&&(e=a,a=function(){return null});for(;null!==e||null!==(e=a());)65535>=e?c(e):(e-=65536,c((e>>10)+55296),c(e%1024+56320)),e=null},e:function(b,c){a.f(b,function(b){a.j(b,c)})},d:function(b,c){a.i(b,function(b){a.g(b,c)})},k:function(a){if("number"!==typeof a||a!==a)throw TypeError("Illegal byte: "+typeof a);if(-128>a||255<a)throw RangeError("Illegal byte: "+a);return a},l:function(a){if("number"!==typeof a||a!==a)throw TypeError("Illegal char code: "+typeof a);if(0>
-a||65535<a)throw RangeError("Illegal char code: "+a);return a},m:function(a){if("number"!==typeof a||a!==a)throw TypeError("Illegal code point: "+typeof a);if(0>a||1114111<a)throw RangeError("Illegal code point: "+a);return a},h:function(a){return 128>a?1:2048>a?2:65536>a?3:4},n:function(b){for(var c,d=0;null!==(c=b());)d+=a.h(c);return d},b:function(b){var c=0,d=0;a.f(b,function(b){++c;d+=a.h(b)});return[c,d]}};return a}(),s=String.fromCharCode;k.a=function(a){var b=0;return function(){return b<
-a.length?a.charCodeAt(b++):null}};k.c=function(){var a=[],b=[];return function(){if(0===arguments.length)return b.join("")+s.apply(String,a);1024<a.length+arguments.length&&(b.push(s.apply(String,a)),a.length=0);Array.prototype.push.apply(a,arguments)}};d.prototype.toUTF8=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||
-0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c=this,d;try{k.d(function(){return a<b?c.view.getUint8(a++):null},d=k.c())}catch(h){if(a!==b)throw new RangeError("Illegal range: Truncated data, "+a+" != "+b);}return d()};d.fromUTF8=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");var e=new d(k.b(k.a(a),!0)[1],
-b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};return d}"undefined"!=typeof module&&module.exports?module.exports=s(require("long")):"undefined"!==typeof define&&define.amd?define("ByteBuffer",["Math/Long"],function(l){return s(l)}):(r.dcodeIO||(r.dcodeIO={}),r.dcodeIO.ByteBuffer=s(r.dcodeIO.Long))})(this);
+(function(r){function t(k){function d(a,b,c){"undefined"===typeof a&&(a=d.DEFAULT_CAPACITY);"undefined"===typeof b&&(b=d.DEFAULT_ENDIAN);"undefined"===typeof c&&(c=d.DEFAULT_NOASSERT);if(!c){a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);if("boolean"!==typeof b)throw new TypeError("Illegal littleEndian: Not a boolean");if("boolean"!==typeof c)throw new TypeError("Illegal noAssert: Not a boolean");}this.buffer=0===a?r:new ArrayBuffer(a);this.view=0===a?null:new DataView(this.buffer);
+this.offset=0;this.markedOffset=-1;this.limit=a;this.littleEndian="undefined"!==typeof b?!!b:!1;this.noAssert=!!c}function m(a){var b=0;return function(){return b<a.length?a.charCodeAt(b++):null}}function s(){var a=[],b=[];return function(){if(0===arguments.length)return b.join("")+t.apply(String,a);1024<a.length+arguments.length&&(b.push(t.apply(String,a)),a.length=0);Array.prototype.push.apply(a,arguments)}}d.VERSION="3.3.0";d.LITTLE_ENDIAN=!0;d.BIG_ENDIAN=!1;d.DEFAULT_CAPACITY=16;d.DEFAULT_ENDIAN=
+d.BIG_ENDIAN;d.DEFAULT_NOASSERT=!1;d.Long=k||null;var r=new ArrayBuffer(0),t=String.fromCharCode;d.allocate=function(a,b,c){return new d(a,b,c)};d.concat=function(a,b,c,e){if("boolean"===typeof b||"string"!==typeof b)e=c,c=b,b=void 0;for(var h=0,f=0,g=a.length,n;f<g;++f)d.isByteBuffer(a[f])||(a[f]=d.wrap(a[f],b)),n=a[f].limit-a[f].offset,0<n&&(h+=n);if(0===h)return new d(0,c,e);b=new d(h,c,e);e=new Uint8Array(b.buffer);for(f=0;f<g;)c=a[f++],n=c.limit-c.offset,0>=n||(e.set((new Uint8Array(c.buffer)).subarray(c.offset,
+c.limit),b.offset),b.offset+=n);b.limit=b.offset;b.offset=0;return b};d.isByteBuffer=function(a){return a&&a instanceof d};d.type=function(){return ArrayBuffer};d.wrap=function(a,b,c,e){"string"!==typeof b&&(e=c,c=b,b=void 0);if("string"===typeof a)switch("undefined"===typeof b&&(b="utf8"),b){case "base64":return d.fromBase64(a,c);case "hex":return d.fromHex(a,c);case "binary":return d.fromBinary(a,c);case "utf8":return d.fromUTF8(a,c);case "debug":return d.fromDebug(a,c);default:throw new TypeError("Unsupported encoding: "+
+b);}if(null===a||"object"!==typeof a)throw new TypeError("Illegal buffer: null or non-object");if(d.isByteBuffer(a))return b=d.prototype.clone.call(a),b.markedOffset=-1,b;if(a instanceof Uint8Array)b=new d(0,c,e),0<a.length&&(b.buffer=a.buffer,b.offset=a.byteOffset,b.limit=a.byteOffset+a.length,b.view=0<a.length?new DataView(a.buffer):null);else if(a instanceof ArrayBuffer)b=new d(0,c,e),0<a.byteLength&&(b.buffer=a,b.offset=0,b.limit=a.byteLength,b.view=0<a.byteLength?new DataView(a):null);else if("[object Array]"===
+Object.prototype.toString.call(a))for(b=new d(a.length,c,e),b.limit=a.length,i=0;i<a.length;++i)b.view.setUint8(i,a[i]);else throw new TypeError("Illegal buffer");return b};d.prototype.writeInt8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
+b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt8(b-1,a);c&&(this.offset+=1);return this};d.prototype.writeByte=d.prototype.writeInt8;d.prototype.readInt8=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+
+this.buffer.byteLength);}a=this.view.getInt8(a);b&&(this.offset+=1);return a};d.prototype.readByte=d.prototype.readInt8;d.prototype.writeUint8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
+b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint8(b-1,a);c&&(this.offset+=1);return this};d.prototype.readUint8=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}a=this.view.getUint8(a);
+b&&(this.offset+=1);return a};d.prototype.writeInt16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;b>e&&this.resize((e*=
+2)>b?e:b);this.view.setInt16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.writeShort=d.prototype.writeInt16;d.prototype.readInt16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getInt16(a,this.littleEndian);b&&(this.offset+=
+2);return a};d.prototype.readShort=d.prototype.readInt16;d.prototype.writeUint16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;
+b>e&&this.resize((e*=2)>b?e:b);this.view.setUint16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.readUint16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getUint16(a,this.littleEndian);b&&(this.offset+=2);return a};
+d.prototype.writeInt32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt32(b-
+4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.writeInt=d.prototype.writeInt32;d.prototype.readInt32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getInt32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readInt=
+d.prototype.readInt32;d.prototype.writeUint32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=
+2)>b?e:b);this.view.setUint32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.readUint32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getUint32(a,this.littleEndian);b&&(this.offset+=4);return a};k&&(d.prototype.writeInt64=
+function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=k.fromNumber(a);else if(!(a&&a instanceof k))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=k.fromNumber(a));b+=8;var e=this.buffer.byteLength;
+b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},d.prototype.writeLong=d.prototype.writeInt64,d.prototype.readInt64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
+a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new k(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!1):new k(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!1);b&&(this.offset+=8);return a},d.prototype.readLong=d.prototype.readInt64,d.prototype.writeUint64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=k.fromNumber(a);else if(!(a&&a instanceof k))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==
+typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=k.fromNumber(a));b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},
+d.prototype.readUint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new k(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!0):new k(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!0);b&&(this.offset+=8);return a});d.prototype.writeFloat32=
+function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat32(b-4,a,this.littleEndian);c&&(this.offset+=
+4);return this};d.prototype.writeFloat=d.prototype.writeFloat32;d.prototype.readFloat32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getFloat32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readFloat=d.prototype.readFloat32;
+d.prototype.writeFloat64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat64(b-8,a,this.littleEndian);
+c&&(this.offset+=8);return this};d.prototype.writeDouble=d.prototype.writeFloat64;d.prototype.readFloat64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.view.getFloat64(a,this.littleEndian);b&&(this.offset+=8);return a};d.prototype.readDouble=
+d.prototype.readFloat64;d.MAX_VARINT32_BYTES=5;d.calculateVarint32=function(a){a>>>=0;return 128>a?1:16384>a?2:2097152>a?3:268435456>a?4:5};d.zigZagEncode32=function(a){return((a|=0)<<1^a>>31)>>>0};d.zigZagDecode32=function(a){return a>>>1^-(a&1)|0};d.prototype.writeVarint32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=d.calculateVarint32(a);b+=e;var h=this.buffer.byteLength;b>h&&this.resize((h*=2)>b?h:b);b-=e;this.view.setUint8(b,e=a|128);a>>>=0;128<=a?(e=a>>7|128,this.view.setUint8(b+1,e),16384<=a?(e=a>>14|128,this.view.setUint8(b+2,e),2097152<=a?(e=a>>21|128,this.view.setUint8(b+3,e),268435456<=a?(this.view.setUint8(b+4,a>>28&15),e=5):(this.view.setUint8(b+
+3,e&127),e=4)):(this.view.setUint8(b+2,e&127),e=3)):(this.view.setUint8(b+1,e&127),e=2)):(this.view.setUint8(b,e&127),e=1);return c?(this.offset+=e,this):e};d.prototype.writeVarint32ZigZag=function(a,b){return this.writeVarint32(d.zigZagEncode32(a),b)};d.prototype.readVarint32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
+a+" (+1) <= "+this.buffer.byteLength);}var c=0,e=0,d;do d=this.view.getUint8(a+c),5>c&&(e|=(d&127)<<7*c>>>0),++c;while(128===(d&128));e|=0;return b?(this.offset+=c,e):{value:e,length:c}};d.prototype.readVarint32ZigZag=function(a){a=this.readVarint32(a);"object"===typeof a?a.value=d.zigZagDecode32(a.value):a=d.zigZagDecode32(a);return a};k&&(d.MAX_VARINT64_BYTES=10,d.calculateVarint64=function(a){"number"===typeof a&&(a=k.fromNumber(a));var b=a.toInt()>>>0,c=a.shiftRightUnsigned(28).toInt()>>>0;a=
+a.shiftRightUnsigned(56).toInt()>>>0;return 0==a?0==c?16384>b?128>b?1:2:2097152>b?3:4:16384>c?128>c?5:6:2097152>c?7:8:128>a?9:10},d.zigZagEncode64=function(a){"number"===typeof a?a=k.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftLeft(1).xor(a.shiftRight(63)).toUnsigned()},d.zigZagDecode64=function(a){"number"===typeof a?a=k.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftRightUnsigned(1).xor(a.and(k.ONE).toSigned().negate()).toSigned()},d.prototype.writeVarint64=
+function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=k.fromNumber(a);else if(!(a&&a instanceof k))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a?a=k.fromNumber(a,!1):!1!==a.unsigned&&(a=
+a.toSigned());var e=d.calculateVarint64(a),h=a.toInt()>>>0,f=a.shiftRightUnsigned(28).toInt()>>>0,g=a.shiftRightUnsigned(56).toInt()>>>0;b+=e;var n=this.buffer.byteLength;b>n&&this.resize((n*=2)>b?n:b);b-=e;switch(e){case 10:this.view.setUint8(b+9,g>>>7&1);case 9:this.view.setUint8(b+8,9!==e?g|128:g&127);case 8:this.view.setUint8(b+7,8!==e?f>>>21|128:f>>>21&127);case 7:this.view.setUint8(b+6,7!==e?f>>>14|128:f>>>14&127);case 6:this.view.setUint8(b+5,6!==e?f>>>7|128:f>>>7&127);case 5:this.view.setUint8(b+
+4,5!==e?f|128:f&127);case 4:this.view.setUint8(b+3,4!==e?h>>>21|128:h>>>21&127);case 3:this.view.setUint8(b+2,3!==e?h>>>14|128:h>>>14&127);case 2:this.view.setUint8(b+1,2!==e?h>>>7|128:h>>>7&127);case 1:this.view.setUint8(b,1!==e?h|128:h&127)}return c?(this.offset+=e,this):e},d.prototype.writeVarint64ZigZag=function(a,b){return this.writeVarint64(d.zigZagEncode64(a),b)},d.prototype.readVarint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||
+0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=a,e=0,d=0,f=0,g=0,g=this.view.getUint8(a++),e=g&127;if(g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<7,g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),d=g&127,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<7,g&128&&(g=
+this.view.getUint8(a++),d|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),f=g&127,g&128&&(g=this.view.getUint8(a++),f|=(g&127)<<7,g&128))))))))))throw Error("Data must be corrupt: Buffer overrun");e=k.fromBits(e|d<<28,d>>>4|f<<24,!1);return b?(this.offset=a,e):{value:e,length:a-c}},d.prototype.readVarint64ZigZag=function(a){(a=this.readVarint64(a))&&a.value instanceof k?a.value=d.zigZagDecode64(a.value):a=d.zigZagDecode64(a);return a});d.prototype.writeCString=
+function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);var e,d=a.length;if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(e=0;e<d;++e)if(0===a.charCodeAt(e))throw new RangeError("Illegal str: Contains NULL-characters");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}e=b;d=l.a(m(a))[1];
+b+=d+1;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=d+1;l.c(m(a),function(a){this.view.setUint8(b++,a)}.bind(this));this.view.setUint8(b++,0);return c?(this.offset=b-e,this):d};d.prototype.readCString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);
+}var c=a,e,d=-1;l.b(function(){if(0===d)return null;if(a>=this.limit)throw RangeError("Illegal range: Truncated data, "+a+" < "+this.limit);return 0===(d=this.view.getUint8(a++))?null:d}.bind(this),e=s(),!0);return b?(this.offset=a,e()):{string:e(),length:a-c}};d.prototype.writeIString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,d;d=l.a(m(a),this.noAssert)[1];b+=4+d;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=4+d;this.view.setUint32(b,d,this.littleEndian);b+=4;l.c(m(a),function(a){this.view.setUint8(b++,a)}.bind(this));if(b!==e+4+d)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+4+d));return c?(this.offset=b,this):b-e};d.prototype.readIString=
+function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}var c=0,e=a,c=this.view.getUint32(a,this.littleEndian);a+=4;var d=a+c;l.b(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c=s(),this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-
+e}};d.METRICS_CHARS="c";d.METRICS_BYTES="b";d.prototype.writeUTF8String=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e,d=b;e=l.a(m(a))[1];b+=e;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=e;l.c(m(a),function(a){this.view.setUint8(b++,
+a)}.bind(this));return c?(this.offset=b,this):b-d};d.prototype.writeString=d.prototype.writeUTF8String;d.calculateUTF8Chars=function(a){return l.a(m(a))[0]};d.calculateUTF8Bytes=function(a){return l.a(m(a))[1]};d.prototype.readUTF8String=function(a,b,c){"number"===typeof b&&(c=b,b=void 0);var e="undefined"===typeof c;e&&(c=this.offset);"undefined"===typeof b&&(b=d.METRICS_CHARS);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");a|=0;if("number"!==
+typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}var h=0,f=c,g;if(b===d.METRICS_CHARS){g=s();l.g(function(){return h<a&&c<this.limit?this.view.getUint8(c++):null}.bind(this),function(a){++h;l.e(a,g)}.bind(this));if(h!==a)throw new RangeError("Illegal range: Truncated data, "+h+" == "+a);return e?(this.offset=c,g()):{string:g(),length:c-f}}if(b===
+d.METRICS_BYTES){if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+a>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+"+a+") <= "+this.buffer.byteLength);}var n=c+a;l.b(function(){return c<n?this.view.getUint8(c++):null}.bind(this),g=s(),this.noAssert);if(c!==n)throw new RangeError("Illegal range: Truncated data, "+c+" == "+n);return e?(this.offset=c,g()):{string:g(),length:c-f}}throw new TypeError("Unsupported metrics: "+
+b);};d.prototype.readString=d.prototype.readUTF8String;d.prototype.writeVString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,h,f;h=l.a(m(a),this.noAssert)[1];f=d.calculateVarint32(h);
+b+=f+h;var g=this.buffer.byteLength;b>g&&this.resize((g*=2)>b?g:b);b-=f+h;b+=this.writeVarint32(h,b);l.c(m(a),function(a){this.view.setUint8(b++,a)}.bind(this));if(b!==e+h+f)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+h+f));return c?(this.offset=b,this):b-e};d.prototype.readVString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
+a+" (+1) <= "+this.buffer.byteLength);}var c=this.readVarint32(a),e=a;a+=c.length;var c=c.value,d=a+c,c=s();l.b(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c,this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-e}};d.prototype.append=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");
+c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;c+=b;var h=this.buffer.byteLength;c>h&&this.resize((h*=2)>c?h:c);(new Uint8Array(this.buffer,c-b)).set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit));a.offset+=b;e&&(this.offset+=b);return this};d.prototype.appendTo=function(a,b){a.append(this,b);return this};d.prototype.assert=function(a){this.noAssert=
+!a;return this};d.prototype.capacity=function(){return this.buffer.byteLength};d.prototype.clear=function(){this.offset=0;this.limit=this.buffer.byteLength;this.markedOffset=-1;return this};d.prototype.clone=function(a){var b=new d(0,this.littleEndian,this.noAssert);a?(a=new ArrayBuffer(this.buffer.byteLength),(new Uint8Array(a)).set(this.buffer),b.buffer=a,b.view=new DataView(a)):(b.buffer=this.buffer,b.view=this.view);b.offset=this.offset;b.markedOffset=this.markedOffset;b.limit=this.limit;return b};
+d.prototype.compact=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(0===a&&b===this.buffer.byteLength)return this;var c=b-a;if(0===
+c)return this.buffer=r,this.view=null,0<=this.markedOffset&&(this.markedOffset-=a),this.limit=this.offset=0,this;var e=new ArrayBuffer(c);(new Uint8Array(e)).set((new Uint8Array(this.buffer)).subarray(a,b));this.buffer=e;this.view=new DataView(e);0<=this.markedOffset&&(this.markedOffset-=a);this.offset=0;this.limit=c;return this};d.prototype.copy=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");
+a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return new d(0,this.littleEndian,this.noAssert);var c=b-a,e=new d(c,this.littleEndian,this.noAssert);e.offset=0;e.limit=c;0<=e.markedOffset&&(e.markedOffset-=a);this.copyTo(e,0,a,b);return e};d.prototype.copyTo=function(a,b,c,e){var h,f;if(!this.noAssert&&!d.isByteBuffer(a))throw new TypeError("Illegal target: Not a ByteBuffer");
+b=(f="undefined"===typeof b)?a.offset:b|0;c=(h="undefined"===typeof c)?this.offset:c|0;e="undefined"===typeof e?this.limit:e|0;if(0>b||b>a.buffer.byteLength)throw new RangeError("Illegal target range: 0 <= "+b+" <= "+a.buffer.byteLength);if(0>c||e>this.buffer.byteLength)throw new RangeError("Illegal source range: 0 <= "+c+" <= "+this.buffer.byteLength);var g=e-c;if(0===g)return a;a.ensureCapacity(b+g);(new Uint8Array(a.buffer)).set((new Uint8Array(this.buffer)).subarray(c,e),b);h&&(this.offset+=g);
+f&&(a.offset+=g);return this};d.prototype.ensureCapacity=function(a){var b=this.buffer.byteLength;return b<a?this.resize((b*=2)>a?b:a):this};d.prototype.fill=function(a,b,c){var e="undefined"===typeof b;e&&(b=this.offset);"string"===typeof a&&0<a.length&&(a=a.charCodeAt(0));"undefined"===typeof b&&(b=this.offset);"undefined"===typeof c&&(c=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%
+1)throw new TypeError("Illegal begin: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal end: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+b+" <= "+c+" <= "+this.buffer.byteLength);}if(b>=c)return this;for(;b<c;)this.view.setUint8(b++,a);e&&(this.offset=b);return this};d.prototype.flip=function(){this.limit=this.offset;this.offset=0;return this};d.prototype.mark=function(a){a="undefined"===typeof a?this.offset:
+a;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+0) <= "+this.buffer.byteLength);}this.markedOffset=a;return this};d.prototype.order=function(a){if(!this.noAssert&&"boolean"!==typeof a)throw new TypeError("Illegal littleEndian: Not a boolean");this.littleEndian=!!a;return this};d.prototype.LE=function(a){this.littleEndian="undefined"!==typeof a?
+!!a:!0;return this};d.prototype.BE=function(a){this.littleEndian="undefined"!==typeof a?!a:!1;return this};d.prototype.prepend=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||
+(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;var h=b-c,f;if(0<h){var g=new ArrayBuffer(this.buffer.byteLength+h);f=new Uint8Array(g);f.set((new Uint8Array(this.buffer)).subarray(c,this.buffer.byteLength),b);this.buffer=g;this.view=new DataView(g);this.offset+=h;0<=this.markedOffset&&(this.markedOffset+=h);this.limit+=h;c+=h}else f=new Uint8Array(this.buffer);f.set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit),c-b);a.offset=a.limit;e&&(this.offset-=b);return this};d.prototype.prependTo=
+function(a,b){a.prepend(this,b);return this};d.prototype.printDebug=function(a){"function"!==typeof a&&(a=console.log.bind(console));a(this.toString()+"\n-------------------------------------------------------------------\n"+this.toDebug(!0))};d.prototype.remaining=function(){return this.limit-this.offset};d.prototype.reset=function(){0<=this.markedOffset?(this.offset=this.markedOffset,this.markedOffset=-1):this.offset=0;return this};d.prototype.resize=function(a){if(!this.noAssert){if("number"!==
+typeof a||0!==a%1)throw new TypeError("Illegal capacity: "+a+" (not an integer)");a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);}this.buffer.byteLength<a&&(a=new ArrayBuffer(a),(new Uint8Array(a)).set(new Uint8Array(this.buffer)),this.buffer=a,this.view=new DataView(a));return this};d.prototype.reverse=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");
+a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return this;Array.prototype.reverse.call((new Uint8Array(this.buffer)).subarray(a,b));this.view=new DataView(this.buffer);return this};d.prototype.skip=function(a){if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");
+a|=0}var b=this.offset+a;if(!this.noAssert&&(0>b||b>this.buffer.byteLength))throw new RangeError("Illegal length: 0 <= "+this.offset+" + "+a+" <= "+this.buffer.byteLength);this.offset=b;return this};d.prototype.slice=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");
+b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c=this.clone();c.offset=a;c.limit=b;return c};d.prototype.toBuffer=function(a){var b=this.offset,c=this.limit;if(b>c)var e=b,b=c,c=e;if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal limit: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
+b+" <= "+c+" <= "+this.buffer.byteLength);}if(!a&&0===b&&c===this.buffer.byteLength)return this.buffer;if(b===c)return r;a=new ArrayBuffer(c-b);(new Uint8Array(a)).set((new Uint8Array(this.buffer)).subarray(b,c),0);return a};d.prototype.toArrayBuffer=d.prototype.toBuffer;d.prototype.toString=function(a){if("undefined"===typeof a)return"ByteBufferAB(offset="+this.offset+",markedOffset="+this.markedOffset+",limit="+this.limit+",capacity="+this.capacity()+")";switch(a){case "utf8":return this.toUTF8();
+case "base64":return this.toBase64();case "hex":return this.toHex();case "binary":return this.toBinary();case "debug":return this.toDebug();case "columns":return this.m();default:throw Error("Unsupported encoding: "+a);}};var u=function(){for(var a={},b=[65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,43,47],c=[],e=0,d=b.length;e<d;++e)c[b[e]]=
+e;a.i=function(a,c){for(var e,d;null!==(e=a());)c(b[e>>2&63]),d=(e&3)<<4,null!==(e=a())?(d|=e>>4&15,c(b[(d|e>>4&15)&63]),d=(e&15)<<2,null!==(e=a())?(c(b[(d|e>>6&3)&63]),c(b[e&63])):(c(b[d&63]),c(61))):(c(b[d&63]),c(61),c(61))};a.h=function(a,b){function e(a){throw Error("Illegal character code: "+a);}for(var d,h,k;null!==(d=a());)if(h=c[d],"undefined"===typeof h&&e(d),null!==(d=a())&&(k=c[d],"undefined"===typeof k&&e(d),b(h<<2>>>0|(k&48)>>4),null!==(d=a()))){h=c[d];if("undefined"===typeof h)if(61===
+d)break;else e(d);b((k&15)<<4>>>0|(h&60)>>2);if(null!==(d=a())){k=c[d];if("undefined"===typeof k)if(61===d)break;else e(d);b((h&3)<<6>>>0|k)}}};a.test=function(a){return/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(a)};return a}();d.prototype.toBase64=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||
+0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c;u.i(function(){return a<b?this.view.getUint8(a++):null}.bind(this),c=s());return c()};d.fromBase64=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%4)throw new TypeError("Illegal str: Length not a multiple of 4");}var e=new d(a.length/4*3,b,c),
+h=0;u.h(m(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};d.btoa=function(a){return d.fromBinary(a).toBase64()};d.atob=function(a){return d.fromBase64(a).toBinary()};d.prototype.toBinary=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>
+b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return"";for(var c=[];a<b;)c.push(this.view.getUint8(a++));return String.fromCharCode.apply(String,c)};d.fromBinary=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(var e=0,h=a.length,f=new d(h,b,c);e<h;){b=a.charCodeAt(e);if(!c&&255<b)throw new TypeError("Illegal charCode at "+e+": 0 <= "+b+" <= 255");f.view.setUint8(e++,b)}f.limit=
+h;return f};d.prototype.toDebug=function(a){for(var b=-1,c=this.buffer.byteLength,e,d="",f="",g="";b<c;){-1!==b&&(e=this.view.getUint8(b),d=16>e?d+("0"+e.toString(16).toUpperCase()):d+e.toString(16).toUpperCase(),a&&(f+=32<e&&127>e?String.fromCharCode(e):"."));++b;if(a&&0<b&&0===b%16&&b!==c){for(;51>d.length;)d+=" ";g+=d+f+"\n";d=f=""}d=b===this.offset&&b===this.limit?d+(b===this.markedOffset?"!":"|"):b===this.offset?d+(b===this.markedOffset?"[":"<"):b===this.limit?d+(b===this.markedOffset?"]":">"):
+d+(b===this.markedOffset?"'":a||0!==b&&b!==c?" ":"")}if(a&&" "!==d){for(;51>d.length;)d+=" ";g+=d+f+"\n"}return a?g:d};d.fromDebug=function(a,b,c){var e=a.length;b=new d((e+1)/3|0,b,c);for(var h=0,f=0,g,k=!1,l=!1,m=!1,q=!1,p=!1;h<e;){switch(g=a.charAt(h++)){case "!":if(!c){if(l||m||q){p=!0;break}l=m=q=!0}b.offset=b.markedOffset=b.limit=f;k=!1;break;case "|":if(!c){if(l||q){p=!0;break}l=q=!0}b.offset=b.limit=f;k=!1;break;case "[":if(!c){if(l||m){p=!0;break}l=m=!0}b.offset=b.markedOffset=f;k=!1;break;
+case "<":if(!c){if(l){p=!0;break}l=!0}b.offset=f;k=!1;break;case "]":if(!c){if(q||m){p=!0;break}q=m=!0}b.limit=b.markedOffset=f;k=!1;break;case ">":if(!c){if(q){p=!0;break}q=!0}b.limit=f;k=!1;break;case "'":if(!c){if(m){p=!0;break}m=!0}b.markedOffset=f;k=!1;break;case " ":k=!1;break;default:if(!c&&k){p=!0;break}g=parseInt(g+a.charAt(h++),16);if(!c&&(isNaN(g)||0>g||255<g))throw new TypeError("Illegal str: Not a debug encoded string");b.view.setUint8(f++,g);k=!0}if(p)throw new TypeError("Illegal str: Invalid symbol at "+
+h);}if(!c){if(!l||!q)throw new TypeError("Illegal str: Missing offset or limit");if(f<b.buffer.byteLength)throw new TypeError("Illegal str: Not a debug encoded string (is it hex?) "+f+" < "+e);}return b};d.prototype.toHex=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");
+b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}for(var c=Array(b-a),e;a<b;)e=this.view.getUint8(a++),16>e?c.push("0",e.toString(16)):c.push(e.toString(16));return c.join("")};d.fromHex=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%2)throw new TypeError("Illegal str: Length not a multiple of 2");}var e=a.length;b=new d(e/2|0,b);for(var h,f=0,g=0;f<e;f+=
+2){h=parseInt(a.substring(f,f+2),16);if(!c&&(!isFinite(h)||0>h||255<h))throw new TypeError("Illegal str: Contains non-hex characters");b.view.setUint8(g++,h)}b.limit=g;return b};var l=function(){var a={k:1114111,j:function(a,c){var e=null;"number"===typeof a&&(e=a,a=function(){return null});for(;null!==e||null!==(e=a());)128>e?c(e&127):(2048>e?c(e>>6&31|192):(65536>e?c(e>>12&15|224):(c(e>>18&7|240),c(e>>12&63|128)),c(e>>6&63|128)),c(e&63|128)),e=null},g:function(a,c){function e(a){a=a.slice(0,a.indexOf(null));
+var b=Error(a.toString());b.name="TruncatedError";b.bytes=a;throw b;}for(var d,f,g,k;null!==(d=a());)if(0===(d&128))c(d);else if(192===(d&224))null===(f=a())&&e([d,f]),c((d&31)<<6|f&63);else if(224===(d&240))null!==(f=a())&&null!==(g=a())||e([d,f,g]),c((d&15)<<12|(f&63)<<6|g&63);else if(240===(d&248))null!==(f=a())&&null!==(g=a())&&null!==(k=a())||e([d,f,g,k]),c((d&7)<<18|(f&63)<<12|(g&63)<<6|k&63);else throw RangeError("Illegal starting byte: "+d);},d:function(a,c){for(var e,d=null;null!==(e=null!==
+d?d:a());)55296<=e&&57343>=e&&null!==(d=a())&&56320<=d&&57343>=d?(c(1024*(e-55296)+d-56320+65536),d=null):c(e);null!==d&&c(d)},e:function(a,c){var d=null;"number"===typeof a&&(d=a,a=function(){return null});for(;null!==d||null!==(d=a());)65535>=d?c(d):(d-=65536,c((d>>10)+55296),c(d%1024+56320)),d=null},c:function(b,c){a.d(b,function(b){a.j(b,c)})},b:function(b,c){a.g(b,function(b){a.e(b,c)})},f:function(a){return 128>a?1:2048>a?2:65536>a?3:4},l:function(b){for(var c,d=0;null!==(c=b());)d+=a.f(c);
+return d},a:function(b){var c=0,d=0;a.d(b,function(b){++c;d+=a.f(b)});return[c,d]}};return a}();d.prototype.toUTF8=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+
+" <= "+this.buffer.byteLength);}var c=this,d;try{l.b(function(){return a<b?c.view.getUint8(a++):null},d=s())}catch(h){if(a!==b)throw new RangeError("Illegal range: Truncated data, "+a+" != "+b);}return d()};d.fromUTF8=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");var e=new d(l.a(m(a),!0)[1],b,c),h=0;l.c(m(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};return d}"undefined"!==typeof module&&module.exports?module.exports=t(require("long")):"function"===
+typeof define&&define.amd?define("ByteBuffer",["Long"],function(k){return t(k)}):(r.dcodeIO=r.dcodeIO||{}).ByteBuffer=t(r.dcodeIO.Long)})(this);
 
-},{"long":99}],98:[function(require,module,exports){
+},{"long":101}],100:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
  Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -25488,62 +26471,40 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
 /**
  * @license Long.js (c) 2013 Daniel Wirtz <dcode@dcode.io>
  * Released under the Apache License, Version 2.0
- * Derived from goog.math.Long from the Closure Library
  * see: https://github.com/dcodeIO/Long.js for details
  */
 (function(global) {
     "use strict";
 
     /**
-     * Constructs a 64-bit two's-complement integer, given its low and high 32-bit
-     * values as *signed* integers.  See the from* functions below for more
-     * convenient ways of constructing Longs.
-     *
-     * The internal representation of a long is the two given signed, 32-bit values.
-     * We use 32-bit pieces because these are the size of integers on which
-     * Javascript performs bit-operations.  For operations like addition and
-     * multiplication, we split each number into 16-bit pieces, which can easily be
-     * multiplied within Javascript's floating-point representation without overflow
-     * or change in sign.
-     *
-     * In the algorithms below, we frequently reduce the negative case to the
-     * positive case by negating the input(s) and then post-processing the result.
-     * Note that we must ALWAYS check specially whether those values are MIN_VALUE
-     * (-2^63) because -MIN_VALUE == MIN_VALUE (since 2^63 cannot be represented as
-     * a positive number, it overflows back into a negative).  Not handling this
-     * case would often result in infinite recursion.
-     * 
+     * Constructs a 64 bit two's-complement integer, given its low and high 32 bit values as *signed* integers.
+     *  See the from* functions below for more convenient ways of constructing Longs.
      * @exports Long
-     * @class A Long class for representing a 64-bit two's-complement integer value.
-     * @param {number|!{low: number, high: number, unsigned: boolean}} low The low (signed) 32 bits of the long.
-     *  Optionally accepts a Long-like object as the first parameter.
-     * @param {number=} high The high (signed) 32 bits of the long.
-     * @param {boolean=} unsigned Whether unsigned or not. Defaults to `false` (signed).
+     * @class A Long class for representing a 64 bit two's-complement integer value.
+     * @param {number} low The low (signed) 32 bits of the long
+     * @param {number} high The high (signed) 32 bits of the long
+     * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
      * @constructor
      */
     var Long = function(low, high, unsigned) {
-        if (low && typeof low === 'object') {
-            high = low.high;
-            unsigned = low.unsigned;
-            low = low.low;
-        }
-        
+
         /**
          * The low 32 bits as a signed value.
          * @type {number}
          * @expose
          */
-        this.low = low | 0;
+        this.low = low|0;
 
         /**
          * The high 32 bits as a signed value.
          * @type {number}
          * @expose
          */
-        this.high = high | 0;
+        this.high = high|0;
 
         /**
          * Whether unsigned or not.
@@ -25553,28 +26514,52 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
         this.unsigned = !!unsigned;
     };
 
-    // NOTE: Common constant values ZERO, ONE, NEG_ONE, etc. are defined below the from* methods on which they depend.
+    // The internal representation of a long is the two given signed, 32-bit values.
+    // We use 32-bit pieces because these are the size of integers on which
+    // Javascript performs bit-operations.  For operations like addition and
+    // multiplication, we split each number into 16 bit pieces, which can easily be
+    // multiplied within Javascript's floating-point representation without overflow
+    // or change in sign.
+    //
+    // In the algorithms below, we frequently reduce the negative case to the
+    // positive case by negating the input(s) and then post-processing the result.
+    // Note that we must ALWAYS check specially whether those values are MIN_VALUE
+    // (-2^63) because -MIN_VALUE == MIN_VALUE (since 2^63 cannot be represented as
+    // a positive number, it overflows back into a negative).  Not handling this
+    // case would often result in infinite recursion.
+    //
+    // Common constant values ZERO, ONE, NEG_ONE, etc. are defined below the from*
+    // methods on which they depend.
 
-    // NOTE: The following cache variables are used internally only and are therefore not exposed as properties of the
-    // Long class.
-    
+    /**
+     * Tests if the specified object is a Long.
+     * @param {*} obj Object
+     * @returns {boolean}
+     * @expose
+     */
+    Long.isLong = function(obj) {
+        return (obj && obj instanceof Long) === true;
+    };
+
     /**
      * A cache of the Long representations of small integer values.
      * @type {!Object}
+     * @inner
      */
     var INT_CACHE = {};
 
     /**
      * A cache of the Long representations of small unsigned integer values.
      * @type {!Object}
+     * @inner
      */
     var UINT_CACHE = {};
 
     /**
-     * Returns a Long representing the given (32-bit) integer value.
-     * @param {number} value The 32-bit integer in question.
-     * @param {boolean=} unsigned Whether unsigned or not. Defaults to false (signed).
-     * @return {!Long} The corresponding Long value.
+     * Returns a Long representing the given 32 bit integer value.
+     * @param {number} value The 32 bit integer in question
+     * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
+     * @returns {!Long} The corresponding Long value
      * @expose
      */
     Long.fromInt = function(value, unsigned) {
@@ -25583,61 +26568,56 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
             value = value | 0;
             if (-128 <= value && value < 128) {
                 cachedObj = INT_CACHE[value];
-                if (cachedObj) return cachedObj;
+                if (cachedObj)
+                    return cachedObj;
             }
             obj = new Long(value, value < 0 ? -1 : 0, false);
-            if (-128 <= value && value < 128) {
+            if (-128 <= value && value < 128)
                 INT_CACHE[value] = obj;
-            }
             return obj;
         } else {
             value = value >>> 0;
             if (0 <= value && value < 256) {
                 cachedObj = UINT_CACHE[value];
-                if (cachedObj) return cachedObj;
+                if (cachedObj)
+                    return cachedObj;
             }
             obj = new Long(value, (value | 0) < 0 ? -1 : 0, true);
-            if (0 <= value && value < 256) {
+            if (0 <= value && value < 256)
                 UINT_CACHE[value] = obj;
-            }
             return obj;
         }
     };
 
     /**
-     * Returns a Long representing the given value, provided that it is a finite
-     * number.  Otherwise, zero is returned.
-     * @param {number} value The number in question.
-     * @param {boolean=} unsigned Whether unsigned or not. Defaults to false (signed).
-     * @return {!Long} The corresponding Long value.
+     * Returns a Long representing the given value, provided that it is a finite number. Otherwise, zero is returned.
+     * @param {number} value The number in question
+     * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
+     * @returns {!Long} The corresponding Long value
      * @expose
      */
     Long.fromNumber = function(value, unsigned) {
         unsigned = !!unsigned;
-        if (isNaN(value) || !isFinite(value)) {
+        if (isNaN(value) || !isFinite(value))
             return Long.ZERO;
-        } else if (!unsigned && value <= -TWO_PWR_63_DBL) {
-            return Long.MIN_SIGNED_VALUE;
-        } else if (unsigned && value <= 0) {
-            return Long.MIN_UNSIGNED_VALUE;
-        } else if (!unsigned && value + 1 >= TWO_PWR_63_DBL) {
-            return Long.MAX_SIGNED_VALUE;
-        } else if (unsigned && value >= TWO_PWR_64_DBL) {
+        if (!unsigned && value <= -TWO_PWR_63_DBL)
+            return Long.MIN_VALUE;
+        if (!unsigned && value + 1 >= TWO_PWR_63_DBL)
+            return Long.MAX_VALUE;
+        if (unsigned && value >= TWO_PWR_64_DBL)
             return Long.MAX_UNSIGNED_VALUE;
-        } else if (value < 0) {
-            return Long.fromNumber(-value, false).negate();
-        } else {
-            return new Long((value % TWO_PWR_32_DBL) | 0, (value / TWO_PWR_32_DBL) | 0, unsigned);
-        }
+        if (value < 0)
+            return Long.fromNumber(-value, unsigned).negate();
+        return new Long((value % TWO_PWR_32_DBL) | 0, (value / TWO_PWR_32_DBL) | 0, unsigned);
     };
 
     /**
-     * Returns a Long representing the 64bit integer that comes by concatenating the given low and high bits. Each is
+     * Returns a Long representing the 64 bit integer that comes by concatenating the given low and high bits. Each is
      *  assumed to use 32 bits.
-     * @param {number} lowBits The low 32 bits.
-     * @param {number} highBits The high 32 bits.
-     * @param {boolean=} unsigned Whether unsigned or not. Defaults to false (signed).
-     * @return {!Long} The corresponding Long value.
+     * @param {number} lowBits The low 32 bits
+     * @param {number} highBits The high 32 bits
+     * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
+     * @returns {!Long} The corresponding Long value
      * @expose
      */
     Long.fromBits = function(lowBits, highBits, unsigned) {
@@ -25645,51 +26625,30 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * Returns a Long representing the 64bit integer that comes by concatenating the given low, middle and high bits.
-     *  Each is assumed to use 28 bits.
-     * @param {number} part0 The low 28 bits
-     * @param {number} part1 The middle 28 bits
-     * @param {number} part2 The high 28 (8) bits
-     * @param {boolean=} unsigned Whether unsigned or not. Defaults to false (signed).
-     * @return {!Long}
-     * @expose
-     */
-    Long.from28Bits = function(part0, part1, part2, unsigned) {
-        // 00000000000000000000000000001111 11111111111111111111111122222222 2222222222222
-        // LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-        return Long.fromBits(part0 | (part1 << 28), (part1 >>> 4) | (part2) << 24, unsigned);
-    };
-
-    /**
-     * Returns a Long representation of the given string, written using the given
-     * radix.
-     * @param {string} str The textual representation of the Long.
-     * @param {(boolean|number)=} unsigned Whether unsigned or not. Defaults to false (signed).
-     * @param {number=} radix The radix in which the text is written.
-     * @return {!Long} The corresponding Long value.
+     * Returns a Long representation of the given string, written using the specified radix.
+     * @param {string} str The textual representation of the Long
+     * @param {(boolean|number)=} unsigned Whether unsigned or not, defaults to `false` for signed
+     * @param {number=} radix The radix in which the text is written (2-36), defaults to 10
+     * @returns {!Long} The corresponding Long value
      * @expose
      */
     Long.fromString = function(str, unsigned, radix) {
-        if (str.length == 0) {
-            throw(new Error('number format error: empty string'));
-        }
-        if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity") {
+        if (str.length === 0)
+            throw Error('number format error: empty string');
+        if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
             return Long.ZERO;
-        }
-        if (typeof unsigned === 'number') { // For goog.math.Long compatibility
-            radix = unsigned;
+        if (typeof unsigned === 'number') // For goog.math.long compatibility
+            radix = unsigned,
             unsigned = false;
-        }
         radix = radix || 10;
-        if (radix < 2 || 36 < radix) {
-            throw(new Error('radix out of range: ' + radix));
-        }
+        if (radix < 2 || 36 < radix)
+            throw Error('radix out of range: ' + radix);
 
-        if (str.charAt(0) == '-') {
+        var p;
+        if ((p = str.indexOf('-')) > 0)
+            throw Error('number format error: interior "-" character: ' + str);
+        else if (p === 0)
             return Long.fromString(str.substring(1), unsigned, radix).negate();
-        } else if (str.indexOf('-') >= 0) {
-            throw(new Error('number format error: interior "-" character: ' + str));
-        }
 
         // Do several (8) digits each time through the loop, so as to
         // minimize the calls to the very expensive emulated div.
@@ -25711,122 +26670,133 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
         return result;
     };
 
+    /**
+     * Converts the specified value to a Long.
+     * @param {!Long|number|string|!{low: number, high: number, unsigned: boolean}} val Value
+     * @returns {!Long}
+     * @expose
+     */
+    Long.fromValue = function(val) {
+        if (typeof val === 'number')
+            return Long.fromNumber(val);
+        if (typeof val === 'string')
+            return Long.fromString(val);
+        if (Long.isLong(val))
+            return val;
+        // Throws for not an object (undefined, null):
+        return new Long(val.low, val.high, val.unsigned);
+    };
+
     // NOTE: the compiler should inline these constant values below and then remove these variables, so there should be
     // no runtime penalty for these.
-    
-    // NOTE: The following constant values are used internally only and are therefore not exposed as properties of the
-    // Long class.
 
     /**
      * @type {number}
+     * @inner
      */
     var TWO_PWR_16_DBL = 1 << 16;
 
     /**
      * @type {number}
+     * @inner
      */
     var TWO_PWR_24_DBL = 1 << 24;
 
     /**
      * @type {number}
+     * @inner
      */
     var TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
 
     /**
      * @type {number}
+     * @inner
      */
     var TWO_PWR_31_DBL = TWO_PWR_32_DBL / 2;
 
     /**
      * @type {number}
+     * @inner
      */
     var TWO_PWR_48_DBL = TWO_PWR_32_DBL * TWO_PWR_16_DBL;
 
     /**
      * @type {number}
+     * @inner
      */
     var TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
 
     /**
      * @type {number}
+     * @inner
      */
     var TWO_PWR_63_DBL = TWO_PWR_64_DBL / 2;
 
     /**
      * @type {!Long}
+     * @inner
      */
     var TWO_PWR_24 = Long.fromInt(1 << 24);
 
     /**
+     * Signed zero.
      * @type {!Long}
      * @expose
      */
     Long.ZERO = Long.fromInt(0);
 
     /**
+     * Unsigned zero.
      * @type {!Long}
      * @expose
      */
     Long.UZERO = Long.fromInt(0, true);
 
     /**
+     * Signed one.
      * @type {!Long}
      * @expose
      */
     Long.ONE = Long.fromInt(1);
 
     /**
+     * Unsigned one.
      * @type {!Long}
      * @expose
      */
     Long.UONE = Long.fromInt(1, true);
 
     /**
+     * Signed negative one.
      * @type {!Long}
      * @expose
      */
     Long.NEG_ONE = Long.fromInt(-1);
 
     /**
+     * Maximum signed value.
      * @type {!Long}
      * @expose
      */
-    Long.MAX_SIGNED_VALUE = Long.fromBits(0xFFFFFFFF | 0, 0x7FFFFFFF | 0, false);
+    Long.MAX_VALUE = Long.fromBits(0xFFFFFFFF|0, 0x7FFFFFFF|0, false);
 
     /**
+     * Maximum unsigned value.
      * @type {!Long}
      * @expose
      */
-    Long.MAX_UNSIGNED_VALUE = Long.fromBits(0xFFFFFFFF | 0, 0xFFFFFFFF | 0, true);
+    Long.MAX_UNSIGNED_VALUE = Long.fromBits(0xFFFFFFFF|0, 0xFFFFFFFF|0, true);
 
     /**
-     * Alias of {@link Long.MAX_SIGNED_VALUE} for goog.math.Long compatibility.
+     * Minimum signed value.
      * @type {!Long}
      * @expose
      */
-    Long.MAX_VALUE = Long.MAX_SIGNED_VALUE;
+    Long.MIN_VALUE = Long.fromBits(0, 0x80000000|0, false);
 
     /**
-     * @type {!Long}
-     * @expose
-     */
-    Long.MIN_SIGNED_VALUE = Long.fromBits(0, 0x80000000 | 0, false);
-
-    /**
-     * @type {!Long}
-     * @expose
-     */
-    Long.MIN_UNSIGNED_VALUE = Long.fromBits(0, 0, true);
-
-    /**
-     * Alias of {@link Long.MIN_SIGNED_VALUE}  for goog.math.Long compatibility.
-     * @type {!Long}
-     * @expose
-     */
-    Long.MIN_VALUE = Long.MIN_SIGNED_VALUE;
-
-    /**
-     * @return {number} The value, assuming it is a 32-bit integer.
+     * Converts the Long to a 32 bit integer, assuming it is a 32 bit integer.
+     * @returns {number}
      * @expose
      */
     Long.prototype.toInt = function() {
@@ -25834,7 +26804,8 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * @return {number} The closest floating-point representation to this value.
+     * Converts the Long to a the nearest floating-point representation of this value (double, 53 bit mantissa).
+     * @returns {number}
      * @expose
      */
     Long.prototype.toNumber = function() {
@@ -25845,56 +26816,55 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * @param {number=} radix The radix in which the text should be written.
-     * @return {string} The textual representation of this value.
+     * Converts the Long to a string written in the specified radix.
+     * @param {number=} radix Radix (2-36), defaults to 10
+     * @returns {string}
      * @override
+     * @throws {RangeError} If `radix` is out of range
      * @expose
      */
     Long.prototype.toString = function(radix) {
         radix = radix || 10;
-        if (radix < 2 || 36 < radix) {
-            throw(new Error('radix out of range: ' + radix));
-        }
-        if (this.isZero()) {
+        if (radix < 2 || 36 < radix)
+            throw RangeError('radix out of range: ' + radix);
+        if (this.isZero())
             return '0';
-        }
         var rem;
         if (this.isNegative()) { // Unsigned Longs are never negative
-            if (this.equals(Long.MIN_SIGNED_VALUE)) {
+            if (this.equals(Long.MIN_VALUE)) {
                 // We need to change the Long value before it can be negated, so we remove
                 // the bottom-most digit in this base and then recurse to do the rest.
                 var radixLong = Long.fromNumber(radix);
                 var div = this.div(radixLong);
                 rem = div.multiply(radixLong).subtract(this);
                 return div.toString(radix) + rem.toInt().toString(radix);
-            } else {
+            } else
                 return '-' + this.negate().toString(radix);
-            }
         }
 
         // Do several (6) digits each time through the loop, so as to
         // minimize the calls to the very expensive emulated div.
-        var radixToPower = Long.fromNumber(Math.pow(radix, 6));
+        var radixToPower = Long.fromNumber(Math.pow(radix, 6), this.unsigned);
         rem = this;
         var result = '';
         while (true) {
-            var remDiv = rem.div(radixToPower);
-            var intval = rem.subtract(remDiv.multiply(radixToPower)).toInt();
-            var digits = intval.toString(radix);
+            var remDiv = rem.div(radixToPower),
+                intval = rem.subtract(remDiv.multiply(radixToPower)).toInt() >>> 0,
+                digits = intval.toString(radix);
             rem = remDiv;
-            if (rem.isZero()) {
+            if (rem.isZero())
                 return digits + result;
-            } else {
-                while (digits.length < 6) {
+            else {
+                while (digits.length < 6)
                     digits = '0' + digits;
-                }
                 result = '' + digits + result;
             }
         }
     };
 
     /**
-     * @return {number} The high 32 bits as a signed value.
+     * Gets the high 32 bits as a signed integer.
+     * @returns {number} Signed high bits
      * @expose
      */
     Long.prototype.getHighBits = function() {
@@ -25902,7 +26872,8 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * @return {number} The high 32 bits as an unsigned value.
+     * Gets the high 32 bits as an unsigned integer.
+     * @returns {number} Unsigned high bits
      * @expose
      */
     Long.prototype.getHighBitsUnsigned = function() {
@@ -25910,7 +26881,8 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * @return {number} The low 32 bits as a signed value.
+     * Gets the low 32 bits as a signed integer.
+     * @returns {number} Signed low bits
      * @expose
      */
     Long.prototype.getLowBits = function() {
@@ -25918,7 +26890,8 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * @return {number} The low 32 bits as an unsigned value.
+     * Gets the low 32 bits as an unsigned integer.
+     * @returns {number} Unsigned low bits
      * @expose
      */
     Long.prototype.getLowBitsUnsigned = function() {
@@ -25926,38 +26899,32 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * @return {number} Returns the number of bits needed to represent the absolute
-     *     value of this Long.
+     * Gets the number of bits needed to represent the absolute value of this Long.
+     * @returns {number}
      * @expose
      */
     Long.prototype.getNumBitsAbs = function() {
-        if (this.isNegative()) { // Unsigned Longs are never negative
-            if (this.equals(Long.MIN_SIGNED_VALUE)) {
-                return 64;
-            } else {
-                return this.negate().getNumBitsAbs();
-            }
-        } else {
-            var val = this.high != 0 ? this.high : this.low;
-            for (var bit = 31; bit > 0; bit--) {
-                if ((val & (1 << bit)) != 0) {
-                    break;
-                }
-            }
-            return this.high != 0 ? bit + 33 : bit + 1;
-        }
+        if (this.isNegative()) // Unsigned Longs are never negative
+            return this.equals(Long.MIN_VALUE) ? 64 : this.negate().getNumBitsAbs();
+        var val = this.high != 0 ? this.high : this.low;
+        for (var bit = 31; bit > 0; bit--)
+            if ((val & (1 << bit)) != 0)
+                break;
+        return this.high != 0 ? bit + 33 : bit + 1;
     };
 
     /**
-     * @return {boolean} Whether this value is zero.
+     * Tests if this Long's value equals zero.
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.isZero = function() {
-        return this.high == 0 && this.low == 0;
+        return this.high === 0 && this.low === 0;
     };
 
     /**
-     * @return {boolean} Whether this value is negative.
+     * Tests if this Long's value is negative.
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.isNegative = function() {
@@ -25965,69 +26932,97 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * @return {boolean} Whether this value is odd.
+     * Tests if this Long's value is positive.
+     * @returns {boolean}
+     * @expose
+     */
+    Long.prototype.isPositive = function() {
+        return this.unsigned || this.high >= 0;
+    };
+
+    /**
+     * Tests if this Long's value is odd.
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.isOdd = function() {
-        return (this.low & 1) == 1;
+        return (this.low & 1) === 1;
     };
 
     /**
-     * @return {boolean} Whether this value is even.
+     * Tests if this Long's value is even.
+     * @returns {boolean}
      */
     Long.prototype.isEven = function() {
-        return (this.low & 1) == 0;
+        return (this.low & 1) === 0;
     };
 
     /**
-     * @param {Long} other Long to compare against.
-     * @return {boolean} Whether this Long equals the other.
+     * Tests if this Long's value equals the specified's.
+     * @param {!Long|number|string} other Other value
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.equals = function(other) {
-        if (this.unsigned != other.unsigned && (this.high >>> 31) != (other.high >>> 31)) return false;
-        return (this.high == other.high) && (this.low == other.low);
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
+        if (this.unsigned !== other.unsigned && (this.high >>> 31) !== (other.high >>> 31))
+            return false;
+        return this.high === other.high && this.low === other.low;
     };
 
     /**
-     * @param {Long} other Long to compare against.
-     * @return {boolean} Whether this Long does not equal the other.
+     * Tests if this Long's value differs from the specified's.
+     * @param {!Long|number|string} other Other value
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.notEquals = function(other) {
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
         return !this.equals(other);
     };
 
     /**
-     * @param {Long} other Long to compare against.
-     * @return {boolean} Whether this Long is less than the other.
+     * Tests if this Long's value is less than the specified's.
+     * @param {!Long|number|string} other Other value
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.lessThan = function(other) {
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
         return this.compare(other) < 0;
     };
 
     /**
-     * @param {Long} other Long to compare against.
-     * @return {boolean} Whether this Long is less than or equal to the other.
+     * Tests if this Long's value is less than or equal the specified's.
+     * @param {!Long|number|string} other Other value
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.lessThanOrEqual = function(other) {
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
         return this.compare(other) <= 0;
     };
 
     /**
-     * @param {Long} other Long to compare against.
-     * @return {boolean} Whether this Long is greater than the other.
+     * Tests if this Long's value is greater than the specified's.
+     * @param {!Long|number|string} other Other value
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.greaterThan = function(other) {
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
         return this.compare(other) > 0;
     };
 
     /**
-     * @param {Long} other Long to compare against.
-     * @return {boolean} Whether this Long is greater than or equal to the other.
+     * Tests if this Long's value is greater than or equal the specified's.
+     * @param {!Long|number|string} other Other value
+     * @returns {boolean}
      * @expose
      */
     Long.prototype.greaterThanOrEqual = function(other) {
@@ -26035,10 +27030,10 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * Compares this Long with the given one.
-     * @param {Long} other Long to compare against.
-     * @return {number} 0 if they are the same, 1 if the this is greater, and -1
-     *     if the given one is greater.
+     * Compares this Long's value with the specified's.
+     * @param {!Long|number|string} other Other value
+     * @returns {number} 0 if they are the same, 1 if the this is greater and -1
+     *  if the given one is greater
      * @expose
      */
     Long.prototype.compare = function(other) {
@@ -26049,44 +27044,45 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
         var otherNeg = other.isNegative();
         if (thisNeg && !otherNeg) return -1;
         if (!thisNeg && otherNeg) return 1;
-        if (!this.unsigned) {
-            // At this point the signs are the same
+        // At this point the sign bits are the same
+        if (!this.unsigned)
             return this.subtract(other).isNegative() ? -1 : 1;
-        } else {
-            // Both are positive if at least one is unsigned
-            return (other.high >>> 0) > (this.high >>> 0) || (other.high == this.high && (other.low >>> 0) > (this.low >>> 0)) ? -1 : 1;
-        }
+        // Both are positive if at least one is unsigned
+        return (other.high >>> 0) > (this.high >>> 0) || (other.high === this.high && (other.low >>> 0) > (this.low >>> 0)) ? -1 : 1;
     };
 
     /**
-     * @return {!Long} The negation of this value.
+     * Negates this Long's value.
+     * @returns {!Long} Negated Long
      * @expose
      */
     Long.prototype.negate = function() {
-        if (!this.unsigned && this.equals(Long.MIN_SIGNED_VALUE)) {
-            return Long.MIN_SIGNED_VALUE;
-        }
+        if (!this.unsigned && this.equals(Long.MIN_VALUE))
+            return Long.MIN_VALUE;
         return this.not().add(Long.ONE);
     };
 
     /**
-     * Returns the sum of this and the given Long.
-     * @param {Long} other Long to add to this one.
-     * @return {!Long} The sum of this and the given Long.
+     * Returns the sum of this and the specified Long.
+     * @param {!Long|number|string} addend Addend
+     * @returns {!Long} Sum
      * @expose
      */
-    Long.prototype.add = function(other) {
+    Long.prototype.add = function(addend) {
+        if (!Long.isLong(addend))
+            addend = Long.fromValue(addend);
+
         // Divide each number into 4 chunks of 16 bits, and then sum the chunks.
-        
+
         var a48 = this.high >>> 16;
         var a32 = this.high & 0xFFFF;
         var a16 = this.low >>> 16;
         var a00 = this.low & 0xFFFF;
 
-        var b48 = other.high >>> 16;
-        var b32 = other.high & 0xFFFF;
-        var b16 = other.low >>> 16;
-        var b00 = other.low & 0xFFFF;
+        var b48 = addend.high >>> 16;
+        var b32 = addend.high & 0xFFFF;
+        var b16 = addend.low >>> 16;
+        var b00 = addend.low & 0xFFFF;
 
         var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
         c00 += a00 + b00;
@@ -26104,61 +27100,59 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * Returns the difference of this and the given Long.
-     * @param {Long} other Long to subtract from this.
-     * @return {!Long} The difference of this and the given Long.
+     * Returns the difference of this and the specified Long.
+     * @param {!Long|number|string} subtrahend Subtrahend
+     * @returns {!Long} Difference
      * @expose
      */
-    Long.prototype.subtract = function(other) {
-        return this.add(other.negate());
+    Long.prototype.subtract = function(subtrahend) {
+        if (!Long.isLong(subtrahend))
+            subtrahend = Long.fromValue(subtrahend);
+        return this.add(subtrahend.negate());
     };
 
     /**
-     * Returns the product of this and the given long.
-     * @param {Long} other Long to multiply with this.
-     * @return {!Long} The product of this and the other.
+     * Returns the product of this and the specified Long.
+     * @param {!Long|number|string} multiplier Multiplier
+     * @returns {!Long} Product
      * @expose
      */
-    Long.prototype.multiply = function(other) {
-        if (this.isZero()) {
+    Long.prototype.multiply = function(multiplier) {
+        if (this.isZero())
             return Long.ZERO;
-        } else if (other.isZero()) {
+        if (!Long.isLong(multiplier))
+            multiplier = Long.fromValue(multiplier);
+        if (multiplier.isZero())
             return Long.ZERO;
-        }
-
-        if (this.equals(Long.MIN_VALUE)) {
-            return other.isOdd() ? Long.MIN_VALUE : Long.ZERO;
-        } else if (other.equals(Long.MIN_VALUE)) {
+        if (this.equals(Long.MIN_VALUE))
+            return multiplier.isOdd() ? Long.MIN_VALUE : Long.ZERO;
+        if (multiplier.equals(Long.MIN_VALUE))
             return this.isOdd() ? Long.MIN_VALUE : Long.ZERO;
-        }
 
         if (this.isNegative()) {
-            if (other.isNegative()) {
-                return this.negate().multiply(other.negate());
-            } else {
-                return this.negate().multiply(other).negate();
-            }
-        } else if (other.isNegative()) {
-            return this.multiply(other.negate()).negate();
-        }
+            if (multiplier.isNegative())
+                return this.negate().multiply(multiplier.negate());
+            else
+                return this.negate().multiply(multiplier).negate();
+        } else if (multiplier.isNegative())
+            return this.multiply(multiplier.negate()).negate();
+
         // If both longs are small, use float multiplication
-        if (this.lessThan(TWO_PWR_24) &&
-            other.lessThan(TWO_PWR_24)) {
-            return Long.fromNumber(this.toNumber() * other.toNumber(), this.unsigned);
-        }
+        if (this.lessThan(TWO_PWR_24) && multiplier.lessThan(TWO_PWR_24))
+            return Long.fromNumber(this.toNumber() * multiplier.toNumber(), this.unsigned);
 
         // Divide each long into 4 chunks of 16 bits, and then add up 4x4 products.
         // We can skip products that would overflow.
-        
+
         var a48 = this.high >>> 16;
         var a32 = this.high & 0xFFFF;
         var a16 = this.low >>> 16;
         var a00 = this.low & 0xFFFF;
 
-        var b48 = other.high >>> 16;
-        var b32 = other.high & 0xFFFF;
-        var b16 = other.low >>> 16;
-        var b00 = other.low & 0xFFFF;
+        var b48 = multiplier.high >>> 16;
+        var b32 = multiplier.high & 0xFFFF;
+        var b16 = multiplier.low >>> 16;
+        var b00 = multiplier.low & 0xFFFF;
 
         var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
         c00 += a00 * b00;
@@ -26185,48 +27179,45 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * Returns this Long divided by the given one.
-     * @param {Long} other Long by which to divide.
-     * @return {!Long} This Long divided by the given one.
+     * Returns this Long divided by the specified.
+     * @param {!Long|number|string} divisor Divisor
+     * @returns {!Long} Quotient
      * @expose
      */
-    Long.prototype.div = function(other) {
-        if (other.isZero()) {
+    Long.prototype.div = function(divisor) {
+        if (!Long.isLong(divisor))
+            divisor = Long.fromValue(divisor);
+        if (divisor.isZero())
             throw(new Error('division by zero'));
-        } else if (this.isZero()) {
+        if (this.isZero())
             return this.unsigned ? Long.UZERO : Long.ZERO;
-        }
         var approx, rem, res;
-        if (this.equals(Long.MIN_SIGNED_VALUE)) {
-            if (other.equals(Long.ONE) || other.equals(Long.NEG_ONE)) {
-                return Long.MIN_SIGNED_VALUE;  // recall that -MIN_VALUE == MIN_VALUE
-            } else if (other.equals(Long.MIN_SIGNED_VALUE)) {
+        if (this.equals(Long.MIN_VALUE)) {
+            if (divisor.equals(Long.ONE) || divisor.equals(Long.NEG_ONE))
+                return Long.MIN_VALUE;  // recall that -MIN_VALUE == MIN_VALUE
+            else if (divisor.equals(Long.MIN_VALUE))
                 return Long.ONE;
-            } else {
+            else {
                 // At this point, we have |other| >= 2, so |this/other| < |MIN_VALUE|.
                 var halfThis = this.shiftRight(1);
-                approx = halfThis.div(other).shiftLeft(1);
+                approx = halfThis.div(divisor).shiftLeft(1);
                 if (approx.equals(Long.ZERO)) {
-                    return other.isNegative() ? Long.ONE : Long.NEG_ONE;
+                    return divisor.isNegative() ? Long.ONE : Long.NEG_ONE;
                 } else {
-                    rem = this.subtract(other.multiply(approx));
-                    res = approx.add(rem.div(other));
+                    rem = this.subtract(divisor.multiply(approx));
+                    res = approx.add(rem.div(divisor));
                     return res;
                 }
             }
-        } else if (other.equals(Long.MIN_SIGNED_VALUE)) {
+        } else if (divisor.equals(Long.MIN_VALUE))
             return this.unsigned ? Long.UZERO : Long.ZERO;
-        }
         if (this.isNegative()) {
-            if (other.isNegative()) {
-                return this.negate().div(other.negate());
-            } else {
-                return this.negate().div(other).negate();
-            }
-        } else if (other.isNegative()) {
-            return this.div(other.negate()).negate();
-        }
-        
+            if (divisor.isNegative())
+                return this.negate().div(divisor.negate());
+            return this.negate().div(divisor).negate();
+        } else if (divisor.isNegative())
+            return this.div(divisor.negate()).negate();
+
         // Repeat the following until the remainder is less than other:  find a
         // floating-point that approximates remainder / other *from below*, add this
         // into the result, and subtract it from the remainder.  It is critical that
@@ -26234,31 +27225,30 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
         // remainder never becomes negative.
         res = Long.ZERO;
         rem = this;
-        while (rem.greaterThanOrEqual(other)) {
+        while (rem.greaterThanOrEqual(divisor)) {
             // Approximate the result of division. This may be a little greater or
             // smaller than the actual value.
-            approx = Math.max(1, Math.floor(rem.toNumber() / other.toNumber()));
+            approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
 
             // We will tweak the approximate result by changing it in the 48-th digit or
             // the smallest non-fractional digit, whichever is larger.
-            var log2 = Math.ceil(Math.log(approx) / Math.LN2);
-            var delta = (log2 <= 48) ? 1 : Math.pow(2, log2 - 48);
+            var log2 = Math.ceil(Math.log(approx) / Math.LN2),
+                delta = (log2 <= 48) ? 1 : Math.pow(2, log2 - 48),
 
             // Decrease the approximation until it is smaller than the remainder.  Note
             // that if it is too large, the product overflows and is negative.
-            var approxRes = Long.fromNumber(approx, this.unsigned);
-            var approxRem = approxRes.multiply(other);
+                approxRes = Long.fromNumber(approx),
+                approxRem = approxRes.multiply(divisor);
             while (approxRem.isNegative() || approxRem.greaterThan(rem)) {
                 approx -= delta;
                 approxRes = Long.fromNumber(approx, this.unsigned);
-                approxRem = approxRes.multiply(other);
+                approxRem = approxRes.multiply(divisor);
             }
 
             // We know the answer can't be zero... and actually, zero would cause
             // infinite recursion since we would make no progress.
-            if (approxRes.isZero()) {
+            if (approxRes.isZero())
                 approxRes = Long.ONE;
-            }
 
             res = res.add(approxRes);
             rem = rem.subtract(approxRem);
@@ -26267,17 +27257,20 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * Returns this Long modulo the given one.
-     * @param {Long} other Long by which to mod.
-     * @return {!Long} This Long modulo the given one.
+     * Returns this Long modulo the specified.
+     * @param {!Long|number|string} divisor Divisor
+     * @returns {!Long} Remainder
      * @expose
      */
-    Long.prototype.modulo = function(other) {
-        return this.subtract(this.div(other).multiply(other));
+    Long.prototype.modulo = function(divisor) {
+        if (!Long.isLong(divisor))
+            divisor = Long.fromValue(divisor);
+        return this.subtract(this.div(divisor).multiply(divisor));
     };
 
     /**
-     * @return {!Long} The bitwise-NOT of this value.
+     * Returns the bitwise NOT of this Long.
+     * @returns {!Long}
      * @expose
      */
     Long.prototype.not = function() {
@@ -26285,145 +27278,131 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
     };
 
     /**
-     * Returns the bitwise-AND of this Long and the given one.
-     * @param {Long} other The Long with which to AND.
-     * @return {!Long} The bitwise-AND of this and the other.
+     * Returns the bitwise AND of this Long and the specified.
+     * @param {!Long|number|string} other Other Long
+     * @returns {!Long}
      * @expose
      */
     Long.prototype.and = function(other) {
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
         return Long.fromBits(this.low & other.low, this.high & other.high, this.unsigned);
     };
 
     /**
-     * Returns the bitwise-OR of this Long and the given one.
-     * @param {Long} other The Long with which to OR.
-     * @return {!Long} The bitwise-OR of this and the other.
+     * Returns the bitwise OR of this Long and the specified.
+     * @param {!Long|number|string} other Other Long
+     * @returns {!Long}
      * @expose
      */
     Long.prototype.or = function(other) {
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
         return Long.fromBits(this.low | other.low, this.high | other.high, this.unsigned);
     };
 
     /**
-     * Returns the bitwise-XOR of this Long and the given one.
-     * @param {Long} other The Long with which to XOR.
-     * @return {!Long} The bitwise-XOR of this and the other.
+     * Returns the bitwise XOR of this Long and the given one.
+     * @param {!Long|number|string} other Other Long
+     * @returns {!Long}
      * @expose
      */
     Long.prototype.xor = function(other) {
+        if (!Long.isLong(other))
+            other = Long.fromValue(other);
         return Long.fromBits(this.low ^ other.low, this.high ^ other.high, this.unsigned);
     };
 
     /**
      * Returns this Long with bits shifted to the left by the given amount.
-     * @param {number} numBits The number of bits by which to shift.
-     * @return {!Long} This shifted to the left by the given amount.
+     * @param {number|!Long} numBits Number of bits
+     * @returns {!Long} Shifted Long
      * @expose
      */
     Long.prototype.shiftLeft = function(numBits) {
-        numBits &= 63;
-        if (numBits == 0) {
+        if (Long.isLong(numBits))
+            numBits = numBits.toInt();
+        if ((numBits &= 63) === 0)
             return this;
-        } else {
-            var low = this.low;
-            if (numBits < 32) {
-                var high = this.high;
-                return Long.fromBits(low << numBits, (high << numBits) | (low >>> (32 - numBits)), this.unsigned);
-            } else {
-                return Long.fromBits(0, low << (numBits - 32), this.unsigned);
-            }
-        }
+        else if (numBits < 32)
+            return Long.fromBits(this.low << numBits, (this.high << numBits) | (this.low >>> (32 - numBits)), this.unsigned);
+        else
+            return Long.fromBits(0, this.low << (numBits - 32), this.unsigned);
     };
 
     /**
-     * Returns this Long with bits shifted to the right by the given amount.
-     * @param {number} numBits The number of bits by which to shift.
-     * @return {!Long} This shifted to the right by the given amount.
+     * Returns this Long with bits arithmetically shifted to the right by the given amount.
+     * @param {number|!Long} numBits Number of bits
+     * @returns {!Long} Shifted Long
      * @expose
      */
     Long.prototype.shiftRight = function(numBits) {
-        numBits &= 63;
-        if (numBits == 0) {
+        if (Long.isLong(numBits))
+            numBits = numBits.toInt();
+        if ((numBits &= 63) === 0)
             return this;
-        } else {
-            var high = this.high;
-            if (numBits < 32) {
-                var low = this.low;
-                return Long.fromBits((low >>> numBits) | (high << (32 - numBits)), high >> numBits, this.unsigned);
-            } else {
-                return Long.fromBits(high >> (numBits - 32), high >= 0 ? 0 : -1, this.unsigned);
-            }
-        }
+        else if (numBits < 32)
+            return Long.fromBits((this.low >>> numBits) | (this.high << (32 - numBits)), this.high >> numBits, this.unsigned);
+        else
+            return Long.fromBits(this.high >> (numBits - 32), this.high >= 0 ? 0 : -1, this.unsigned);
     };
 
     /**
-     * Returns this Long with bits shifted to the right by the given amount, with
-     * the new top bits matching the current sign bit.
-     * @param {number} numBits The number of bits by which to shift.
-     * @return {!Long} This shifted to the right by the given amount, with
-     *     zeros placed into the new leading bits.
+     * Returns this Long with bits logically shifted to the right by the given amount.
+     * @param {number|!Long} numBits Number of bits
+     * @returns {!Long} Shifted Long
      * @expose
      */
     Long.prototype.shiftRightUnsigned = function(numBits) {
+        if (Long.isLong(numBits))
+            numBits = numBits.toInt();
         numBits &= 63;
-        if (numBits == 0) {
+        if (numBits === 0)
             return this;
-        } else {
+        else {
             var high = this.high;
             if (numBits < 32) {
                 var low = this.low;
                 return Long.fromBits((low >>> numBits) | (high << (32 - numBits)), high >>> numBits, this.unsigned);
-            } else if (numBits == 32) {
+            } else if (numBits === 32)
                 return Long.fromBits(high, 0, this.unsigned);
-            } else {
+            else
                 return Long.fromBits(high >>> (numBits - 32), 0, this.unsigned);
-            }
         }
     };
 
     /**
-     * @return {!Long} Signed long
+     * Converts this Long to signed.
+     * @returns {!Long} Signed long
      * @expose
      */
     Long.prototype.toSigned = function() {
-        var l = this.clone();
-        l.unsigned = false;
-        return l;
+        if (!this.unsigned)
+            return this;
+        return new Long(this.low, this.high, false);
     };
 
     /**
-     * @return {!Long} Unsigned long
+     * Converts this Long to unsigned.
+     * @returns {!Long} Unsigned long
      * @expose
      */
     Long.prototype.toUnsigned = function() {
-        var l = this.clone();
-        l.unsigned = true;
-        return l;
-    };
-    
-    /**
-     * @return {Long} Cloned instance with the same low/high bits and unsigned flag.
-     * @expose
-     */
-    Long.prototype.clone = function() {
-        return new Long(this.low, this.high, this.unsigned);
+        if (this.unsigned)
+            return this;
+        return new Long(this.low, this.high, true);
     };
 
-    // Enable module loading if available
-    if (typeof module != 'undefined' && module["exports"]) { // CommonJS
+    /* CommonJS */ if (typeof module !== 'undefined' && module["exports"])
         module["exports"] = Long;
-    } else if (typeof define != 'undefined' && define["amd"]) { // AMD
-        define("Math/Long", [], function() { return Long; });
-    } else { // Shim
-        if (!global["dcodeIO"]) {
-            global["dcodeIO"] = {};
-        }
-        global["dcodeIO"]["Long"] = Long;
-    }
+    /* AMD */ else if (typeof define === 'function' && define["amd"])
+        define(function() { return Long; });
+    /* Global */ else
+        (global["dcodeIO"] = global["dcodeIO"] || {})["Long"] = Long;
 
 })(this);
 
-},{}],99:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
  Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -26443,7 +27422,7 @@ b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};ret
 
 module.exports = require("./dist/Long.js");
 
-},{"./dist/Long.js":98}],100:[function(require,module,exports){
+},{"./dist/Long.js":100}],102:[function(require,module,exports){
 (function (Buffer){
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
@@ -26521,7 +27500,7 @@ MessageChannelTransport.prototype.send = function(element)
 module.exports = MessageChannelTransport;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":46,"ndn-lib/js/transport/transport.js":85}],101:[function(require,module,exports){
+},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":47,"ndn-lib/js/transport/transport.js":86}],103:[function(require,module,exports){
 (function (Buffer){
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
@@ -26668,7 +27647,7 @@ DataChannelTransport.defineListener = function(subject, namespace){
 module.exports = DataChannelTransport;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":46,"ndn-lib/js/transport/transport.js":85}],102:[function(require,module,exports){
+},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":47,"ndn-lib/js/transport/transport.js":86}],104:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
   , Transport1, Transport2, face1, face2, inst
@@ -26699,7 +27678,7 @@ function msSpec (Transport){
 
 Abstract(Transport, msSpec);
 
-},{"../../../../src/Transports/browser/MessageChannel.js":100,"../../../node/Transports/Abstract.js":104,"ndn-lib":35}],103:[function(require,module,exports){
+},{"../../../../src/Transports/browser/MessageChannel.js":102,"../../../node/Transports/Abstract.js":106,"ndn-lib":35}],105:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
   , DTransport = require("../../../../src/Transports/browser/WebRTCDataChannel.js")
@@ -26881,7 +27860,7 @@ function dcSpec (Transport){
 Abstract(Transport, msSpec);
 Abstract(DTransport, dcSpec);
 
-},{"../../../../src/Transports/browser/MessageChannel.js":100,"../../../../src/Transports/browser/WebRTCDataChannel.js":101,"../../../node/Transports/Abstract.js":104,"ndn-lib":35}],104:[function(require,module,exports){
+},{"../../../../src/Transports/browser/MessageChannel.js":102,"../../../../src/Transports/browser/WebRTCDataChannel.js":103,"../../../node/Transports/Abstract.js":106,"ndn-lib":35}],106:[function(require,module,exports){
 var assert = require('assert')
 
 module.exports = function(Transport, moveOn){
@@ -26909,4 +27888,4 @@ var listener ;
 }
 
 
-},{"assert":2}]},{},[102,103]);
+},{"assert":2}]},{},[104,105]);
