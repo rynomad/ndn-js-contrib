@@ -14,7 +14,15 @@ function FibEntry(prefix, nextHops){
     var hops = [];
     function recurse(){
       if (nextHops && nextHops.length > 0){
-        var hop = (nextHops[0].faceID) ? nextHops.shift() : {faceID: nextHops.shift()};
+        var hop
+        if (typeof nextHops[0].faceID !== "undefined" ){
+          hop = nextHops.shift();
+        } else {
+          hop = {
+            faceID: nextHops.shift()
+          };
+        }
+
         var i = binarySearch(hops, hop, "faceID");
         if (i < 0){
           hops.splice(~i, 0, hop);
@@ -168,8 +176,8 @@ FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
  *
  */
 
-FIB.prototype.addEntry = function(prefix, nextHops){
-  var fibEntry = new FibEntry(prefix, nextHops);
+FIB.prototype.addEntry = function(prefix, nextHop){
+  var fibEntry = new FibEntry(prefix, [nextHop]);
 
   var node = this.nameTree.lookup(fibEntry.prefix);
   if (!node.fibEntry){
