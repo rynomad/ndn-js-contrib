@@ -48,7 +48,7 @@ TCPServerTransport.ConnectionInfo.prototype.getSocket = function()
 /**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
  *@param {Number=} - port the port for the listener to listen on, default 7575
  */
-TCPServerTransport.defineListener = function(port){
+TCPServerTransport.defineListener = function(Subject, port){
   port = port || 7474;
 
   this.Listener = function (newFace) {

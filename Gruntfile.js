@@ -8,6 +8,21 @@ module.exports = function(grunt){
         }
       }
     },
+    plato: {
+      options:{
+        jshint: {
+          curly: true,
+          eqeqeq: true,
+          laxcomma: true,
+          laxbreak: true
+        }
+      },
+      shadows: {
+        files: {
+          'plato': ['src/**/*.js']
+        }
+      }
+    },
     browserify: {
       testDataStructures: {
         src: "test/node/DataStructures/*.js"
@@ -96,6 +111,7 @@ module.exports = function(grunt){
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-plato");
 
   grunt.registerTask("build", ["browserify:build", "uglify:build"])
   grunt.registerTask("suite", ["jshint", "browserify:testDataStructures", "browserify:testTransports", "mochaTest"])

@@ -41,7 +41,7 @@ WebSocketServerTransport.ConnectionInfo.prototype.getSocket = function()
   return this.socket;
 };
 
-WebSocketServerTransport.defineListener = function(port){
+WebSocketServerTransport.defineListener = function(Subject, port){
   port = port || 7575;
 
   this.Listener = function(newFace){
