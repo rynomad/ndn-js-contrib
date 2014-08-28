@@ -179,7 +179,7 @@ FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
 
 /**Add a FIBEntry
  *@param {String} prefix the nameSpace for the fibEntry
- *@param {Number| Number Array | nextHop | nextHop Array} nextHops the nextHop info for the fibEntry
+ *@param {Number| Number_Array | nextHop | nextHop_Array} nextHops the nextHop info for the fibEntry
  *@returns {this} FIB for chaining
  */
 
