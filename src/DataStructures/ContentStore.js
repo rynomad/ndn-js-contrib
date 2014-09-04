@@ -50,7 +50,7 @@ csEntry.prototype.getElement = function(callback){
  *@returns {csEntry} entry the csEntry in case you want to do something other than throw it away
  */
 csEntry.prototype.stale = function(node){
-  delete node.csEntry;
+  node.csEntry = null;
   return this;
 };
 
@@ -81,10 +81,13 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
     return callback(null);
   }
 
+  //console.log(node[this.EntryClass.type], this.EntryClass.type)
+  //console.log(node[this.EntryClass.type])
+
   var self = this;
 
   if (node[this.EntryClass.type]
-      && interest.matchesName(node[this.EntryClass.type].name)
+      && interest.name.match(node[this.EntryClass.type].name)
       && pubKeyMatch(interest.publisherPublicKeyDigest, node[this.EntryClass.type].publisherPublicKeyDigest)
      ){
     return node[this.EntryClass.type].getElement(callback);
@@ -188,6 +191,7 @@ ContentStore.prototype.insert = function(element, data){
   , entry = new Entry(element, data);
   node[Entry.type] = entry;
   node[Entry.type].nameTreeNode = node;
+  //console.log(freshness,data, data.name.toUri())
   setTimeout(function(){
     if (node[Entry.type]) {node[Entry.type].stale(node);}
   }, freshness || 20 );

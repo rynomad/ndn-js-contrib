@@ -9950,7 +9950,7 @@ ElementReader.prototype.onReceivedData = function(/* Buffer */ data)
       try {
         this.elementListener.onReceivedElement(element);
       } catch (ex) {
-          console.log("ElementReader: ignoring exception from onReceivedElement: " + ex);
+          console.log("ElementReader: ignoring exception from onReceivedElement: " , ex);
       }
 
       // Need to read a new object.
@@ -12792,7 +12792,6 @@ var Face = function Face(transportOrSettings, connectionInfo)
   this.commandInterestGenerator = new CommandInterestGenerator();
 };
 
-exports.Face = Face;
 
 Face.UNOPEN = 0;  // the Face is created but not opened yet
 Face.OPEN_REQUESTED = 1;  // requested to connect but onopen is not called.
@@ -13161,7 +13160,7 @@ Face.prototype.expressInterestWithClosure = function(interest, closure)
       console.log('ERROR: connectionInfo is NOT SET');
     else {
       var thisFace = this;
-      this.connectAndExecute(function() { 
+      this.connectAndExecute(function() {
         thisFace.reconnectAndExpressInterest(pendingInterestId, interest, closure);
       });
     }
@@ -13280,7 +13279,7 @@ Face.prototype.removePendingInterest = function(pendingInterestId)
 {
   if (pendingInterestId == null)
     return;
-  
+
   // Go backwards through the list so we can erase entries.
   // Remove all entries even though pendingInterestId should be unique.
   var count = 0;
@@ -13306,11 +13305,11 @@ Face.prototype.removePendingInterest = function(pendingInterestId)
 };
 
 /**
- * Set the KeyChain and certificate name used to sign command interests (e.g. 
+ * Set the KeyChain and certificate name used to sign command interests (e.g.
  * for registerPrefix).
- * @param {KeyChain} keyChain The KeyChain object for signing interests, which 
- * must remain valid for the life of this Face. You must create the KeyChain 
- * object and pass it in. You can create a default KeyChain for your system with 
+ * @param {KeyChain} keyChain The KeyChain object for signing interests, which
+ * must remain valid for the life of this Face. You must create the KeyChain
+ * object and pass it in. You can create a default KeyChain for your system with
  * the default KeyChain constructor.
  * @param {Name} certificateName The certificate name for signing interests.
  * This makes a copy of the Name. You can get the default certificate name with
@@ -13325,7 +13324,7 @@ Face.prototype.setCommandSigningInfo = function(keyChain, certificateName)
 /**
  * Set the certificate name used to sign command interest (e.g. for
  * registerPrefix), using the KeyChain that was set with setCommandSigningInfo.
- * @param {Name} certificateName The certificate name for signing interest. This 
+ * @param {Name} certificateName The certificate name for signing interest. This
  * makes a copy of the Name.
  */
 Face.prototype.setCommandCertificateName = function(certificateName)
@@ -13334,8 +13333,8 @@ Face.prototype.setCommandCertificateName = function(certificateName)
 };
 
 /**
- * Append a timestamp component and a random value component to interest's name. 
- * Then use the keyChain and certificateName from setCommandSigningInfo to sign 
+ * Append a timestamp component and a random value component to interest's name.
+ * Then use the keyChain and certificateName from setCommandSigningInfo to sign
  * the interest. If the interest lifetime is not set, this sets it.
  * @note This method is an experimental feature. See the API docs for more
  * detail at
@@ -13579,7 +13578,7 @@ Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
       if (this.onRegisterFailed)
         this.onRegisterFailed(this.prefix);
     }
-    
+
     return Closure.RESULT_OK;
   }
   if (!(kind == Closure.UPCALL_CONTENT ||
@@ -13694,9 +13693,9 @@ Face.prototype.registerPrefixHelper = function
 
 /**
  * Do the work of registerPrefix to register with NFD.
- * @param {number} registeredPrefixId The 
- * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got so it 
- * could return it to the caller. If this is 0, then don't add to 
+ * @param {number} registeredPrefixId The
+ * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got so it
+ * could return it to the caller. If this is 0, then don't add to
  * registeredPrefixTable (assuming it has already been done).
  * @param {Name} prefix
  * @param {Closure} closure
@@ -14047,13 +14046,19 @@ var NDN = function NDN(settings)
 // Use dummy functions so that the Face constructor will not try to set its own defaults.
 NDN.prototype = new Face({ getTransport: function(){}, getConnectionInfo: function(){} });
 
-exports.NDN = NDN;
 
 NDN.supported = Face.supported;
 NDN.UNOPEN = Face.UNOPEN;
 NDN.OPEN_REQUESTED = Face.OPEN_REQUESTED;
 NDN.OPENED = Face.OPENED;
 NDN.CLOSED = Face.CLOSED;
+
+
+exports.NDN = NDN;
+
+exports.Face = Face;
+
+module.exports = exports;
 
 }).call(this,require("buffer").Buffer)
 },{"./closure.js":38,"./control-parameters.js":39,"./data.js":40,"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./encoding/binary-xml-wire-format.js":44,"./encoding/data-utils.js":45,"./encoding/tlv-wire-format.js":51,"./encoding/tlv/tlv-decoder.js":52,"./encoding/tlv/tlv.js":55,"./forwarding-entry.js":60,"./forwarding-flags.js":61,"./interest.js":62,"./key-locator.js":63,"./key.js":64,"./log.js":65,"./meta-info.js":66,"./name.js":67,"./security/key-manager.js":78,"./transport/tcp-transport.js":36,"./transport/transport.js":86,"./transport/unix-transport.js":87,"./util/command-interest-generator.js":90,"./util/ndn-protoco-id-tags.js":94,"buffer":5,"crypto":11,"fs":1}],60:[function(require,module,exports){
@@ -19725,13 +19730,6 @@ var WebSocketTransport = function WebSocketTransport()
   this.ws = null;
   this.connectionInfo = null; // Read by Face.
   this.elementReader = null;
-  this.defaultGetConnectionInfo = Face.makeShuffledHostGetConnectionInfo
-    (["A.ws.ndn.ucla.edu", "B.ws.ndn.ucla.edu", "C.ws.ndn.ucla.edu", "D.ws.ndn.ucla.edu",
-      "E.ws.ndn.ucla.edu", "F.ws.ndn.ucla.edu", "G.ws.ndn.ucla.edu", "H.ws.ndn.ucla.edu",
-      "I.ws.ndn.ucla.edu", "J.ws.ndn.ucla.edu", "K.ws.ndn.ucla.edu", "L.ws.ndn.ucla.edu",
-      "M.ws.ndn.ucla.edu", "N.ws.ndn.ucla.edu"],
-     9696,
-     function(host, port) { return new WebSocketTransport.ConnectionInfo(host, port); });
 };
 
 WebSocketTransport.prototype = new Transport();
@@ -19810,13 +19808,13 @@ WebSocketTransport.prototype.connect = function
   var self = this;
   this.ws.onmessage = function(ev) {
     var result = ev.data;
-    //console.log('RecvHandle called.');
+    //console.log('RecvHandle called.', ev);
 
     if (result == null || result == undefined || result == "") {
       console.log('INVALID ANSWER');
     }
     else if (result instanceof ArrayBuffer) {
-      var bytearray = new Buffer(result);
+      var bytearray = new Buffer(new Uint8Array(result));
 
       if (LOG > 3) console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
 
@@ -19835,7 +19833,7 @@ WebSocketTransport.prototype.connect = function
     if (LOG > 3) console.log('ws.onopen: WebSocket connection opened.');
     if (LOG > 3) console.log('ws.onopen: ReadyState: ' + this.readyState);
     // Face.registerPrefix will fetch the ndndid when needed.
-
+    elementListener.readyStatus = 2;
     onopenCallback();
   }
 
@@ -19879,8 +19877,9 @@ WebSocketTransport.prototype.send = function(data)
     //    ---Wentao
     var bytearray = new Uint8Array(data.length);
     bytearray.set(data);
+
     this.ws.send(bytearray.buffer);
-    if (LOG > 3) console.log('ws.send() returned.');
+     //console.log('ws.send() returned.', data, new Uint8Array(data.buffer));
   }
   else
     console.log('WebSocket connection is not established.');
@@ -19894,7 +19893,6 @@ WebSocketTransport.prototype.close = function()
   if (this.ws != null)
     delete this.ws;
 }
-
 
 }).call(this,require("buffer").Buffer)
 },{"../encoding/element-reader.js":47,"../log.js":65,"./transport.js":86,"buffer":5}],89:[function(require,module,exports){
@@ -27442,10 +27440,10 @@ function MessageChannelTransport (port) {
 
 
 MessageChannelTransport.prototype = new Transport();
-MessageChannelTransport.prototype.name = "messageChannelTransport";
+MessageChannelTransport.prototype.name = "MessageChannelTransport";
 
 MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
-  console.log(Transport);
+  //console.log(Transport);
   Transport.ConnectionInfo.call(this);
   this.port = port;
 };
@@ -27565,31 +27563,30 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
   };
 
   connectionInfo.getChannel().onmessage = function(ev) {
-    console.log('dc.onmessage called', ev)
+    //console.log('dc.onmessage called', ev)
     if (ev.data instanceof ArrayBuffer) {
 
       var result = ev.data;
-      console.log('RecvHandle called.', result);
+      //console.log('RecvHandle called.', result);
       var bytearray = new Buffer(new Uint8Array(result));
-      console.log(bytearray)
+      //console.log(bytearray)
 
-      console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
+      //console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
 
       try {
         //console.log(self, face)
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(bytearray);
       } catch (ex) {
-        //console.log("NDN.ws.onmessage exception: " + ex);
+        console.log("NDN.ws.onmessage exception: ",   ex);
         return;
       }
     }
   };
 
+
   connectionInfo.getChannel().onopen = function(ev) {
-    if (LOG > 3) console.log(ev);
-    if (LOG > 3) console.log('dc.onopen: WebRTC connection opened.');
-    if (LOG > 3) console.log('dc.onopen: ReadyState: ' + this.readyState);
+    console.log('dc.onopen: ReadyState: ' + this.readyState);
         // Face.registerPrefix will fetch the ndndid when needed.
 
     onopenCallback();
@@ -27607,11 +27604,13 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
 
     // Close Face when WebSocket is closed
     self.face.readyStatus = ndn.Face.CLOSED;
-    self.face.onclose();
+    self.face.closeByTransport();
     //console.log("NDN.onclose event fired.");
   }
-  onopenCallback();
 
+  if (connectionInfo.getChannel().readyState === "open"){
+    onopenCallback();
+  }
 };
 
 /**Send the Uint8Array data.
@@ -27619,7 +27618,7 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
  */
 DataChannelTransport.prototype.send = function(element)
 {
-  console.log("attempting to send", element, this.connectionInfo.getChannel())
+  //console.log("attempting to send", element, this.connectionInfo.getChannel())
   this.connectionInfo.getChannel().send(element.toArrayBuffer());
 };
 

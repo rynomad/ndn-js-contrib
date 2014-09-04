@@ -16,10 +16,10 @@ function MessageChannelTransport (port) {
 
 
 MessageChannelTransport.prototype = new Transport();
-MessageChannelTransport.prototype.name = "messageChannelTransport";
+MessageChannelTransport.prototype.name = "MessageChannelTransport";
 
 MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
-  console.log(Transport);
+  //console.log(Transport);
   Transport.ConnectionInfo.call(this);
   this.port = port;
 };

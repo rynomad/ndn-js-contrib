@@ -8,14 +8,17 @@ var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementRead
   , net = require('net');
 
 
-var TCPServerTransport = function serverTcpTransport(socketOrHostAndPort)
+var TCPServerTransport = function serverTcpTransport(socketOrAddress)
 {
   var self = this;
-  if (Object.keys(socketOrHostAndPort).length <= 2){
-    net.connect(socketOrHostAndPort.port || 7474, socketOrHostAndPort.host || 'localhost', function(sock){
+  if (typeof socketOrAddress === "string"){
+    console.log("dfadfafdadsfafdafdafd")
+    console.log(socketOrAddress, socketOrAddress.split(":")[2], socketOrAddress.split("://")[1].split(":")[0])
+    this.socket = net.connect(socketOrAddress.split(":")[2] || 7474, socketOrAddress.split("://")[1].split(":")[0] || 'localhost', function(sock){
       self.socket = sock;
-      self.connectedHost = socketOrHostAndPort.host || 'localhost'; // Read by Face.
-      self.connectedPort = socketOrHostAndPort.port || 7474;
+      console.log("made socket")
+      self.connectedHost = socketOrAddress.split("://")[1] || 'localhost'; // Read by Face.
+      self.connectedPort = socketOrAddress.split(":")[2] || 7474;
 
       self.sock_ready = true;
     });
@@ -30,7 +33,7 @@ var TCPServerTransport = function serverTcpTransport(socketOrHostAndPort)
 TCPServerTransport.prototype.name = "TCPServerTransport";
 
 TCPServerTransport.prototype = new Transport();
-TCPServerTransport.prototype.name = "messageChannelTransport";
+TCPServerTransport.prototype.name = "TCPServerTransport";
 
 TCPServerTransport.ConnectionInfo = function TCPServerTransportConnectionInfo(socket){
   Transport.ConnectionInfo.call(this);
@@ -51,12 +54,13 @@ TCPServerTransport.ConnectionInfo.prototype.getSocket = function()
 TCPServerTransport.defineListener = function(Subject, port){
   port = port || 7474;
 
-  this.Listener = function (newFace) {
+  this.Listener = function (interfaces) {
     this.server = net.createServer(function(socket){
+      console.log("new socket")
       socket.on('end', function() {
         console.log('server disconnected');
       });
-      newFace("tcpServer", socket);
+      interfaces.newFace("tcpServerTransport", socket);
     });
     this.server.listen(port, function(){
       //console.log('server awaiting connections');
@@ -70,6 +74,7 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
 
   // Connect to local ndnd via TCP
   var self = this;
+  elementListener.readyStatus = 2;
 
   this.socket.on('data', function(data) {
     console.log("got data on server tcp");
@@ -97,7 +102,7 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
     self.socket = null;
 
     // Close Face when TCP Socket is closed
-    face.closeByTransport();
+    elementListener.closeByTransport();
   });
   this.socket.on('connection', function() {
     console.log('new connection');

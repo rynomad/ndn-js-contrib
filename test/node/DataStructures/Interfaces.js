@@ -26,25 +26,25 @@ describe("Interfaces", function(){
   })
   describe(".newFace", function(){
     it("should create newFace", function(){
-      assert(int.newFace("_abstract", function(data){
+      assert(int.newFace("_abstract",1, function(data){
         assert(data.length == 5)
       }) == 0)
-      assert(int.newFace("_abstract", function(data){
+      assert(int.newFace("_abstract",1, function(data){
         assert(data.length == 5)
       }) == 1)
-      assert(int.newFace("_abstract", function(data){
+      assert(int.newFace("_abstract",1, function(data){
         assert(data.length == 5)
       }) == 2)
 
-      assert(int.newFace("_abstract", function(data){
+      assert(int.newFace("_abstract",1, function(data){
         assert(data.length == 5)
       }) == 3)
 
-      assert(int.newFace("_abstract", function(data){
+      assert(int.newFace("_abstract",1, function(data){
         assert(data.length == 5)
       }) == 4)
 
-      assert(int.newFace("_abstract", function(data){
+      assert(int.newFace("_abstract",1, function(data){
         assert(data.length == 5)
       }) == 5)
     })

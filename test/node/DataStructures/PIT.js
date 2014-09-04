@@ -93,5 +93,15 @@ describe("PIT", function(){
       done()
     })
   })
+  describe("PIT.checkDuplicate", function(){
+    it("should return true for duplicate", function(){
+      var inst = new ndn.Interest(new ndn.Name("test/duplicate"))
+      var a = inst.wireEncode()
+      var b = new ndn.Interest()
+      b.wireDecode(a)
+      assert(!pit.checkDuplicate(b))
+      pit.insertPitEntry(a, 1)
+      assert(pit.checkDuplicate(b))
+    })
+  })
 })
-

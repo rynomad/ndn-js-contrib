@@ -53,7 +53,7 @@ describe('FIB.addEntry()', function(){
 var entry
 describe("FIB.Entry.addNextHop()", function(){
   it("should add, but not duplicate, a nextHop", function(){
-    entry = new FIB.Entry({prefix: 'a'})
+    entry = new FIB.Entry({prefix: 'a'});
     var hop0 = {faceID: 0}
     var hop1 = {faceID: 1}
     var hop2 = {faceID: 2}

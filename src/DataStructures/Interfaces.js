@@ -14,6 +14,7 @@ var Interfaces = function Interfaces(Subject){
   this.subject = Subject;
   this.transports = {};
   Face = ndn.Face;
+  this.Faces = [];
 
   return this;
 };
@@ -29,7 +30,6 @@ Interfaces.installNDN = function(NDN){
 
 Interfaces.prototype.transports = {};
 
-Interfaces.prototype.Faces = [];
 
 /**Install a transport Class to the Interfaces manager. If the Class has a Listener function, the Listener will be invoked
  *@param {Transport} Transport a Transport Class matching the Abstract Transport API
@@ -39,7 +39,7 @@ Interfaces.prototype.installTransport = function(Transport){
   this.transports[Transport.prototype.name] = Transport;
 
   if (Transport.Listener){
-    Transport.Listener(this.newFace);
+    Transport.Listener(this);
   }
 
   return this;
@@ -61,10 +61,22 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
 
     this.Faces.push(newFace);
     newFace.faceID = this.Faces.length - 1;
+    //console.log(Transport, protocol, connectionParameters)
+    var connectionInfo;
 
-    newFace.transport.connect(newFace.connectionInfo, newFace, function(){
+    if (protocol === "WebSocketTransport"){
+      connectionInfo = new this.transports[protocol].ConnectionInfo(connectionParameters.host, connectionParameters.port);
+    } else {
+      connectionInfo = newFace.connectionInfo;
+    }
+    if (onclose){
+      newFace.onclose = onclose;
+    }
+    //console.log("called NewFace")
+    newFace.transport.connect(connectionInfo, newFace, function(){
+      console.log("calling onOpen callback within transport.connect");
       newFace.onReceivedElement = function(element){
-        //console.log("onReceivedElement")
+        //console.log("onReceivedElement from interfaces")
         var decoder = new TlvDecoder(element);
         if (decoder.peekType(Tlv.Interest, element.length)) {
           Self.subject.handleInterest(element, this.faceID);
@@ -78,14 +90,20 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
         this.transport.send(element);
       };
 
-      if (onopen) {onopen();}
+      if (onopen) {
+        onopen(newFace.faceID);
+      }
     }, function(){
       //onclose event TODO
-      if (onclose) {onclose();}
+      if (onclose) {
+        onclose(newFace.faceID);
+      }
     });
     return newFace.faceID;
   }
 };
+
+Interfaces.prototype.closeFace = function(){};
 
 /** Dispatch an element to one or more Faces
  *@param {Buffer} element the raw packet to dispatch
@@ -98,7 +116,7 @@ Interfaces.prototype.dispatch = function(element, faceFlag, callback){
     for (var i = 0; i < faceFlag.toString(2).length; i++){
       if (faceFlag & (1<<i) ){
         if (this.Faces[i]){
-          this.Faces[i].send(element);
+          this.Faces[i].transport.send(element);
         }
         if (callback){
           callback(i);

@@ -61,31 +61,30 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
   };
 
   connectionInfo.getChannel().onmessage = function(ev) {
-    console.log('dc.onmessage called', ev)
+    //console.log('dc.onmessage called', ev)
     if (ev.data instanceof ArrayBuffer) {
 
       var result = ev.data;
-      console.log('RecvHandle called.', result);
+      //console.log('RecvHandle called.', result);
       var bytearray = new Buffer(new Uint8Array(result));
-      console.log(bytearray)
+      //console.log(bytearray)
 
-      console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
+      //console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
 
       try {
         //console.log(self, face)
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(bytearray);
       } catch (ex) {
-        //console.log("NDN.ws.onmessage exception: " + ex);
+        console.log("NDN.ws.onmessage exception: ",   ex);
         return;
       }
     }
   };
 
+
   connectionInfo.getChannel().onopen = function(ev) {
-    if (LOG > 3) console.log(ev);
-    if (LOG > 3) console.log('dc.onopen: WebRTC connection opened.');
-    if (LOG > 3) console.log('dc.onopen: ReadyState: ' + this.readyState);
+    console.log('dc.onopen: ReadyState: ' + this.readyState);
         // Face.registerPrefix will fetch the ndndid when needed.
 
     onopenCallback();
@@ -103,11 +102,13 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
 
     // Close Face when WebSocket is closed
     self.face.readyStatus = ndn.Face.CLOSED;
-    self.face.onclose();
+    self.face.closeByTransport();
     //console.log("NDN.onclose event fired.");
   }
-  onopenCallback();
 
+  if (connectionInfo.getChannel().readyState === "open"){
+    onopenCallback();
+  }
 };
 
 /**Send the Uint8Array data.
@@ -115,7 +116,7 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
  */
 DataChannelTransport.prototype.send = function(element)
 {
-  console.log("attempting to send", element, this.connectionInfo.getChannel())
+  //console.log("attempting to send", element, this.connectionInfo.getChannel())
   this.connectionInfo.getChannel().send(element.toArrayBuffer());
 };
 

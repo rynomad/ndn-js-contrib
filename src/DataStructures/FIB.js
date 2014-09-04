@@ -53,6 +53,7 @@ FibEntry.prototype.getNextHops = function(excludingFaceID){
       return this.nextHops;
     }
   } else {
+    console.log("returning nextHops");
     return this.nextHops;
   }
 };
@@ -118,7 +119,7 @@ FIB.prototype.lookup = function(prefix){
   if (entry){
     return entry;
   }else{
-    return (ent.fibEntry = new FIB.FibEntry({prefix: prefix, nextHops: []}));
+    return (ent.fibEntry = new FibEntry({prefix: prefix, nextHops: []}));
   }
 };
 
@@ -153,7 +154,6 @@ FIB.prototype.findAllFibEntries = function(prefix){
     }
   };
 
-  console.log("got here");
   return iterouter;
 };
 
@@ -170,10 +170,12 @@ FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
   while (iterator.hasNext){
     var entry = iterator.next()
       , nextHops = entry.getNextHops(excludingFaceID);
+    //console.log("nextHops", nextHops)
     for (var i =0; i < nextHops.length; i ++){
       faceFlag = faceFlag | (1 << nextHops[i].faceID);
     }
   }
+  //console.log("faceFlag")
   return faceFlag;
 };
 

@@ -48,7 +48,7 @@ function PitEntry (element, interest, faceIDorCallback){
  *@returns {Boolean}
  */
 PitEntry.prototype.matches = function(data){
-  if (this.interest.matchesName(data.name)
+  if (this.interest.name.match(data.name)
      && pubKeyMatch(this.interest.publisherPublicKeyDigest, data.signedInfo.publisher.publisherPublicKeyDigest)
      ){
     return true;
@@ -109,7 +109,7 @@ PIT.prototype.useNameTree = function(nameTree){
  */
 PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
   var pitEntry = new PIT.Entry(element, interest, faceIDorCallback);
-
+  //console.log( "inserting pit entry",pitEntry.interest.getInterestLifetimeMilliseconds() )
   setTimeout(function(){
     pitEntry.consume();
   }, pitEntry.interest.getInterestLifetimeMilliseconds() || 10);
@@ -121,6 +121,20 @@ PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
     node.pitEntries.splice(~i, 0 ,pitEntry);
   }
   return this;
+};
+
+PIT.prototype.checkDuplicate = function(interest){
+
+  var node = this.nameTree.lookup(interest.name);
+
+  var i = binarySearch(node.pitEntries, interest, "nonce");
+
+  if (i < 0){
+    return false;
+  } else {
+    return true;
+  }
+
 };
 
 /**Lookup the PIT for Entries matching a given data object
@@ -139,7 +153,9 @@ PIT.prototype.lookup = function(data, name, matches, faceFlag){
   for (var i = 0; i < pitEntries.length; i++){
     if (pitEntries[i].matches(data)){
       matches.push(pitEntries[i]);
-      faceFlag = faceFlag | (1 << pitEntries[i].faceID);
+      if (pitEntries[i].faceID){
+        faceFlag = faceFlag | (1 << pitEntries[i].faceID);
+      }
     }
   }
 
