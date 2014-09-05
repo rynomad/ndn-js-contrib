@@ -97,12 +97,13 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
   }
 
   connectionInfo.getChannel().onclose = function(ev) {
-    //console.log('dc.onclose: WebRTC connection closed.');
+    console.log('dc.onclose: WebRTC connection closed.');
     self.dc = null;
 
     // Close Face when WebSocket is closed
-    self.face.readyStatus = ndn.Face.CLOSED;
+    self.face.readyStatus = 3;
     self.face.closeByTransport();
+    onclosedCallback();
     //console.log("NDN.onclose event fired.");
   }
 
@@ -117,7 +118,11 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
 DataChannelTransport.prototype.send = function(element)
 {
   //console.log("attempting to send", element, this.connectionInfo.getChannel())
-  this.connectionInfo.getChannel().send(element.toArrayBuffer());
+  if(this.connectionInfo.getChannel().readyState === "open"){
+    this.connectionInfo.getChannel().send(element.toArrayBuffer());
+  } else {
+    console.log("not trying to send, dataChannel not open")
+  }
 };
 
 
