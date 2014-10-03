@@ -27,25 +27,26 @@ describe("Interfaces", function(){
   describe(".newFace", function(){
     it("should create newFace", function(){
       assert(int.newFace("_abstract",1, function(data){
-        assert(data.length == 5)
+        console.log(data)
+        assert(data == 0)
       }) == 0)
       assert(int.newFace("_abstract",1, function(data){
-        assert(data.length == 5)
+        assert(data == 1)
       }) == 1)
       assert(int.newFace("_abstract",1, function(data){
-        assert(data.length == 5)
+        assert(data == 2)
       }) == 2)
 
       assert(int.newFace("_abstract",1, function(data){
-        assert(data.length == 5)
+        assert(data == 3)
       }) == 3)
 
       assert(int.newFace("_abstract",1, function(data){
-        assert(data.length == 5)
+        assert(data == 4)
       }) == 4)
 
       assert(int.newFace("_abstract",1, function(data){
-        assert(data.length == 5)
+        assert(data== 5)
       }) == 5)
     })
   })
@@ -56,10 +57,10 @@ describe("Interfaces", function(){
       int.dispatch(element, 37, function(id){
         sentFaces.push(id);
       })
-      assert(sentFaces.length == 3)
-      assert(sentFaces[0] == 0)
-      assert(sentFaces[1] == 2)
-      assert(sentFaces[2] == 5)
+      assert(sentFaces.length == 3, "did not send off 3 faces")
+      assert(sentFaces[0] == 0,"did not send face 0")
+      assert(sentFaces[1] == 2, "did not send face 2")
+      assert(sentFaces[2] == 5, "did not send face 3")
     })
   })
   describe("onReceivedElement", function(){

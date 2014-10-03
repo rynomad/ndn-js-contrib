@@ -9,7 +9,7 @@ var pubKeyDigest = ndn.globalKeyManager.getKey().publicKeyDigest
 NameTree.installNDN(ndn);
 var pit = new PIT(new NameTree());
 var inst = new ndn.Interest(new ndn.Name("a/b"))
-, enc = inst.wireEncode()
+, enc = inst.wireEncode().buffer
 inst = new ndn.Interest()
 inst.wireDecode(enc);
 
@@ -40,7 +40,7 @@ describe("PIT.Entry", function(){
   })
   it("should not match (data name too long)", function(){
     entry.interest.setMaxSuffixComponents(3)
-    var data = new ndn.Data(new ndn.Name("a/b/c/d/e"), new ndn.SignedInfo(), "test")
+    var data = new ndn.Data(new ndn.Name("a/b/c/d/e/d"), new ndn.SignedInfo(), "test")
     assert(!entry.matches(data))
   })
   it("should not match (data name too short)", function(){

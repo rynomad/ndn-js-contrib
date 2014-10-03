@@ -1,5 +1,6 @@
 var binarySearch = require("./../Utility/binarySearch.js")
-  , ndn;
+  , ndn
+  , debug = require("debug")("PIT");
 
 
 function pubKeyMatch (ar1, ar2){
@@ -31,6 +32,7 @@ function PitEntry (element, interest, faceIDorCallback){
   if (!interest.nonce){
     interest.wireDecode(element);
   }
+  debug("constructing entry for %s", interest.toUri());
   this.nonce = interest.nonce;
   this.uri = interest.name.toUri();
   this.interest = interest;
@@ -48,11 +50,14 @@ function PitEntry (element, interest, faceIDorCallback){
  *@returns {Boolean}
  */
 PitEntry.prototype.matches = function(data){
-  if (this.interest.name.match(data.name)
+  debug("checking if %s matches %s", this.interest.name.toUri(), data.name.toUri());
+  if (this.interest.matchesName(data.name)
      && pubKeyMatch(this.interest.publisherPublicKeyDigest, data.signedInfo.publisher.publisherPublicKeyDigest)
      ){
+    debug("entry matches");
     return true;
   } else {
+    debug("entry does not match");
     return false;
   }
 };
@@ -61,6 +66,7 @@ PitEntry.prototype.matches = function(data){
  *@returns {PitEntry} in case you want to do anything with it afterward
  */
 PitEntry.prototype.consume = function() {
+  debug("consuming entry %s", this.uri);
   if (this.nameTreeNode){
     var i = binarySearch(this.nameTreeNode.pitEntries, this, "nonce");
     if (i >= 0){
@@ -109,8 +115,9 @@ PIT.prototype.useNameTree = function(nameTree){
  */
 PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
   var pitEntry = new PIT.Entry(element, interest, faceIDorCallback);
-  //console.log( "inserting pit entry",pitEntry.interest.getInterestLifetimeMilliseconds() )
+  debug("inserting pit entry %s with lifetime milliseconds %s",pitEntry.interest.toUri(), pitEntry.interest.getInterestLifetimeMilliseconds() );
   setTimeout(function(){
+    debug("entry %s expired", pitEntry.uri);
     pitEntry.consume();
   }, pitEntry.interest.getInterestLifetimeMilliseconds() || 10);
   var node = this.nameTree.lookup(pitEntry.interest.name);
@@ -124,14 +131,16 @@ PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
 };
 
 PIT.prototype.checkDuplicate = function(interest){
-
+  debug("checking interest %s for duplicate", interest.toUri());
   var node = this.nameTree.lookup(interest.name);
 
   var i = binarySearch(node.pitEntries, interest, "nonce");
 
   if (i < 0){
+    debug("%s is not duplicate", interest.toUri());
     return false;
   } else {
+    debug("%s is duplicate", interest.toUri());
     return true;
   }
 
@@ -147,11 +156,13 @@ PIT.prototype.lookup = function(data, name, matches, faceFlag){
   name = name || data.name;
   matches = matches || [];
   faceFlag = faceFlag || 0;
+  debug("lookup entries for %s", name.toUri());
 
   var pitEntries = this.nameTree.lookup(name).pitEntries;
 
   for (var i = 0; i < pitEntries.length; i++){
     if (pitEntries[i].matches(data)){
+      debug("found match %s", pitEntries[i].uri);
       matches.push(pitEntries[i]);
       if (pitEntries[i].faceID){
         faceFlag = faceFlag | (1 << pitEntries[i].faceID);

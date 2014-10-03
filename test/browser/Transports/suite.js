@@ -3803,6 +3803,467 @@ module.exports=require(3)
 },{}],25:[function(require,module,exports){
 module.exports=require(4)
 },{"./support/isBuffer":24,"FWaASH":23,"inherits":21}],26:[function(require,module,exports){
+
+/**
+ * This is the web browser implementation of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = require('./debug');
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+
+/**
+ * Colors.
+ */
+
+exports.colors = [
+  'lightseagreen',
+  'forestgreen',
+  'goldenrod',
+  'dodgerblue',
+  'darkorchid',
+  'crimson'
+];
+
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+
+function useColors() {
+  // is webkit? http://stackoverflow.com/a/16459606/376773
+  return ('WebkitAppearance' in document.documentElement.style) ||
+    // is firebug? http://stackoverflow.com/a/398120/376773
+    (window.console && (console.firebug || (console.exception && console.table))) ||
+    // is firefox >= v31?
+    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+}
+
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
+
+exports.formatters.j = function(v) {
+  return JSON.stringify(v);
+};
+
+
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs() {
+  var args = arguments;
+  var useColors = this.useColors;
+
+  args[0] = (useColors ? '%c' : '')
+    + this.namespace
+    + (useColors ? ' %c' : ' ')
+    + args[0]
+    + (useColors ? '%c ' : ' ')
+    + '+' + exports.humanize(this.diff);
+
+  if (!useColors) return args;
+
+  var c = 'color: ' + this.color;
+  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+  // the final "%c" is somewhat tricky, because there could be other
+  // arguments passed either before or after the %c, so we need to
+  // figure out the correct index to insert the CSS into
+  var index = 0;
+  var lastC = 0;
+  args[0].replace(/%[a-z%]/g, function(match) {
+    if ('%%' === match) return;
+    index++;
+    if ('%c' === match) {
+      // we only are interested in the *last* %c
+      // (the user may have provided their own)
+      lastC = index;
+    }
+  });
+
+  args.splice(lastC, 0, c);
+  return args;
+}
+
+/**
+ * Invokes `console.log()` when available.
+ * No-op when `console.log` is not a "function".
+ *
+ * @api public
+ */
+
+function log() {
+  // This hackery is required for IE8,
+  // where the `console.log` function doesn't have 'apply'
+  return 'object' == typeof console
+    && 'function' == typeof console.log
+    && Function.prototype.apply.call(console.log, console, arguments);
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+function save(namespaces) {
+  try {
+    if (null == namespaces) {
+      localStorage.removeItem('debug');
+    } else {
+      localStorage.debug = namespaces;
+    }
+  } catch(e) {}
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+function load() {
+  var r;
+  try {
+    r = localStorage.debug;
+  } catch(e) {}
+  return r;
+}
+
+/**
+ * Enable namespaces listed in `localStorage.debug` initially.
+ */
+
+exports.enable(load());
+
+},{"./debug":27}],27:[function(require,module,exports){
+
+/**
+ * This is the common logic for both the Node.js and web browser
+ * implementations of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = debug;
+exports.coerce = coerce;
+exports.disable = disable;
+exports.enable = enable;
+exports.enabled = enabled;
+exports.humanize = require('ms');
+
+/**
+ * The currently active debug mode names, and names to skip.
+ */
+
+exports.names = [];
+exports.skips = [];
+
+/**
+ * Map of special "%n" handling functions, for the debug "format" argument.
+ *
+ * Valid key names are a single, lowercased letter, i.e. "n".
+ */
+
+exports.formatters = {};
+
+/**
+ * Previously assigned color.
+ */
+
+var prevColor = 0;
+
+/**
+ * Previous log timestamp.
+ */
+
+var prevTime;
+
+/**
+ * Select a color.
+ *
+ * @return {Number}
+ * @api private
+ */
+
+function selectColor() {
+  return exports.colors[prevColor++ % exports.colors.length];
+}
+
+/**
+ * Create a debugger with the given `namespace`.
+ *
+ * @param {String} namespace
+ * @return {Function}
+ * @api public
+ */
+
+function debug(namespace) {
+
+  // define the `disabled` version
+  function disabled() {
+  }
+  disabled.enabled = false;
+
+  // define the `enabled` version
+  function enabled() {
+
+    var self = enabled;
+
+    // set `diff` timestamp
+    var curr = +new Date();
+    var ms = curr - (prevTime || curr);
+    self.diff = ms;
+    self.prev = prevTime;
+    self.curr = curr;
+    prevTime = curr;
+
+    // add the `color` if not set
+    if (null == self.useColors) self.useColors = exports.useColors();
+    if (null == self.color && self.useColors) self.color = selectColor();
+
+    var args = Array.prototype.slice.call(arguments);
+
+    args[0] = exports.coerce(args[0]);
+
+    if ('string' !== typeof args[0]) {
+      // anything else let's inspect with %o
+      args = ['%o'].concat(args);
+    }
+
+    // apply any `formatters` transformations
+    var index = 0;
+    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+      // if we encounter an escaped % then don't increase the array index
+      if (match === '%%') return match;
+      index++;
+      var formatter = exports.formatters[format];
+      if ('function' === typeof formatter) {
+        var val = args[index];
+        match = formatter.call(self, val);
+
+        // now we need to remove `args[index]` since it's inlined in the `format`
+        args.splice(index, 1);
+        index--;
+      }
+      return match;
+    });
+
+    if ('function' === typeof exports.formatArgs) {
+      args = exports.formatArgs.apply(self, args);
+    }
+    var logFn = enabled.log || exports.log || console.log.bind(console);
+    logFn.apply(self, args);
+  }
+  enabled.enabled = true;
+
+  var fn = exports.enabled(namespace) ? enabled : disabled;
+
+  fn.namespace = namespace;
+
+  return fn;
+}
+
+/**
+ * Enables a debug mode by namespaces. This can include modes
+ * separated by a colon and wildcards.
+ *
+ * @param {String} namespaces
+ * @api public
+ */
+
+function enable(namespaces) {
+  exports.save(namespaces);
+
+  var split = (namespaces || '').split(/[\s,]+/);
+  var len = split.length;
+
+  for (var i = 0; i < len; i++) {
+    if (!split[i]) continue; // ignore empty strings
+    namespaces = split[i].replace(/\*/g, '.*?');
+    if (namespaces[0] === '-') {
+      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+    } else {
+      exports.names.push(new RegExp('^' + namespaces + '$'));
+    }
+  }
+}
+
+/**
+ * Disable debug output.
+ *
+ * @api public
+ */
+
+function disable() {
+  exports.enable('');
+}
+
+/**
+ * Returns true if the given mode name is enabled, false otherwise.
+ *
+ * @param {String} name
+ * @return {Boolean}
+ * @api public
+ */
+
+function enabled(name) {
+  var i, len;
+  for (i = 0, len = exports.skips.length; i < len; i++) {
+    if (exports.skips[i].test(name)) {
+      return false;
+    }
+  }
+  for (i = 0, len = exports.names.length; i < len; i++) {
+    if (exports.names[i].test(name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Coerce `val`.
+ *
+ * @param {Mixed} val
+ * @return {Mixed}
+ * @api private
+ */
+
+function coerce(val) {
+  if (val instanceof Error) return val.stack || val.message;
+  return val;
+}
+
+},{"ms":28}],28:[function(require,module,exports){
+/**
+ * Helpers.
+ */
+
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var y = d * 365.25;
+
+/**
+ * Parse or format the given `val`.
+ *
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} options
+ * @return {String|Number}
+ * @api public
+ */
+
+module.exports = function(val, options){
+  options = options || {};
+  if ('string' == typeof val) return parse(val);
+  return options.long
+    ? long(val)
+    : short(val);
+};
+
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
+
+function parse(str) {
+  var match = /^((?:\d+)?\.?\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i.exec(str);
+  if (!match) return;
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'y':
+      return n * y;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 's':
+      return n * s;
+    case 'ms':
+      return n;
+  }
+}
+
+/**
+ * Short format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function short(ms) {
+  if (ms >= d) return Math.round(ms / d) + 'd';
+  if (ms >= h) return Math.round(ms / h) + 'h';
+  if (ms >= m) return Math.round(ms / m) + 'm';
+  if (ms >= s) return Math.round(ms / s) + 's';
+  return ms + 'ms';
+}
+
+/**
+ * Long format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function long(ms) {
+  return plural(ms, d, 'day')
+    || plural(ms, h, 'hour')
+    || plural(ms, m, 'minute')
+    || plural(ms, s, 'second')
+    || ms + ' ms';
+}
+
+/**
+ * Pluralization helper.
+ */
+
+function plural(ms, n, name) {
+  if (ms < n) return;
+  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+  return Math.ceil(ms / n) + ' ' + name + 's';
+}
+
+},{}],29:[function(require,module,exports){
 /*! asn1hex-1.1.js (c) 2012 Kenji Urushima | kjur.github.com/jsrsasign/license
  */
 //
@@ -4107,7 +4568,7 @@ ASN1HEX.getDecendantHexTLVByNthList = _asnhex_getDecendantHexTLVByNthList;
 exports.ASN1HEX = ASN1HEX;
 module.exports = exports;
 
-},{"jsbn":97}],27:[function(require,module,exports){
+},{"jsbn":100}],30:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -4207,7 +4668,7 @@ exports.hex2b64  = hex2b64;
 
 module.exports = exports;
 
-},{}],28:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*
 CryptoJS v3.1.2
 code.google.com/p/crypto-js
@@ -4933,7 +5394,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 exports.CryptoJS = CryptoJS;
 module.exports = exports;
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*! crypto-1.0.4.js (c) 2013 Kenji Urushima | kjur.github.com/jsrsasign/license
  */
 /*
@@ -5640,7 +6101,7 @@ KJUR.crypto.Signature = function(params) {
 exports.KJUR = KJUR;
 module.exports = exports;
 
-},{"./sha256.js":34,"jsbn":97}],30:[function(require,module,exports){
+},{"./sha256.js":37,"jsbn":100}],33:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -5850,7 +6311,7 @@ RSAKey.prototype.encryptOAEP = RSAEncryptOAEP;
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"jsbn":97}],31:[function(require,module,exports){
+},{"jsbn":100}],34:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -6122,7 +6583,7 @@ RSAKey.prototype.decryptOAEP = RSADecryptOAEP;
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"./rsa.js":30,"jsbn":97}],32:[function(require,module,exports){
+},{"./rsa.js":33,"jsbn":100}],35:[function(require,module,exports){
 /*! rsapem-1.1.js (c) 2012 Kenji Urushima | kjur.github.com/jsrsasign/license
  */
 //
@@ -6239,7 +6700,7 @@ RSAKey.prototype.readPrivateKeyFromASN1HexString = _rsapem_readPrivateKeyFromASN
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"./asn1hex-1.1.js":26,"./base64.js":27,"./rsa2.js":31}],33:[function(require,module,exports){
+},{"./asn1hex-1.1.js":29,"./base64.js":30,"./rsa2.js":34}],36:[function(require,module,exports){
 /*! rsasign-1.2.2.js (c) 2012 Kenji Urushima | kjur.github.com/jsrsasign/license
  */
 //
@@ -6650,7 +7111,7 @@ RSAKey.SALT_LEN_RECOVER = -2;
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"./rsapem-1.1.js":32,"jsbn":97}],34:[function(require,module,exports){
+},{"./rsapem-1.1.js":35,"jsbn":100}],37:[function(require,module,exports){
 /*
 CryptoJS v3.1.2
 code.google.com/p/crypto-js
@@ -6850,7 +7311,7 @@ var C = require('./core.js').CryptoJS;
 exports.CryptoJS = C;
 module.exports = exports;
 
-},{"./core.js":28}],35:[function(require,module,exports){
+},{"./core.js":31}],38:[function(require,module,exports){
 exports.Face = require('./js/face.js').Face;
 exports.NDN = require('./js/face.js').NDN; // deprecated
 exports.Closure = require('./js/closure.js').Closure;
@@ -6898,7 +7359,7 @@ exports.NoVerifyPolicyManager = require('./js/security/policy/no-verify-policy-m
 exports.SelfVerifyPolicyManager = require('./js/security/policy/self-verify-policy-manager.js').SelfVerifyPolicyManager;
 exports.KeyChain = require('./js/security/key-chain.js').KeyChain;
 
-},{"./js/closure.js":38,"./js/data.js":40,"./js/encoding/binary-xml-wire-format.js":44,"./js/encoding/data-utils.js":45,"./js/encoding/encoding-utils.js":48,"./js/encoding/protobuf-tlv.js":49,"./js/encoding/tlv-wire-format.js":51,"./js/encoding/wire-format.js":56,"./js/exclude.js":57,"./js/face.js":59,"./js/forwarding-flags.js":61,"./js/interest.js":62,"./js/key-locator.js":63,"./js/key.js":64,"./js/meta-info.js":66,"./js/name.js":67,"./js/publisher-public-key-digest.js":69,"./js/security/identity/identity-manager.js":72,"./js/security/identity/identity-storage.js":73,"./js/security/identity/memory-identity-storage.js":74,"./js/security/identity/memory-private-key-storage.js":75,"./js/security/key-chain.js":77,"./js/security/key-manager.js":78,"./js/security/policy/no-verify-policy-manager.js":79,"./js/security/policy/policy-manager.js":80,"./js/security/policy/self-verify-policy-manager.js":81,"./js/security/policy/validation-request.js":82,"./js/security/security-exception.js":83,"./js/security/security-types.js":84,"./js/sha256-with-rsa-signature.js":85,"./js/transport/tcp-transport.js":36,"./js/transport/unix-transport.js":87,"./js/util/blob.js":89,"./js/util/memory-content-cache.js":92,"./js/util/name-enumeration.js":93,"./js/util/ndn-time.js":95}],36:[function(require,module,exports){
+},{"./js/closure.js":41,"./js/data.js":43,"./js/encoding/binary-xml-wire-format.js":47,"./js/encoding/data-utils.js":48,"./js/encoding/encoding-utils.js":51,"./js/encoding/protobuf-tlv.js":52,"./js/encoding/tlv-wire-format.js":54,"./js/encoding/wire-format.js":59,"./js/exclude.js":60,"./js/face.js":62,"./js/forwarding-flags.js":64,"./js/interest.js":65,"./js/key-locator.js":66,"./js/key.js":67,"./js/meta-info.js":69,"./js/name.js":70,"./js/publisher-public-key-digest.js":72,"./js/security/identity/identity-manager.js":75,"./js/security/identity/identity-storage.js":76,"./js/security/identity/memory-identity-storage.js":77,"./js/security/identity/memory-private-key-storage.js":78,"./js/security/key-chain.js":80,"./js/security/key-manager.js":81,"./js/security/policy/no-verify-policy-manager.js":82,"./js/security/policy/policy-manager.js":83,"./js/security/policy/self-verify-policy-manager.js":84,"./js/security/policy/validation-request.js":85,"./js/security/security-exception.js":86,"./js/security/security-types.js":87,"./js/sha256-with-rsa-signature.js":88,"./js/transport/tcp-transport.js":39,"./js/transport/unix-transport.js":90,"./js/util/blob.js":92,"./js/util/memory-content-cache.js":95,"./js/util/name-enumeration.js":96,"./js/util/ndn-time.js":98}],39:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -6921,7 +7382,7 @@ exports.KeyChain = require('./js/security/key-chain.js').KeyChain;
 // The Face constructor uses TcpTransport by default which is not available in the browser, so override to WebSocketTransport.
 exports.TcpTransport = require("./transport/web-socket-transport").WebSocketTransport;
 
-},{"./transport/web-socket-transport":88}],37:[function(require,module,exports){
+},{"./transport/web-socket-transport":91}],40:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -7083,7 +7544,7 @@ module.exports = exports
 // After this we include contrib/feross/buffer.js to define the Buffer class.
 
 }).call(this,require("buffer").Buffer)
-},{"../contrib/securityLib/asn1hex-1.1.js":26,"../contrib/securityLib/base64.js":27,"../contrib/securityLib/crypto-1.0.js":29,"../contrib/securityLib/rsasign-1.2.js":33,"./key.js":64,"buffer":5}],38:[function(require,module,exports){
+},{"../contrib/securityLib/asn1hex-1.1.js":29,"../contrib/securityLib/base64.js":30,"../contrib/securityLib/crypto-1.0.js":32,"../contrib/securityLib/rsasign-1.2.js":36,"./key.js":67,"buffer":5}],41:[function(require,module,exports){
 /**
  * Provide the callback closure for the async communication methods in the Face class.
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -7179,7 +7640,7 @@ UpcallInfo.prototype.toString = function()
 
 exports.UpcallInfo = UpcallInfo;
 
-},{}],39:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -7383,7 +7844,7 @@ ControlParameters.prototype.setExpirationPeriod = function(expirationPeriod)
   this.expirationPeriod = expirationPeriod;
 };
 
-},{"./encoding/wire-format.js":56,"./forwarding-flags.js":61,"./name.js":67}],40:[function(require,module,exports){
+},{"./encoding/wire-format.js":59,"./forwarding-flags.js":64,"./name.js":70}],43:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN Data object.
@@ -7749,7 +8210,7 @@ ContentObject.prototype = new Data();
 exports.ContentObject = ContentObject;
 
 }).call(this,require("buffer").Buffer)
-},{"./crypto.js":37,"./encoding/binary-xml-encoder.js":42,"./encoding/binary-xml-wire-format.js":44,"./encoding/data-utils.js":45,"./encoding/wire-format.js":56,"./key-locator.js":63,"./meta-info.js":66,"./name.js":67,"./security/key-manager.js":78,"./sha256-with-rsa-signature.js":85,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"./util/signed-blob.js":96,"buffer":5}],41:[function(require,module,exports){
+},{"./crypto.js":40,"./encoding/binary-xml-encoder.js":45,"./encoding/binary-xml-wire-format.js":47,"./encoding/data-utils.js":48,"./encoding/wire-format.js":59,"./key-locator.js":66,"./meta-info.js":69,"./name.js":70,"./security/key-manager.js":81,"./sha256-with-rsa-signature.js":88,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"./util/signed-blob.js":99,"buffer":5}],44:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class is used to decode ndnb binary elements (blob, type/value pairs).
@@ -8477,7 +8938,7 @@ BinaryXMLDecoder.prototype.seek = function(offset)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../log.js":65,"../util/ndn-protoco-id-tags.js":94,"../util/ndn-time.js":95,"./data-utils.js":45,"./decoding-exception.js":46,"buffer":5}],42:[function(require,module,exports){
+},{"../log.js":68,"../util/ndn-protoco-id-tags.js":97,"../util/ndn-time.js":98,"./data-utils.js":48,"./decoding-exception.js":49,"buffer":5}],45:[function(require,module,exports){
 /**
  * This class is used to encode ndnb binary elements (blob, type/value pairs).
  *
@@ -8925,7 +9386,7 @@ BinaryXMLEncoder.prototype.getReducedOstream = function()
   return this.ostream.slice(0, this.offset);
 };
 
-},{"../log.js":65,"../util/dynamic-buffer.js":91,"../util/ndn-protoco-id-tags.js":94,"./data-utils.js":45}],43:[function(require,module,exports){
+},{"../log.js":68,"../util/dynamic-buffer.js":94,"../util/ndn-protoco-id-tags.js":97,"./data-utils.js":48}],46:[function(require,module,exports){
 /**
  * This class uses BinaryXMLDecoder to follow the structure of a ndnb binary element to
  * determine its end.
@@ -9133,7 +9594,7 @@ BinaryXMLStructureDecoder.prototype.seek = function(offset)
   this.offset = offset;
 };
 
-},{"../util/dynamic-buffer.js":91,"./binary-xml-decoder.js":41}],44:[function(require,module,exports){
+},{"../util/dynamic-buffer.js":94,"./binary-xml-decoder.js":44}],47:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9500,7 +9961,7 @@ BinaryXmlWireFormat.decodeData = function(data, decoder)
            signedPortionEndOffset: signedPortionEndOffset };
 };
 
-},{"../exclude.js":57,"../key-locator.js":63,"../meta-info.js":66,"../name.js":67,"../publisher-public-key-digest.js":69,"../sha256-with-rsa-signature.js":85,"../util/blob.js":89,"../util/ndn-protoco-id-tags.js":94,"./binary-xml-decoder.js":41,"./binary-xml-encoder.js":42,"./data-utils.js":45,"./wire-format.js":56}],45:[function(require,module,exports){
+},{"../exclude.js":60,"../key-locator.js":66,"../meta-info.js":69,"../name.js":70,"../publisher-public-key-digest.js":72,"../sha256-with-rsa-signature.js":88,"../util/blob.js":92,"../util/ndn-protoco-id-tags.js":97,"./binary-xml-decoder.js":44,"./binary-xml-encoder.js":45,"./data-utils.js":48,"./wire-format.js":59}],48:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class contains utilities to help parse the data
@@ -9528,9 +9989,7 @@ BinaryXmlWireFormat.decodeData = function(data, decoder)
  * A DataUtils has static methods for converting data.
  * @constructor
  */
-var DataUtils = function DataUtils()
-{
-};
+var DataUtils = {};
 
 exports.DataUtils = DataUtils;
 
@@ -9823,7 +10282,7 @@ DataUtils.shuffle = function(array)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],46:[function(require,module,exports){
+},{"buffer":5}],49:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9861,7 +10320,7 @@ DecodingException.prototype.name = "DecodingException";
 
 exports.DecodingException = DecodingException;
 
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9950,7 +10409,7 @@ ElementReader.prototype.onReceivedData = function(/* Buffer */ data)
       try {
         this.elementListener.onReceivedElement(element);
       } catch (ex) {
-          console.log("ElementReader: ignoring exception from onReceivedElement: " , ex);
+          console.log("ElementReader: ignoring exception from onReceivedElement: " + ex);
       }
 
       // Need to read a new object.
@@ -9972,7 +10431,7 @@ ElementReader.prototype.onReceivedData = function(/* Buffer */ data)
   }
 };
 
-},{"../log.js":65,"./binary-xml-structure-decoder.js":43,"./data-utils.js":45,"./tlv/tlv-structure-decoder.js":54,"./tlv/tlv.js":55}],48:[function(require,module,exports){
+},{"../log.js":68,"./binary-xml-structure-decoder.js":46,"./data-utils.js":48,"./tlv/tlv-structure-decoder.js":57,"./tlv/tlv.js":58}],51:[function(require,module,exports){
 /**
  * This file contains utilities to help encode and decode NDN objects.
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -10225,7 +10684,7 @@ function encodeToBinaryInterest(interest) { return interest.wireEncode().buf(); 
  */
 function encodeToBinaryContentObject(data) { return data.wireEncode().buf(); }
 
-},{"../data.js":40,"../face-instance.js":58,"../forwarding-entry.js":60,"../interest.js":62,"../key-locator.js":63,"../key.js":64,"../log.js":65,"./binary-xml-decoder.js":41,"./binary-xml-encoder.js":42,"./data-utils.js":45,"./wire-format.js":56}],49:[function(require,module,exports){
+},{"../data.js":43,"../face-instance.js":61,"../forwarding-entry.js":63,"../interest.js":65,"../key-locator.js":66,"../key.js":67,"../log.js":68,"./binary-xml-decoder.js":44,"./binary-xml-encoder.js":45,"./data-utils.js":48,"./wire-format.js":59}],52:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -10450,7 +10909,7 @@ ProtobufTlv._decodeFieldValue = function(field, tlvType, decoder, endOffset)
     throw new Error("ProtobufTlv.decode: Unknown field type");
 };
 
-},{"../util/blob.js":89,"./tlv/tlv-decoder.js":52,"./tlv/tlv-encoder.js":53,"protobufjs/dist/ProtoBuf.js":98}],50:[function(require,module,exports){
+},{"../util/blob.js":92,"./tlv/tlv-decoder.js":55,"./tlv/tlv-encoder.js":56,"protobufjs/dist/ProtoBuf.js":101}],53:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -11109,7 +11568,7 @@ Tlv0_1WireFormat.decodeMetaInfo = function(metaInfo, decoder)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../crypto.js":37,"../exclude.js":57,"../forwarding-flags.js":61,"../key-locator.js":63,"../meta-info.js":66,"../publisher-public-key-digest.js":69,"../sha256-with-rsa-signature.js":85,"../util/blob.js":89,"./decoding-exception.js":46,"./tlv/tlv-decoder.js":52,"./tlv/tlv-encoder.js":53,"./tlv/tlv.js":55,"./wire-format.js":56,"buffer":5}],51:[function(require,module,exports){
+},{"../crypto.js":40,"../exclude.js":60,"../forwarding-flags.js":64,"../key-locator.js":66,"../meta-info.js":69,"../publisher-public-key-digest.js":72,"../sha256-with-rsa-signature.js":88,"../util/blob.js":92,"./decoding-exception.js":49,"./tlv/tlv-decoder.js":55,"./tlv/tlv-encoder.js":56,"./tlv/tlv.js":58,"./wire-format.js":59,"buffer":5}],54:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11169,7 +11628,7 @@ TlvWireFormat.get = function()
 // This module will be loaded because WireFormat loads it.
 WireFormat.setDefaultWireFormat(TlvWireFormat.get());
 
-},{"./tlv-0_1-wire-format.js":50,"./wire-format.js":56}],52:[function(require,module,exports){
+},{"./tlv-0_1-wire-format.js":53,"./wire-format.js":59}],55:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11508,7 +11967,7 @@ TlvDecoder.prototype.seek = function(offset)
   this.offset = offset;
 };
 
-},{"../decoding-exception.js":46}],53:[function(require,module,exports){
+},{"../decoding-exception.js":49}],56:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11630,7 +12089,7 @@ TlvEncoder.prototype.writeNonNegativeInteger = function(value)
   // JavaScript doesn't distinguish int from float, so round.
   value = Math.round(value);
 
-  if (value < 253) {
+  if (value <= 0xff) {
     this.length += 1;
     this.output.ensureLengthFromBack(this.length);
     this.output.array[this.output.array.length - this.length] = value & 0xff;
@@ -11737,7 +12196,7 @@ TlvEncoder.prototype.getOutput = function()
   return this.output.array.slice(this.output.array.length - this.length);
 };
 
-},{"../../util/dynamic-buffer.js":91}],54:[function(require,module,exports){
+},{"../../util/dynamic-buffer.js":94}],57:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -11962,7 +12421,7 @@ TlvStructureDecoder.prototype.seek = function(offset)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./tlv-decoder.js":52,"buffer":5}],55:[function(require,module,exports){
+},{"./tlv-decoder.js":55,"buffer":5}],58:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -12052,7 +12511,7 @@ Tlv.ControlParameters_Flags =               108;
 Tlv.ControlParameters_Strategy =            107;
 Tlv.ControlParameters_ExpirationPeriod =    109;
 
-},{}],56:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -12237,7 +12696,7 @@ WireFormat.getDefaultWireFormat = function()
 // to avoid problems with cycles of require.
 var TlvWireFormat = require('./tlv-wire-format.js').TlvWireFormat;
 
-},{"./tlv-wire-format.js":51}],57:[function(require,module,exports){
+},{"./tlv-wire-format.js":54}],60:[function(require,module,exports){
 /**
  * This class represents an Interest Exclude.
  * Copyright (C) 2014 Regents of the University of California.
@@ -12490,7 +12949,7 @@ Exclude.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./encoding/data-utils.js":45,"./name.js":67,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94}],58:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/data-utils.js":48,"./name.js":70,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97}],61:[function(require,module,exports){
 /**
  * This class represents Face Instances
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -12617,7 +13076,7 @@ FaceInstance.prototype.getElementLabel = function()
 };
 
 
-},{"./publisher-public-key-digest.js":69,"./util/ndn-protoco-id-tags.js":94}],59:[function(require,module,exports){
+},{"./publisher-public-key-digest.js":72,"./util/ndn-protoco-id-tags.js":97}],62:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents the top-level object for communicating with an NDN host.
@@ -12792,11 +13251,14 @@ var Face = function Face(transportOrSettings, connectionInfo)
   this.commandInterestGenerator = new CommandInterestGenerator();
 };
 
+exports.Face = Face;
 
 Face.UNOPEN = 0;  // the Face is created but not opened yet
 Face.OPEN_REQUESTED = 1;  // requested to connect but onopen is not called.
 Face.OPENED = 2;  // connection to the forwarder opened
 Face.CLOSED = 3;  // connection to the forwarder closed
+
+TcpTransport.importFace(Face);
 
 /**
  * If the forwarder's Unix socket file path exists, then return the file path.
@@ -13160,7 +13622,7 @@ Face.prototype.expressInterestWithClosure = function(interest, closure)
       console.log('ERROR: connectionInfo is NOT SET');
     else {
       var thisFace = this;
-      this.connectAndExecute(function() {
+      this.connectAndExecute(function() { 
         thisFace.reconnectAndExpressInterest(pendingInterestId, interest, closure);
       });
     }
@@ -13279,7 +13741,7 @@ Face.prototype.removePendingInterest = function(pendingInterestId)
 {
   if (pendingInterestId == null)
     return;
-
+  
   // Go backwards through the list so we can erase entries.
   // Remove all entries even though pendingInterestId should be unique.
   var count = 0;
@@ -13305,11 +13767,11 @@ Face.prototype.removePendingInterest = function(pendingInterestId)
 };
 
 /**
- * Set the KeyChain and certificate name used to sign command interests (e.g.
+ * Set the KeyChain and certificate name used to sign command interests (e.g. 
  * for registerPrefix).
- * @param {KeyChain} keyChain The KeyChain object for signing interests, which
- * must remain valid for the life of this Face. You must create the KeyChain
- * object and pass it in. You can create a default KeyChain for your system with
+ * @param {KeyChain} keyChain The KeyChain object for signing interests, which 
+ * must remain valid for the life of this Face. You must create the KeyChain 
+ * object and pass it in. You can create a default KeyChain for your system with 
  * the default KeyChain constructor.
  * @param {Name} certificateName The certificate name for signing interests.
  * This makes a copy of the Name. You can get the default certificate name with
@@ -13324,7 +13786,7 @@ Face.prototype.setCommandSigningInfo = function(keyChain, certificateName)
 /**
  * Set the certificate name used to sign command interest (e.g. for
  * registerPrefix), using the KeyChain that was set with setCommandSigningInfo.
- * @param {Name} certificateName The certificate name for signing interest. This
+ * @param {Name} certificateName The certificate name for signing interest. This 
  * makes a copy of the Name.
  */
 Face.prototype.setCommandCertificateName = function(certificateName)
@@ -13333,8 +13795,8 @@ Face.prototype.setCommandCertificateName = function(certificateName)
 };
 
 /**
- * Append a timestamp component and a random value component to interest's name.
- * Then use the keyChain and certificateName from setCommandSigningInfo to sign
+ * Append a timestamp component and a random value component to interest's name. 
+ * Then use the keyChain and certificateName from setCommandSigningInfo to sign 
  * the interest. If the interest lifetime is not set, this sets it.
  * @note This method is an experimental feature. See the API docs for more
  * detail at
@@ -13578,7 +14040,7 @@ Face.RegisterResponseClosure.prototype.upcall = function(kind, upcallInfo)
       if (this.onRegisterFailed)
         this.onRegisterFailed(this.prefix);
     }
-
+    
     return Closure.RESULT_OK;
   }
   if (!(kind == Closure.UPCALL_CONTENT ||
@@ -13693,9 +14155,9 @@ Face.prototype.registerPrefixHelper = function
 
 /**
  * Do the work of registerPrefix to register with NFD.
- * @param {number} registeredPrefixId The
- * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got so it
- * could return it to the caller. If this is 0, then don't add to
+ * @param {number} registeredPrefixId The 
+ * RegisteredPrefix.getNextRegisteredPrefixId() which registerPrefix got so it 
+ * could return it to the caller. If this is 0, then don't add to 
  * registeredPrefixTable (assuming it has already been done).
  * @param {Name} prefix
  * @param {Closure} closure
@@ -14046,6 +14508,7 @@ var NDN = function NDN(settings)
 // Use dummy functions so that the Face constructor will not try to set its own defaults.
 NDN.prototype = new Face({ getTransport: function(){}, getConnectionInfo: function(){} });
 
+exports.NDN = NDN;
 
 NDN.supported = Face.supported;
 NDN.UNOPEN = Face.UNOPEN;
@@ -14053,15 +14516,8 @@ NDN.OPEN_REQUESTED = Face.OPEN_REQUESTED;
 NDN.OPENED = Face.OPENED;
 NDN.CLOSED = Face.CLOSED;
 
-
-exports.NDN = NDN;
-
-exports.Face = Face;
-
-module.exports = exports;
-
 }).call(this,require("buffer").Buffer)
-},{"./closure.js":38,"./control-parameters.js":39,"./data.js":40,"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./encoding/binary-xml-wire-format.js":44,"./encoding/data-utils.js":45,"./encoding/tlv-wire-format.js":51,"./encoding/tlv/tlv-decoder.js":52,"./encoding/tlv/tlv.js":55,"./forwarding-entry.js":60,"./forwarding-flags.js":61,"./interest.js":62,"./key-locator.js":63,"./key.js":64,"./log.js":65,"./meta-info.js":66,"./name.js":67,"./security/key-manager.js":78,"./transport/tcp-transport.js":36,"./transport/transport.js":86,"./transport/unix-transport.js":87,"./util/command-interest-generator.js":90,"./util/ndn-protoco-id-tags.js":94,"buffer":5,"crypto":11,"fs":1}],60:[function(require,module,exports){
+},{"./closure.js":41,"./control-parameters.js":42,"./data.js":43,"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/binary-xml-wire-format.js":47,"./encoding/data-utils.js":48,"./encoding/tlv-wire-format.js":54,"./encoding/tlv/tlv-decoder.js":55,"./encoding/tlv/tlv.js":58,"./forwarding-entry.js":63,"./forwarding-flags.js":64,"./interest.js":65,"./key-locator.js":66,"./key.js":67,"./log.js":68,"./meta-info.js":69,"./name.js":70,"./security/key-manager.js":81,"./transport/tcp-transport.js":39,"./transport/transport.js":89,"./transport/unix-transport.js":90,"./util/command-interest-generator.js":93,"./util/ndn-protoco-id-tags.js":97,"buffer":5,"crypto":11,"fs":1}],63:[function(require,module,exports){
 /**
  * This class represents Forwarding Entries
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -14158,7 +14614,7 @@ ForwardingEntry.prototype.to_ndnb = function(
 
 ForwardingEntry.prototype.getElementLabel = function() { return NDNProtocolDTags.ForwardingEntry; }
 
-},{"./forwarding-flags.js":61,"./name.js":67,"./publisher-public-key-digest.js":69,"./util/ndn-protoco-id-tags.js":94}],61:[function(require,module,exports){
+},{"./forwarding-flags.js":64,"./name.js":70,"./publisher-public-key-digest.js":72,"./util/ndn-protoco-id-tags.js":97}],64:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -14380,7 +14836,7 @@ ForwardingFlags.prototype.setTap = function(value) { this.tap = value; };
  */
 ForwardingFlags.prototype.setCaptureOk = function(value) { this.captureOk = value; };
 
-},{}],62:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents Interest Objects
@@ -14862,7 +15318,7 @@ Interest.prototype.decode = function(input, wireFormat)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-wire-format.js":44,"./encoding/wire-format.js":56,"./exclude.js":57,"./key-locator.js":63,"./name.js":67,"./publisher-public-key-digest.js":69,"./util/blob.js":89,"buffer":5}],63:[function(require,module,exports){
+},{"./encoding/binary-xml-wire-format.js":47,"./encoding/wire-format.js":59,"./exclude.js":60,"./key-locator.js":66,"./name.js":70,"./publisher-public-key-digest.js":72,"./util/blob.js":92,"buffer":5}],66:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN KeyLocator object.
@@ -15178,7 +15634,7 @@ KeyName.prototype.getElementLabel = function() { return NDNProtocolDTags.KeyName
 
 
 }).call(this,require("buffer").Buffer)
-},{"./log.js":65,"./name.js":67,"./publisher-id.js":68,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"buffer":5}],64:[function(require,module,exports){
+},{"./log.js":68,"./name.js":70,"./publisher-id.js":71,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"buffer":5}],67:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents Key Objects
@@ -15331,7 +15787,7 @@ Key.createFromPEM = function(obj)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/data-utils.js":45,"./log.js":65,"buffer":5,"crypto":11}],65:[function(require,module,exports){
+},{"./encoding/data-utils.js":48,"./log.js":68,"buffer":5,"crypto":11}],68:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -15366,7 +15822,7 @@ exports.Log = Log;
  */
 Log.LOG = 0;
 
-},{}],66:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN Data MetaInfo object.
@@ -15698,7 +16154,7 @@ SignedInfo.prototype = new MetaInfo(null, null, null, null, null, null, true);
 exports.SignedInfo = SignedInfo;
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./key-locator.js":63,"./log.js":65,"./name.js":67,"./publisher-public-key-digest.js":69,"./security/key-manager.js":78,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"./util/ndn-time.js":95,"buffer":5}],67:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./key-locator.js":66,"./log.js":68,"./name.js":70,"./publisher-public-key-digest.js":72,"./security/key-manager.js":81,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"./util/ndn-time.js":98,"buffer":5}],70:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents a Name as an array of components where each is a byte array.
@@ -15780,11 +16236,10 @@ Name.Component = function NameComponent(value)
   }
   else if (Buffer.isBuffer(value))
     this.value = new Buffer(value);
-  else if (typeof value === 'object' && typeof ArrayBuffer !== 'undefined' &&  value instanceof ArrayBuffer) {
-    // Make a copy.  Don't use ArrayBuffer.slice since it isn't always supported.
-    this.value = new Buffer(new ArrayBuffer(value.byteLength));
-    this.value.set(new Buffer(value));
-  }
+  else if (typeof value === 'object' && typeof ArrayBuffer !== 'undefined' &&  value instanceof ArrayBuffer)
+    // Make a copy.  Turn the value into a Uint8Array since the Buffer
+    //   constructor doesn't take an ArrayBuffer.
+    this.value = new Buffer(new Uint8Array(value));
   else if (typeof value === 'object')
     // Assume value is a byte array.  We can't check instanceof Array because
     //   this doesn't work in JavaScript if the array comes from a different module.
@@ -15849,8 +16304,9 @@ Name.Component.prototype.toNumberWithMarker = function(marker)
 };
 
 /**
- * Interpret this name component as a segment number according to NDN name
- * conventions (a network-ordered number where the first byte is the marker 0x00).
+ * Interpret this name component as a segment number according to NDN naming
+ * conventions for "Segment number" (marker 0x00).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
  * @returns {number} The integer segment number.
  * @throws Error If the first byte of the component is not the expected marker.
  */
@@ -15860,10 +16316,22 @@ Name.Component.prototype.toSegment = function()
 };
 
 /**
- * Interpret this name component as a version number according to NDN name 
- * conventions (a network-ordered number where the first byte is the marker 0xFD).  
- * Note that this returns the exact number from the component without converting 
- * it to a time representation.
+ * Interpret this name component as a segment byte offset according to NDN
+ * naming conventions for segment "Byte offset" (marker 0xFB).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+ * @returns The integer segment byte offset.
+ * @throws Error If the first byte of the component is not the expected marker.
+ */
+Name.Component.prototype.toSegmentOffset = function()
+{
+  return this.toNumberWithMarker(0xFB);
+};
+
+/**
+ * Interpret this name component as a version number  according to NDN naming
+ * conventions for "Versioning" (marker 0xFD). Note that this returns
+ * the exact number from the component without converting it to a time
+ * representation.
  * @returns {number} The integer version number.
  * @throws Error If the first byte of the component is not the expected marker.
  */
@@ -15873,22 +16341,57 @@ Name.Component.prototype.toVersion = function()
 };
 
 /**
+ * Interpret this name component as a timestamp  according to NDN naming
+ * conventions for "Timestamp" (marker 0xFC).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+ * @returns The number of microseconds since the UNIX epoch (Thursday,
+ * 1 January 1970) not counting leap seconds.
+ * @throws Error If the first byte of the component is not the expected marker.
+ */
+Name.Component.prototype.toTimestamp = function()
+{
+  return this.toNumberWithMarker(0xFC);
+};
+
+/**
+ * Interpret this name component as a sequence number according to NDN naming
+ * conventions for "Sequencing" (marker 0xFE).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+ * @returns The integer sequence number.
+ * @throws Error If the first byte of the component is not the expected marker.
+ */
+Name.Component.prototype.toSequenceNumber = function()
+{
+  return this.toNumberWithMarker(0xFE);
+};
+
+/**
+ * Create a component whose value is the nonNegativeInteger encoding of the
+ * number.
+ * @param {number} number
+ * @returns {Name.Component}
+ */
+Name.Component.fromNumber = function(number)
+{
+  var encoder = new TlvEncoder(8);
+  encoder.writeNonNegativeInteger(number);
+  return new Name.Component(new Blob(encoder.getOutput(), false));
+};
+
+/**
  * Create a component whose value is the marker appended with the 
- * network-ordered encoding of the number. Note: if the number is zero, no bytes 
- * are used for the number - the result will have only the marker.
+ * nonNegativeInteger encoding of the number.
  * @param {number} number
  * @param {number} marker
  * @returns {Name.Component}
  */
 Name.Component.fromNumberWithMarker = function(number, marker)
 {
-  var bigEndian = DataUtils.nonNegativeIntToBigEndian(number);
-  // Put the marker byte in front.
-  var value = new Buffer(bigEndian.length + 1);
-  value[0] = marker;
-  bigEndian.copy(value, 1);
-
-  return new Name.Component(value);
+  var encoder = new TlvEncoder(9);
+  // Encode backwards.
+  encoder.writeNonNegativeInteger(number);
+  encoder.writeNonNegativeInteger(marker);
+  return new Name.Component(new Blob(encoder.getOutput(), false));
 };
 
 /**
@@ -16138,7 +16641,9 @@ Name.prototype.to_uri = function()
 };
 
 /**
- * Append a component with the encoded segment number.
+ * Append a component with the encoded segment number according to NDN
+ * naming conventions for "Segment number" (marker 0x00).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
  * @param {number} segment The segment number.
  * @returns {Name} This name so that you can chain calls to append.
  */
@@ -16148,15 +16653,53 @@ Name.prototype.appendSegment = function(segment)
 };
 
 /**
- * Append a component with the encoded version number.
- * Note that this encodes the exact value of version without converting from a
- * time representation.
+ * Append a component with the encoded segment byte offset according to NDN
+ * naming conventions for segment "Byte offset" (marker 0xFB).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+ * @param segmentOffset The segment byte offset.
+ * @returns This name so that you can chain calls to append.
+ */
+Name.prototype.appendSegmentOffset = function(segmentOffset)
+{
+  return this.append(Name.Component.fromNumberWithMarker(segmentOffset, 0xFB));
+};
+
+/**
+ * Append a component with the encoded version number according to NDN
+ * naming conventions for "Versioning" (marker 0xFD).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+ * Note that this encodes the exact value of version without converting from a time representation.
  * @param {number} version The version number.
  * @returns {Name} This name so that you can chain calls to append.
  */
 Name.prototype.appendVersion = function(version)
 {
-  return this.append(Name.Component.fromNumberWithMarker(segment, 0xFD));
+  return this.append(Name.Component.fromNumberWithMarker(version, 0xFD));
+};
+
+/**
+ * Append a component with the encoded timestamp according to NDN naming
+ * conventions for "Timestamp" (marker 0xFC).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+ * @param timestamp The number of microseconds since the UNIX epoch (Thursday,
+ * 1 January 1970) not counting leap seconds.
+ * @returns This name so that you can chain calls to append.
+ */
+Name.prototype.appendTimestamp = function(timestamp)
+{
+  return this.append(Name.Component.fromNumberWithMarker(timestamp, 0xFC));
+};
+
+/**
+ * Append a component with the encoded sequence number according to NDN naming
+ * conventions for "Sequencing" (marker 0xFE).
+ * http://named-data.net/doc/tech-memos/naming-conventions.pdf
+ * @param sequenceNumber The sequence number.
+ * @returns This name so that you can chain calls to append.
+ */
+Name.prototype.appendSequenceNumber = function(sequenceNumber)
+{
+  return this.append(Name.Component.fromNumberWithMarker(sequenceNumber, 0xFE));
 };
 
 /**
@@ -16497,8 +17040,11 @@ Name.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
+// Put this require at the bottom to avoid circular references.
+var TlvEncoder = require('./encoding/tlv/tlv-encoder.js').TlvEncoder;
+
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./encoding/data-utils.js":45,"./log.js":65,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"buffer":5}],68:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/data-utils.js":48,"./encoding/tlv/tlv-encoder.js":56,"./log.js":68,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"buffer":5}],71:[function(require,module,exports){
 /**
  * This class represents Publisher and PublisherType Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -16625,7 +17171,7 @@ PublisherID.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./encoding/decoding-exception.js":46,"./util/ndn-protoco-id-tags.js":94}],69:[function(require,module,exports){
+},{"./encoding/decoding-exception.js":49,"./util/ndn-protoco-id-tags.js":97}],72:[function(require,module,exports){
 /**
  * This class represents PublisherPublicKeyDigest Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -16708,7 +17254,7 @@ PublisherPublicKeyDigest.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./log.js":65,"./util/ndn-protoco-id-tags.js":94}],70:[function(require,module,exports){
+},{"./log.js":68,"./util/ndn-protoco-id-tags.js":97}],73:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -16761,7 +17307,7 @@ IdentityCertificate.certificateNameToPublicKeyName = function(certificateName)
     (tmpName.getSubName(i + 1, tmpName.size() - i - 1));
 };
 
-},{}],71:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -16855,7 +17401,7 @@ PublicKey.prototype.getKeyDer = function()
   return this.keyDer;
 };
 
-},{"../security-exception.js":83,"../security-types.js":84}],72:[function(require,module,exports){
+},{"../security-exception.js":86,"../security-types.js":87}],75:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -17190,7 +17736,7 @@ IdentityManager.certificateNameToPublicKeyName = function(certificateName)
     (i + 1, tmpName.size() - i - 1));
 };
 }).call(this,require("buffer").Buffer)
-},{"../../data.js":40,"../../encoding/wire-format.js":56,"../../key-locator.js":63,"../../name.js":67,"../../sha256-with-rsa-signature.js":85,"../security-exception.js":83,"buffer":5}],73:[function(require,module,exports){
+},{"../../data.js":43,"../../encoding/wire-format.js":59,"../../key-locator.js":66,"../../name.js":70,"../../sha256-with-rsa-signature.js":88,"../security-exception.js":86,"buffer":5}],76:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -17459,7 +18005,7 @@ IdentityStorage.prototype.setDefaultCertificateNameForKey = function
   throw new Error("IdentityStorage.setDefaultCertificateNameForKey is not implemented");
 };
 
-},{"../../name.js":67,"../security-exception.js":83}],74:[function(require,module,exports){
+},{"../../name.js":70,"../security-exception.js":86}],77:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -17778,7 +18324,7 @@ MemoryIdentityStorage.prototype.setDefaultCertificateNameForKey = function
   throw new Error("MemoryIdentityStorage.setDefaultCertificateNameForKey is not implemented");
 };
 
-},{"../../data.js":40,"../../encoding/data-utils.js":45,"../../name.js":67,"../../util/blob.js":89,"../security-exception.js":83,"../security-types.js":84,"./identity-storage.js":73}],75:[function(require,module,exports){
+},{"../../data.js":43,"../../encoding/data-utils.js":48,"../../name.js":70,"../../util/blob.js":92,"../security-exception.js":86,"../security-types.js":87,"./identity-storage.js":76}],78:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -17947,7 +18493,7 @@ MemoryPrivateKeyStorage.prototype.doesKeyExist = function(keyName, keyClass)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../../encoding/data-utils.js":45,"../../util/blob.js":89,"../certificate/public-key.js":71,"../security-exception.js":83,"../security-types.js":84,"./private-key-storage.js":76,"buffer":5,"crypto":11}],76:[function(require,module,exports){
+},{"../../encoding/data-utils.js":48,"../../util/blob.js":92,"../certificate/public-key.js":74,"../security-exception.js":86,"../security-types.js":87,"./private-key-storage.js":79,"buffer":5,"crypto":11}],79:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18068,7 +18614,7 @@ PrivateKeyStorage.prototype.doesKeyExist = function(keyName, keyClass)
   throw new Error("PrivateKeyStorage.doesKeyExist is not implemented");
 };
 
-},{}],77:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18569,7 +19115,7 @@ KeyChain.prototype.onCertificateInterestTimeout = function
     onVerifyFailed(data);
 };
 
-},{"../data.js":40,"../encoding/tlv/tlv-encoder.js":53,"../encoding/tlv/tlv.js":55,"../encoding/wire-format.js":56,"../interest.js":62,"../key-locator.js":63,"../name.js":67,"../sha256-with-rsa-signature.js":85,"./security-exception.js":83}],78:[function(require,module,exports){
+},{"../data.js":43,"../encoding/tlv/tlv-encoder.js":56,"../encoding/tlv/tlv.js":58,"../encoding/wire-format.js":59,"../interest.js":65,"../key-locator.js":66,"../name.js":70,"../sha256-with-rsa-signature.js":88,"./security-exception.js":86}],81:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Meki Cheraoui
@@ -18658,7 +19204,7 @@ KeyManager.prototype.getKey = function()
 var globalKeyManager = globalKeyManager || new KeyManager();
 exports.globalKeyManager = globalKeyManager;
 
-},{"../key.js":64}],79:[function(require,module,exports){
+},{"../key.js":67}],82:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18767,7 +19313,7 @@ NoVerifyPolicyManager.prototype.inferSigningIdentity = function(dataName)
   return new Name();
 };
 
-},{"../../name.js":67,"./policy-manager.js":80}],80:[function(require,module,exports){
+},{"../../name.js":70,"./policy-manager.js":83}],83:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18878,7 +19424,7 @@ PolicyManager.prototype.inferSigningIdentity = function(dataName)
   throw new Error("PolicyManager.inferSigningIdentity is not implemented");
 };
 
-},{}],81:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -19118,7 +19664,7 @@ SelfVerifyPolicyManager.verifySha256WithRsaSignature = function
   return verifier.verify(keyPem, signatureBytes);
 };
 
-},{"../../data.js":40,"../../encoding/data-utils.js":45,"../../encoding/wire-format.js":56,"../../key-locator.js":63,"../../name.js":67,"../certificate/identity-certificate.js":70,"../security-exception.js":83,"./policy-manager.js":80,"crypto":11}],82:[function(require,module,exports){
+},{"../../data.js":43,"../../encoding/data-utils.js":48,"../../encoding/wire-format.js":59,"../../key-locator.js":66,"../../name.js":70,"../certificate/identity-certificate.js":73,"../security-exception.js":86,"./policy-manager.js":83,"crypto":11}],85:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -19166,7 +19712,7 @@ var ValidationRequest = function ValidationRequest
 
 exports.ValidationRequest = ValidationRequest;
 
-},{}],83:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -19205,7 +19751,7 @@ SecurityException.prototype.name = "SecurityException";
 
 exports.SecurityException = SecurityException;
 
-},{}],84:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -19280,7 +19826,7 @@ EncryptMode.DEFAULT = 1;
 EncryptMode.CFB_AES = 2;
 // EncryptMode.CBC_AES
 
-},{}],85:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN Data Signature object.
@@ -19487,7 +20033,7 @@ Signature.prototype = new Sha256WithRsaSignature();
 exports.Signature = Signature;
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":41,"./encoding/binary-xml-encoder.js":42,"./key-locator.js":63,"./log.js":65,"./util/blob.js":89,"./util/ndn-protoco-id-tags.js":94,"buffer":5}],86:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./key-locator.js":66,"./log.js":68,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"buffer":5}],89:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -19523,7 +20069,7 @@ exports.Transport = Transport;
 Transport.ConnectionInfo = function TransportConnectionInfo()
 {
 };
-},{}],87:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -19691,7 +20237,7 @@ UnixTransport.prototype.close = function()
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../encoding/element-reader.js":47,"../log.js":65,"./transport.js":86,"buffer":5,"net":1}],88:[function(require,module,exports){
+},{"../encoding/element-reader.js":50,"../log.js":68,"./transport.js":89,"buffer":5,"net":1}],91:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -19715,6 +20261,7 @@ UnixTransport.prototype.close = function()
 var ElementReader = require('../encoding/element-reader.js').ElementReader;
 var LOG = require('../log.js').Log.LOG;
 var Transport = require('./transport.js').Transport;
+var Face;
 
 /**
  * @constructor
@@ -19730,10 +20277,21 @@ var WebSocketTransport = function WebSocketTransport()
   this.ws = null;
   this.connectionInfo = null; // Read by Face.
   this.elementReader = null;
+  this.defaultGetConnectionInfo = Face.makeShuffledHostGetConnectionInfo
+    (["A.ws.ndn.ucla.edu", "B.ws.ndn.ucla.edu", "C.ws.ndn.ucla.edu", "D.ws.ndn.ucla.edu",
+      "E.ws.ndn.ucla.edu", "F.ws.ndn.ucla.edu", "G.ws.ndn.ucla.edu", "H.ws.ndn.ucla.edu",
+      "I.ws.ndn.ucla.edu", "J.ws.ndn.ucla.edu", "K.ws.ndn.ucla.edu", "L.ws.ndn.ucla.edu",
+      "M.ws.ndn.ucla.edu", "N.ws.ndn.ucla.edu"],
+     9696,
+     function(host, port) { return new WebSocketTransport.ConnectionInfo(host, port); });
 };
 
 WebSocketTransport.prototype = new Transport();
 WebSocketTransport.prototype.name = "WebSocketTransport";
+
+WebSocketTransport.importFace = function(face){
+  Face = face;
+};
 
 exports.WebSocketTransport = WebSocketTransport;
 
@@ -19808,12 +20366,13 @@ WebSocketTransport.prototype.connect = function
   var self = this;
   this.ws.onmessage = function(ev) {
     var result = ev.data;
-    //console.log('RecvHandle called.', ev);
+    //console.log('RecvHandle called.');
 
     if (result == null || result == undefined || result == "") {
       console.log('INVALID ANSWER');
     }
     else if (result instanceof ArrayBuffer) {
+      // The Buffer constructor expects an instantiated array.
       var bytearray = new Buffer(new Uint8Array(result));
 
       if (LOG > 3) console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
@@ -19833,7 +20392,7 @@ WebSocketTransport.prototype.connect = function
     if (LOG > 3) console.log('ws.onopen: WebSocket connection opened.');
     if (LOG > 3) console.log('ws.onopen: ReadyState: ' + this.readyState);
     // Face.registerPrefix will fetch the ndndid when needed.
-    elementListener.readyStatus = 2;
+
     onopenCallback();
   }
 
@@ -19877,9 +20436,8 @@ WebSocketTransport.prototype.send = function(data)
     //    ---Wentao
     var bytearray = new Uint8Array(data.length);
     bytearray.set(data);
-
     this.ws.send(bytearray.buffer);
-     //console.log('ws.send() returned.', data, new Uint8Array(data.buffer));
+    if (LOG > 3) console.log('ws.send() returned.');
   }
   else
     console.log('WebSocket connection is not established.');
@@ -19895,7 +20453,7 @@ WebSocketTransport.prototype.close = function()
 }
 
 }).call(this,require("buffer").Buffer)
-},{"../encoding/element-reader.js":47,"../log.js":65,"./transport.js":86,"buffer":5}],89:[function(require,module,exports){
+},{"../encoding/element-reader.js":50,"../log.js":68,"./transport.js":89,"buffer":5}],92:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013 Regents of the University of California.
@@ -20035,7 +20593,7 @@ Blob.prototype.equals = function(other)
   }
 };
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],90:[function(require,module,exports){
+},{"buffer":5}],93:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -20117,7 +20675,7 @@ CommandInterestGenerator.prototype.generate = function
   this.lastTimestamp = timestamp;
 };
 
-},{"../encoding/tlv/tlv-encoder.js":53,"../encoding/wire-format.js":56,"./blob.js":89,"crypto":11}],91:[function(require,module,exports){
+},{"../encoding/tlv/tlv-encoder.js":56,"../encoding/wire-format.js":59,"./blob.js":92,"crypto":11}],94:[function(require,module,exports){
 (function (Buffer){
 /**
  * Encapsulate a Buffer and support dynamic reallocation.
@@ -20246,7 +20804,7 @@ DynamicBuffer.prototype.slice = function(begin, end)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],92:[function(require,module,exports){
+},{"buffer":5}],95:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -20516,7 +21074,7 @@ MemoryContentCache.StaleTimeContent.prototype.isStale = function(nowMilliseconds
   return this.staleTimeMilliseconds <= nowMilliseconds;
 };
 
-},{"../name.js":67}],93:[function(require,module,exports){
+},{"../name.js":70}],96:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -20671,7 +21229,7 @@ NameEnumeration.endsWithSegmentNumber = function(name) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../encoding/binary-xml-decoder.js":41,"../encoding/data-utils.js":45,"../name.js":67,"./ndn-protoco-id-tags.js":94,"buffer":5}],94:[function(require,module,exports){
+},{"../encoding/binary-xml-decoder.js":44,"../encoding/data-utils.js":48,"../name.js":70,"./ndn-protoco-id-tags.js":97,"buffer":5}],97:[function(require,module,exports){
 /**
  * This class contains all NDNx tags
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -20842,7 +21400,7 @@ var NDNProtocolDTagsStrings = [
 
 exports.NDNProtocolDTagsStrings = NDNProtocolDTagsStrings;
 
-},{}],95:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 /**
  * This class represents NDNTime Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -20888,7 +21446,7 @@ NDNTime.prototype.getJavascriptDate = function()
   return d
 };
 
-},{"../log.js":65}],96:[function(require,module,exports){
+},{"../log.js":68}],99:[function(require,module,exports){
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -20998,9 +21556,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
   return this.signedPortionEndOffset;
 };
 
-},{"./blob.js":89}],97:[function(require,module,exports){
+},{"./blob.js":92}],100:[function(require,module,exports){
 (function(){
-
+    
     // Copyright (c) 2005  Tom Wu
     // All Rights Reserved.
     // See "LICENSE" for details.
@@ -22210,9 +22768,6 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
     // JSBN-specific extension
     BigInteger.prototype.square = bnSquare;
 
-    // Expose the Barrett function
-    BigInteger.prototype.Barrett = Barrett
-
     // BigInteger interfaces not implemented in jsbn:
 
     // BigInteger(int signum, byte[] magnitude)
@@ -22226,10 +22781,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
     } else {
         this.BigInteger = BigInteger;
     }
-
+    
 }).call(this);
-
-},{}],98:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
 
@@ -22270,7 +22824,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
          * @const
          * @expose
          */
-        ProtoBuf.VERSION = "3.6.0";
+        ProtoBuf.VERSION = "3.5.2";
 
         /**
          * Wire types.
@@ -23657,9 +24211,9 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 var other;
                 if (other = this.getChild(child.name)) {
                     // Try to revert camelcase transformation on collision
-                    if (other instanceof Message.Field && other.name !== other.originalName && this.getChild(other.originalName) === null)
+                    if (other instanceof Message.Field && other.name !== other.originalName && !this.hasChild(other.originalName))
                         other.name = other.originalName; // Revert previous first (effectively keeps both originals)
-                    else if (child instanceof Message.Field && child.name !== child.originalName && this.getChild(child.originalName) === null)
+                    else if (child instanceof Message.Field && child.name !== child.originalName && !this.hasChild(child.originalName))
                         child.name = child.originalName;
                     else
                         throw Error("Duplicate name in namespace "+this.toString(true)+": "+child.name);
@@ -23668,17 +24222,38 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
             };
 
             /**
-             * Gets a child by its name or id.
+             * Tests if this namespace has a child with the specified name.
+             * @param {string|number} nameOrId Child name or id
+             * @returns {boolean} true if there is one, else false
+             * @expose
+             */
+            Namespace.prototype.hasChild = function(nameOrId) {
+                return this._indexOf(nameOrId) > -1;
+            };
+
+            /**
+             * Gets a child by its name.
              * @param {string|number} nameOrId Child name or id
              * @return {?ProtoBuf.Reflect.T} The child or null if not found
              * @expose
              */
             Namespace.prototype.getChild = function(nameOrId) {
+                var index = this._indexOf(nameOrId);
+                return index > -1 ? this.children[index] : null;
+            };
+
+            /**
+             * Returns child index by its name or id.
+             * @param {string|number} nameOrId Child name or id
+             * @return {Number} The child index
+             * @private
+             */
+            Namespace.prototype._indexOf = function(nameOrId) {
                 var key = typeof nameOrId === 'number' ? 'id' : 'name';
-                for (var i=0, k=this.children.length; i<k; ++i)
-                    if (this.children[i][key] === nameOrId)
-                        return this.children[i];
-                return null;
+                for (var i= 0, k=this.children.length; i<k; ++i)
+                    if (typeof this.children[i][key] !== 'undefined' && this.children[i][key] == nameOrId)
+                        return i;
+                return -1;
             };
 
             /**
@@ -23725,8 +24300,8 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
             Namespace.prototype.build = function() {
                 /** @dict */
                 var ns = {};
-                var children = this.children;
-                for (var i=0, k=children.length, child; i<k; ++i) {
+                var children = this.getChildren(), child;
+                for (var i=0, k=children.length; i<k; ++i) {
                     child = children[i];
                     if (child instanceof Namespace)
                         ns[child.name] = child.build();
@@ -23811,22 +24386,6 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                  * @expose
                  */
                 this.isGroup = !!isGroup;
-
-                // The following cached collections are used to efficiently iterate over or look up fields when decoding.
-
-                /**
-                 * Cached fields.
-                 * @type {?Array.<!ProtoBuf.Reflect.Message.Field>}
-                 * @private
-                 */
-                this._fields = null;
-
-                /**
-                 * Cached fields by id.
-                 * @type {?Object.<number,!ProtoBuf.Reflect.Message.Field>}
-                 * @private
-                 */
-                this._fieldsById = null;
             };
 
             // Extends Namespace
@@ -23860,29 +24419,34 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      */
                     var Message = function(values, var_args) {
                         ProtoBuf.Builder.Message.call(this);
+                        var i, field;
+
+                        if (Object.defineProperty)
+                            Object.defineProperty(this, "$type", {
+                                get: function() { return T; }
+                            });
 
                         // Create fields on the object itself and set default values
-                        for (var i=0, k=fields.length, field; i<k; ++i) {
+                        for (i=0; i<fields.length; ++i) {
                             this[(field = fields[i]).name] = field.repeated ? [] : null;
-                            if (field.required && field.defaultValue !== null)
-                                this[field.name] = field.defaultValue;
+                            if (field.required && typeof field.options['default'] !== 'undefined')
+                                this.$set(field.name, field.options['default']); // Should not throw
                         }
 
-                        if (arguments.length > 0) {
-                            // Set field values from a values object
-                            if (arguments.length === 1 && typeof values === 'object' &&
-                                /* not another Message */ typeof values.encode !== 'function' &&
-                                /* not a repeated field */ !ProtoBuf.Util.isArray(values) &&
-                                /* not a ByteBuffer */ !(values instanceof ByteBuffer) &&
-                                /* not an ArrayBuffer */ !(values instanceof ArrayBuffer) &&
-                                /* not a Long */ !(ProtoBuf.Long && values instanceof ProtoBuf.Long)) {
-                                var keys = Object.keys(values);
-                                for (i=0, k=keys.length; i<k; ++i)
-                                    this.$set(keys[i], values[keys[i]]); // May throw
-                            } else // set field values from arguments, in declaration order
-                                for (i=0, k=arguments.length; i<k; ++i)
+                        // Set field values from a values object
+                        if (arguments.length === 1 && typeof values === 'object' &&
+                            /* not another Message */ typeof values.encode !== 'function' &&
+                            /* not a repeated field */ !ProtoBuf.Util.isArray(values) &&
+                            /* not a ByteBuffer */ !(values instanceof ByteBuffer) &&
+                            /* not an ArrayBuffer */ !(values instanceof ArrayBuffer) &&
+                            /* not a Long */ !(ProtoBuf.Long && values instanceof ProtoBuf.Long)) {
+                            var keys = Object.keys(values);
+                            for (i=0; i<keys.length; i++)
+                                this.$set(keys[i], values[keys[i]]); // May throw
+                        } else // set field values from arguments, in declaration order
+                            for (i=0; i<arguments.length; i++)
+                                if (i<fields.length)
                                     this.$set(fields[i].name, arguments[i]); // May throw
-                        }
                     };
 
                     /**
@@ -23936,29 +24500,17 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @function
                      * @param {string} key Key
                      * @param {*} value Value to set
-                     * @param {boolean=} noAssert Whether to not assert for an actual field / proper value type, defaults to `false`
-                     * @returns {!ProtoBuf.Builder.Message} this
+                     * @param {boolean=} noAssert Whether to assert the value or not (asserts by default)
                      * @throws {Error} If the value cannot be set
                      * @expose
                      */
                     Message.prototype.set = function(key, value, noAssert) {
-                        if (key && typeof key === 'object') {
-                            for (var i in key)
-                                if (key.hasOwnProperty(i))
-                                    this.$set(i, key[i], noAssert);
-                            return this;
-                        }
-                        if (noAssert) {
-                            this[key] = value;
-                            return this;
-                        }
                         var field = T.getChild(key);
                         if (!field)
                             throw Error(this+"#"+key+" is not a field: undefined");
                         if (!(field instanceof ProtoBuf.Reflect.Message.Field))
                             throw Error(this+"#"+key+" is not a field: "+field.toString(true));
-                        this[field.name] = field.verifyValue(value); // May throw
-                        return this;
+                        this[field.name] = noAssert ? value : field.verifyValue(value); // May throw
                     };
 
                     /**
@@ -23978,14 +24530,11 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @name ProtoBuf.Builder.Message#get
                      * @function
                      * @param {string} key Key
-                     * @param {boolean=} noAssert Whether to no assert for an actual field, defaults to `false`
                      * @return {*} Value
                      * @throws {Error} If there is no such field
                      * @expose
                      */
-                    Message.prototype.get = function(key, noAssert) {
-                        if (noAssert)
-                            return this[key];
+                    Message.prototype.get = function(key) {
                         var field = T.getChild(key);
                         if (!field || !(field instanceof ProtoBuf.Reflect.Message.Field))
                             throw Error(this+"#"+key+" is not a field: undefined");
@@ -24035,7 +24584,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                  * @abstract
                                  * @throws {Error} If the value cannot be set
                                  */
-                                if (T.getChild("set"+Name) === null)
+                                if (!T.hasChild("set"+Name))
                                     Message.prototype["set"+Name] = function(value) {
                                         this.$set(field.name, value);
                                     };
@@ -24049,7 +24598,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                  * @abstract
                                  * @throws {Error} If the value cannot be set
                                  */
-                                if (T.getChild("set_"+name) === null)
+                                if (!T.hasChild("set_"+name))
                                     Message.prototype["set_"+name] = function(value) {
                                         this.$set(field.name, value);
                                     };
@@ -24062,7 +24611,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                  * @abstract
                                  * @return {*} The value
                                  */
-                                if (T.getChild("get"+Name) === null)
+                                if (!T.hasChild("get"+Name))
                                     Message.prototype["get"+Name] = function() {
                                         return this.$get(field.name); // Does not throw, field exists
                                     };
@@ -24075,7 +24624,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                  * @return {*} The value
                                  * @abstract
                                  */
-                                if (T.getChild("get_"+name) === null)
+                                if (!T.hasChild("get_"+name))
                                     Message.prototype["get_"+name] = function() {
                                         return this.$get(field.name); // Does not throw, field exists
                                     };
@@ -24090,7 +24639,6 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @name ProtoBuf.Builder.Message#$encode
                      * @function
                      * @param {(!ByteBuffer|boolean)=} buffer ByteBuffer to encode to. Will create a new one and flip it if omitted.
-                     * @param {boolean=} noVerify Whether to not verify field values, defaults to `false`
                      * @return {!ByteBuffer} Encoded message as a ByteBuffer
                      * @throws {Error} If the message cannot be encoded or if required fields are missing. The later still
                      *  returns the encoded ByteBuffer in the `encoded` property on the error.
@@ -24099,17 +24647,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @see ProtoBuf.Builder.Message#encodeHex
                      * @see ProtoBuf.Builder.Message#encodeAB
                      */
-                    Message.prototype.encode = function(buffer, noVerify) {
-                        if (typeof buffer === 'boolean')
-                            noVerify = buffer,
-                            buffer = undefined;
+                    Message.prototype.encode = function(buffer) {
                         var isNew = false;
                         if (!buffer)
                             buffer = new ByteBuffer(),
                             isNew = true;
                         var le = buffer.littleEndian;
                         try {
-                            T.encode(this, buffer.LE(), noVerify);
+                            T.encode(this, buffer.LE());
                             return (isNew ? buffer.flip() : buffer).LE(le);
                         } catch (e) {
                             buffer.LE(le);
@@ -24401,7 +24946,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                         return T.toString();
                     };
 
-                    // Properties
+                    // Static
 
                     /**
                      * Options.
@@ -24409,45 +24954,29 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                      * @type {Object.<string,*>}
                      * @expose
                      */
-                    var $options; // cc
-
-                    /**
-                     * Reflection type.
-                     * @name ProtoBuf.Builder.Message#$type
-                     * @type {!ProtoBuf.Reflect.Message}
-                     * @expose
-                     */
-                    var $type; // cc
+                    var $options; // for cc
 
                     if (Object.defineProperty)
-                        Object.defineProperty(Message, '$options', { "value": T.buildOpt() }),
-                        Object.defineProperty(Message.prototype, "$type", {
-                            get: function() { return T; }
-                        });
+                        Object.defineProperty(Message, '$options', { "value": T.buildOpt() });
 
                     return Message;
 
                 })(ProtoBuf, this);
 
-                // Static enums and prototyped sub-messages / cached collections
-                this._fields = [];
-                this._fieldsById = [];
-                for (var i=0, k=this.children.length, child; i<k; i++) {
-                    child = this.children[i];
+                // Static enums and prototyped sub-messages
+                var children = this.getChildren(),
+                    child;
+                for (var i=0, k=children.length; i<k; i++) {
+                    child = children[i];
                     if (child instanceof Enum)
                         clazz[child['name']] = child.build();
                     else if (child instanceof Message)
                         clazz[child['name']] = child.build();
-                    else if (child instanceof Message.Field)
-                        child.build(),
-                        this._fields.push(child),
-                        this._fieldsById[child.id] = child;
-                    else if (child instanceof Extension) {
+                    else if (child instanceof Message.Field || child instanceof Extension) {
                         // Ignore
                     } else
                         throw Error("Illegal reflect child of "+this.toString(true)+": "+children[i].toString(true));
                 }
-
                 return this.clazz = clazz;
             };
 
@@ -24455,22 +24984,20 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * Encodes a runtime message's contents to the specified buffer.
              * @param {!ProtoBuf.Builder.Message} message Runtime message to encode
              * @param {ByteBuffer} buffer ByteBuffer to write to
-             * @param {boolean=} noVerify Whether to not verify field values, defaults to `false`
              * @return {ByteBuffer} The ByteBuffer for chaining
              * @throws {Error} If required fields are missing or the message cannot be encoded for another reason
              * @expose
              */
-            Message.prototype.encode = function(message, buffer, noVerify) {
-                var fieldMissing = null,
-                    field;
-                for (var i=0, k=this._fields.length, val; i<k; ++i) {
-                    field = this.children[i];
-                    val = message[field.name];
-                    if (field.required && val === null) {
+            Message.prototype.encode = function(message, buffer) {
+                var fields = this.getChildren(Message.Field),
+                    fieldMissing = null;
+                for (var i=0, val; i<fields.length; i++) {
+                    val = message.$get(fields[i].name);
+                    if (fields[i].required && val === null) {
                         if (fieldMissing === null)
-                            fieldMissing = field;
+                            fieldMissing = fields[i];
                     } else
-                        field.encode(noVerify ? val : field.verifyValue(val), buffer);
+                        fields[i].encode(val, buffer);
                 }
                 if (fieldMissing !== null) {
                     var err = Error("Missing at least one required field for "+this.toString(true)+": "+fieldMissing);
@@ -24488,13 +25015,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              * @expose
              */
             Message.prototype.calculate = function(message) {
-                for (var n=0, i=0, k=this._fields.length, field, val; i<k; ++i) {
-                    field = this._fields[i];
-                    val = message[field.name];
-                    if (field.required && val === null)
-                       throw Error("Missing at least one required field for "+this.toString(true)+": "+field);
+                var fields = this.getChildren(Message.Field),
+                    n = 0;
+                for (var i=0, val; i<fields.length; i++) {
+                    val = message.$get(fields[i].name);
+                    if (fields[i].required && val === null)
+                       throw Error("Missing at least one required field for "+this.toString(true)+": "+fields[i]);
                     else
-                        n += field.calculate(val);
+                        n += fields[i].calculate(val);
                 }
                 return n;
             };
@@ -24551,10 +25079,10 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              */
             Message.prototype.decode = function(buffer, length, expectedGroupEndId) {
                 length = typeof length === 'number' ? length : -1;
-                var start = buffer.offset,
-                    msg = new (this.clazz)(),
-                    tag, wireType, id, field;
-                while (buffer.offset < start+length || (length === -1 && buffer.remaining() > 0)) {
+                var start = buffer.offset;
+                var msg = new (this.clazz)();
+                var tag, wireType, id;
+                while (buffer.offset < start+length || (length == -1 && buffer.remaining() > 0)) {
                     tag = buffer.readVarint32();
                     wireType = tag & 0x07;
                     id = tag >> 3;
@@ -24563,7 +25091,8 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                             throw Error("Illegal group end indicator for "+this.toString(true)+": "+id+" ("+(expectedGroupEndId ? expectedGroupEndId+" expected" : "not a group")+")");
                         break;
                     }
-                    if (!(field = this._fieldsById[id])) {
+                    var field = this.getChild(id); // Message.Field only
+                    if (!field) {
                         // "messages created by your new code can be parsed by your old code: old binaries simply ignore the new field when parsing."
                         switch (wireType) {
                             case ProtoBuf.WIRE_TYPES.VARINT:
@@ -24588,21 +25117,27 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                         continue;
                     }
                     if (field.repeated && !field.options["packed"])
-                        msg[field.name].push(field.decode(wireType, buffer));
+                        msg.$add(field.name, field.decode(wireType, buffer), true);
                     else
-                        msg[field.name] = field.decode(wireType, buffer);
+                        msg.$set(field.name, field.decode(wireType, buffer), true);
                 }
 
                 // Check if all required fields are present and set default values for optional fields that are not
-                for (var i=0, k=this._fields.length; i<k; ++i) {
-                    field = this._fields[i];
+                var fields = this.getChildren(ProtoBuf.Reflect.Field);
+                for (var i=0; i<fields.length; i++) {
+                    field = fields[i];
                     if (msg[field.name] === null)
                         if (field.required) {
                             var err = Error("Missing at least one required field for "+this.toString(true)+": "+field.name);
                             err["decoded"] = msg; // Still expose what we got
                             throw(err);
-                        } else if (field.defaultValue !== null)
-                            msg[field.name] = field.defaultValue;
+                        } else if (typeof field.options['default'] !== 'undefined') {
+                            try {
+                                msg.$set(field.name, field.options['default']); // Should not throw
+                            } catch (e) {
+                                throw Error("[INTERNAL] "+e);
+                            }
+                        }
                 }
                 return msg;
             };
@@ -24677,13 +25212,6 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                 this.options = options || {};
 
                 /**
-                 * Default value.
-                 * @type {*}
-                 * @expose
-                 */
-                this.defaultValue = null;
-
-                /**
                  * Original field name.
                  * @type {string}
                  * @expose
@@ -24696,20 +25224,17 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                         return $1.toUpperCase();
                     });
                 }
+
+                /**
+                 * Scope used to resolve the type.
+                 * @type {!ProtoBuf.Reflect.Message}
+                 * @expose
+                 */
+                this.scope = message;
             };
 
             // Extends T
             Field.prototype = Object.create(T.prototype);
-
-            /**
-             * Builds the field.
-             * @override
-             * @expose
-             */
-            Field.prototype.build = function() {
-                this.defaultValue = typeof this.options['default'] !== 'undefined'
-                    ? this.verifyValue(this.options['default']) : null;
-            };
 
             /**
              * Makes a Long from a value.
@@ -24869,13 +25394,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
             /**
              * Encodes the specified field value to the specified buffer.
-             * @param {*} value Verified field value
+             * @param {*} value Field value
              * @param {ByteBuffer} buffer ByteBuffer to encode to
              * @return {ByteBuffer} The ByteBuffer for chaining
              * @throws {Error} If the field cannot be encoded
              * @expose
              */
             Field.prototype.encode = function(value, buffer) {
+                value = this.verifyValue(value); // May throw
                 if (this.type === null || typeof this.type !== 'object')
                     throw Error("[INTERNAL] Unresolved type in "+this.toString(true)+": "+this.type);
                 if (value === null || (this.repeated && value.length == 0))
@@ -24894,8 +25420,8 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                             var start = buffer.offset; // Remember where the contents begin
                             for (i=0; i<value.length; i++)
                                 this.encodeValue(value[i], buffer);
-                            var len = buffer.offset-start,
-                                varintLen = ByteBuffer.calculateVarint32(len);
+                            var len = buffer.offset-start;
+                            var varintLen = ByteBuffer.calculateVarint32(len);
                             if (varintLen > 1) { // We need to move the contents
                                 var contents = buffer.slice(start, buffer.offset);
                                 start += varintLen-1;
@@ -25265,13 +25791,6 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
              */
             var ExtensionField = function(message, rule, type, name, id, options) {
                 Field.call(this, message, rule, type, name, id, options);
-
-                /**
-                 * Extension reference.
-                 * @type {!ProtoBuf.Reflect.Extension}
-                 * @expose
-                 */
-                this.extension;
             };
 
             // Extends Field
@@ -25723,7 +26242,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                     if (!Lang.NAME.test(part[i]))
                         throw Error("Illegal package: "+part[i]);
                 for (i=0; i<part.length; i++) {
-                    if (this.ptr.getChild(part[i]) === null) // Keep existing namespace
+                    if (!this.ptr.hasChild(part[i])) // Keep existing namespace
                         this.ptr.addChild(new Reflect.Namespace(this.ptr, part[i], options));
                     this.ptr = this.ptr.getChild(part[i]);
                 }
@@ -25859,7 +26378,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                 // Create fields
                                 if (def["fields"] && def["fields"].length > 0) {
                                     for (i=0; i<def["fields"].length; i++) { // i=Fields
-                                        if (obj.getChild(def['fields'][i]['id']) !== null)
+                                        if (obj.hasChild(def['fields'][i]['id']))
                                             throw Error("Duplicate field id in message "+obj.name+": "+def['fields'][i]['id']);
                                         if (def["fields"][i]["options"]) {
                                             subObj = Object.keys(def["fields"][i]["options"]);
@@ -25918,15 +26437,16 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                                 obj = this.ptr.resolve(def["ref"]);
                                 if (obj) {
                                     for (i=0; i<def["fields"].length; i++) { // i=Fields
-                                        if (obj.getChild(def['fields'][i]['id']) !== null)
+                                        if (obj.hasChild(def['fields'][i]['id']))
                                             throw Error("Duplicate extended field id in message "+obj.name+": "+def['fields'][i]['id']);
                                         if (def['fields'][i]['id'] < obj.extensions[0] || def['fields'][i]['id'] > obj.extensions[1])
                                             throw Error("Illegal extended field id in message "+obj.name+": "+def['fields'][i]['id']+" ("+obj.extensions.join(' to ')+" expected)");
-                                        // see #161: Extensions use their fully qualified name as their runtime key and...
+                                        // see #161: Extensions use their fully qualified name as their runtime key, ...
                                         var fld = new Reflect.Message.ExtensionField(obj, def["fields"][i]["rule"], def["fields"][i]["type"], this.ptr.fqn()+'.'+def["fields"][i]["name"], def["fields"][i]["id"], def["fields"][i]["options"]);
-                                        // ...are added on top of the current namespace as an extension which is used for resolving their type later on
+                                        // ...are added on top of the current namespace as an extension and...
                                         var ext = new Reflect.Extension(this.ptr, def["fields"][i]["name"], fld);
-                                        fld.extension = ext;
+                                        // ...use the current namespace to resolve types.
+                                        fld.scope = this.ptr;
                                         this.ptr.addChild(ext);
                                         obj.addChild(fld);
                                     }
@@ -26096,15 +26616,14 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
                     return; // Done (already resolved)
                 if (this.ptr instanceof Reflect.Namespace) {
                     // Build all children
-                    var children = this.ptr.children;
-                    for (var i= 0, k=children.length; i<k; ++i)
-                        this.ptr = children[i],
-                        this.resolveAll();
+                    var children = this.ptr.getChildren();
+                    for (var i=0; i<children.length; i++)
+                        this.ptr = children[i], this.resolveAll();
                 } else if (this.ptr instanceof Reflect.Message.Field) {
                     if (!Lang.TYPE.test(this.ptr.type)) { // Resolve type...
                         if (!Lang.TYPEREF.test(this.ptr.type))
                             throw Error("Illegal type reference in "+this.ptr.toString(true)+": "+this.ptr.type);
-                        res = (this.ptr instanceof Reflect.Message.ExtensionField ? this.ptr.extension.parent : this.ptr.parent).resolve(this.ptr.type, true);
+                        res = this.ptr.scope.resolve(this.ptr.type, true); // this.ptr.parent
                         if (!res)
                             throw Error("Unresolvable type reference in "+this.ptr.toString(true)+": "+this.ptr.type);
                         this.ptr.resolvedType = res;
@@ -26362,97 +26881,96 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
 })(this);
 
-},{"bytebuffer":99,"fs":1,"path":22}],99:[function(require,module,exports){
+},{"bytebuffer":102,"fs":1,"path":22}],102:[function(require,module,exports){
 /*
  ByteBuffer.js (c) 2013-2014 Daniel Wirtz <dcode@dcode.io>
  This version of ByteBuffer.js uses an ArrayBuffer (AB) as its backing buffer and is compatible with modern browsers.
  Released under the Apache License, Version 2.0
  see: https://github.com/dcodeIO/ByteBuffer.js for details
 */
-(function(r){function t(k){function d(a,b,c){"undefined"===typeof a&&(a=d.DEFAULT_CAPACITY);"undefined"===typeof b&&(b=d.DEFAULT_ENDIAN);"undefined"===typeof c&&(c=d.DEFAULT_NOASSERT);if(!c){a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);if("boolean"!==typeof b)throw new TypeError("Illegal littleEndian: Not a boolean");if("boolean"!==typeof c)throw new TypeError("Illegal noAssert: Not a boolean");}this.buffer=0===a?r:new ArrayBuffer(a);this.view=0===a?null:new DataView(this.buffer);
-this.offset=0;this.markedOffset=-1;this.limit=a;this.littleEndian="undefined"!==typeof b?!!b:!1;this.noAssert=!!c}function m(a){var b=0;return function(){return b<a.length?a.charCodeAt(b++):null}}function s(){var a=[],b=[];return function(){if(0===arguments.length)return b.join("")+t.apply(String,a);1024<a.length+arguments.length&&(b.push(t.apply(String,a)),a.length=0);Array.prototype.push.apply(a,arguments)}}d.VERSION="3.3.0";d.LITTLE_ENDIAN=!0;d.BIG_ENDIAN=!1;d.DEFAULT_CAPACITY=16;d.DEFAULT_ENDIAN=
-d.BIG_ENDIAN;d.DEFAULT_NOASSERT=!1;d.Long=k||null;var r=new ArrayBuffer(0),t=String.fromCharCode;d.allocate=function(a,b,c){return new d(a,b,c)};d.concat=function(a,b,c,e){if("boolean"===typeof b||"string"!==typeof b)e=c,c=b,b=void 0;for(var h=0,f=0,g=a.length,n;f<g;++f)d.isByteBuffer(a[f])||(a[f]=d.wrap(a[f],b)),n=a[f].limit-a[f].offset,0<n&&(h+=n);if(0===h)return new d(0,c,e);b=new d(h,c,e);e=new Uint8Array(b.buffer);for(f=0;f<g;)c=a[f++],n=c.limit-c.offset,0>=n||(e.set((new Uint8Array(c.buffer)).subarray(c.offset,
-c.limit),b.offset),b.offset+=n);b.limit=b.offset;b.offset=0;return b};d.isByteBuffer=function(a){return a&&a instanceof d};d.type=function(){return ArrayBuffer};d.wrap=function(a,b,c,e){"string"!==typeof b&&(e=c,c=b,b=void 0);if("string"===typeof a)switch("undefined"===typeof b&&(b="utf8"),b){case "base64":return d.fromBase64(a,c);case "hex":return d.fromHex(a,c);case "binary":return d.fromBinary(a,c);case "utf8":return d.fromUTF8(a,c);case "debug":return d.fromDebug(a,c);default:throw new TypeError("Unsupported encoding: "+
-b);}if(null===a||"object"!==typeof a)throw new TypeError("Illegal buffer: null or non-object");if(d.isByteBuffer(a))return b=d.prototype.clone.call(a),b.markedOffset=-1,b;if(a instanceof Uint8Array)b=new d(0,c,e),0<a.length&&(b.buffer=a.buffer,b.offset=a.byteOffset,b.limit=a.byteOffset+a.length,b.view=0<a.length?new DataView(a.buffer):null);else if(a instanceof ArrayBuffer)b=new d(0,c,e),0<a.byteLength&&(b.buffer=a,b.offset=0,b.limit=a.byteLength,b.view=0<a.byteLength?new DataView(a):null);else if("[object Array]"===
-Object.prototype.toString.call(a))for(b=new d(a.length,c,e),b.limit=a.length,i=0;i<a.length;++i)b.view.setUint8(i,a[i]);else throw new TypeError("Illegal buffer");return b};d.prototype.writeInt8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
-b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt8(b-1,a);c&&(this.offset+=1);return this};d.prototype.writeByte=d.prototype.writeInt8;d.prototype.readInt8=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+
-this.buffer.byteLength);}a=this.view.getInt8(a);b&&(this.offset+=1);return a};d.prototype.readByte=d.prototype.readInt8;d.prototype.writeUint8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
-b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint8(b-1,a);c&&(this.offset+=1);return this};d.prototype.readUint8=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}a=this.view.getUint8(a);
-b&&(this.offset+=1);return a};d.prototype.writeInt16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;b>e&&this.resize((e*=
-2)>b?e:b);this.view.setInt16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.writeShort=d.prototype.writeInt16;d.prototype.readInt16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getInt16(a,this.littleEndian);b&&(this.offset+=
-2);return a};d.prototype.readShort=d.prototype.readInt16;d.prototype.writeUint16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;
-b>e&&this.resize((e*=2)>b?e:b);this.view.setUint16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.readUint16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getUint16(a,this.littleEndian);b&&(this.offset+=2);return a};
-d.prototype.writeInt32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt32(b-
-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.writeInt=d.prototype.writeInt32;d.prototype.readInt32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getInt32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readInt=
-d.prototype.readInt32;d.prototype.writeUint32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=
-2)>b?e:b);this.view.setUint32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.readUint32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getUint32(a,this.littleEndian);b&&(this.offset+=4);return a};k&&(d.prototype.writeInt64=
-function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=k.fromNumber(a);else if(!(a&&a instanceof k))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=k.fromNumber(a));b+=8;var e=this.buffer.byteLength;
-b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},d.prototype.writeLong=d.prototype.writeInt64,d.prototype.readInt64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
-a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new k(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!1):new k(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!1);b&&(this.offset+=8);return a},d.prototype.readLong=d.prototype.readInt64,d.prototype.writeUint64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=k.fromNumber(a);else if(!(a&&a instanceof k))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==
-typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=k.fromNumber(a));b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},
-d.prototype.readUint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new k(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!0):new k(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!0);b&&(this.offset+=8);return a});d.prototype.writeFloat32=
-function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat32(b-4,a,this.littleEndian);c&&(this.offset+=
-4);return this};d.prototype.writeFloat=d.prototype.writeFloat32;d.prototype.readFloat32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getFloat32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readFloat=d.prototype.readFloat32;
-d.prototype.writeFloat64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat64(b-8,a,this.littleEndian);
-c&&(this.offset+=8);return this};d.prototype.writeDouble=d.prototype.writeFloat64;d.prototype.readFloat64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.view.getFloat64(a,this.littleEndian);b&&(this.offset+=8);return a};d.prototype.readDouble=
-d.prototype.readFloat64;d.MAX_VARINT32_BYTES=5;d.calculateVarint32=function(a){a>>>=0;return 128>a?1:16384>a?2:2097152>a?3:268435456>a?4:5};d.zigZagEncode32=function(a){return((a|=0)<<1^a>>31)>>>0};d.zigZagDecode32=function(a){return a>>>1^-(a&1)|0};d.prototype.writeVarint32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=d.calculateVarint32(a);b+=e;var h=this.buffer.byteLength;b>h&&this.resize((h*=2)>b?h:b);b-=e;this.view.setUint8(b,e=a|128);a>>>=0;128<=a?(e=a>>7|128,this.view.setUint8(b+1,e),16384<=a?(e=a>>14|128,this.view.setUint8(b+2,e),2097152<=a?(e=a>>21|128,this.view.setUint8(b+3,e),268435456<=a?(this.view.setUint8(b+4,a>>28&15),e=5):(this.view.setUint8(b+
-3,e&127),e=4)):(this.view.setUint8(b+2,e&127),e=3)):(this.view.setUint8(b+1,e&127),e=2)):(this.view.setUint8(b,e&127),e=1);return c?(this.offset+=e,this):e};d.prototype.writeVarint32ZigZag=function(a,b){return this.writeVarint32(d.zigZagEncode32(a),b)};d.prototype.readVarint32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
-a+" (+1) <= "+this.buffer.byteLength);}var c=0,e=0,d;do d=this.view.getUint8(a+c),5>c&&(e|=(d&127)<<7*c>>>0),++c;while(128===(d&128));e|=0;return b?(this.offset+=c,e):{value:e,length:c}};d.prototype.readVarint32ZigZag=function(a){a=this.readVarint32(a);"object"===typeof a?a.value=d.zigZagDecode32(a.value):a=d.zigZagDecode32(a);return a};k&&(d.MAX_VARINT64_BYTES=10,d.calculateVarint64=function(a){"number"===typeof a&&(a=k.fromNumber(a));var b=a.toInt()>>>0,c=a.shiftRightUnsigned(28).toInt()>>>0;a=
-a.shiftRightUnsigned(56).toInt()>>>0;return 0==a?0==c?16384>b?128>b?1:2:2097152>b?3:4:16384>c?128>c?5:6:2097152>c?7:8:128>a?9:10},d.zigZagEncode64=function(a){"number"===typeof a?a=k.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftLeft(1).xor(a.shiftRight(63)).toUnsigned()},d.zigZagDecode64=function(a){"number"===typeof a?a=k.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftRightUnsigned(1).xor(a.and(k.ONE).toSigned().negate()).toSigned()},d.prototype.writeVarint64=
-function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=k.fromNumber(a);else if(!(a&&a instanceof k))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a?a=k.fromNumber(a,!1):!1!==a.unsigned&&(a=
-a.toSigned());var e=d.calculateVarint64(a),h=a.toInt()>>>0,f=a.shiftRightUnsigned(28).toInt()>>>0,g=a.shiftRightUnsigned(56).toInt()>>>0;b+=e;var n=this.buffer.byteLength;b>n&&this.resize((n*=2)>b?n:b);b-=e;switch(e){case 10:this.view.setUint8(b+9,g>>>7&1);case 9:this.view.setUint8(b+8,9!==e?g|128:g&127);case 8:this.view.setUint8(b+7,8!==e?f>>>21|128:f>>>21&127);case 7:this.view.setUint8(b+6,7!==e?f>>>14|128:f>>>14&127);case 6:this.view.setUint8(b+5,6!==e?f>>>7|128:f>>>7&127);case 5:this.view.setUint8(b+
-4,5!==e?f|128:f&127);case 4:this.view.setUint8(b+3,4!==e?h>>>21|128:h>>>21&127);case 3:this.view.setUint8(b+2,3!==e?h>>>14|128:h>>>14&127);case 2:this.view.setUint8(b+1,2!==e?h>>>7|128:h>>>7&127);case 1:this.view.setUint8(b,1!==e?h|128:h&127)}return c?(this.offset+=e,this):e},d.prototype.writeVarint64ZigZag=function(a,b){return this.writeVarint64(d.zigZagEncode64(a),b)},d.prototype.readVarint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||
-0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=a,e=0,d=0,f=0,g=0,g=this.view.getUint8(a++),e=g&127;if(g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<7,g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),d=g&127,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<7,g&128&&(g=
-this.view.getUint8(a++),d|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),f=g&127,g&128&&(g=this.view.getUint8(a++),f|=(g&127)<<7,g&128))))))))))throw Error("Data must be corrupt: Buffer overrun");e=k.fromBits(e|d<<28,d>>>4|f<<24,!1);return b?(this.offset=a,e):{value:e,length:a-c}},d.prototype.readVarint64ZigZag=function(a){(a=this.readVarint64(a))&&a.value instanceof k?a.value=d.zigZagDecode64(a.value):a=d.zigZagDecode64(a);return a});d.prototype.writeCString=
-function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);var e,d=a.length;if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(e=0;e<d;++e)if(0===a.charCodeAt(e))throw new RangeError("Illegal str: Contains NULL-characters");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}e=b;d=l.a(m(a))[1];
-b+=d+1;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=d+1;l.c(m(a),function(a){this.view.setUint8(b++,a)}.bind(this));this.view.setUint8(b++,0);return c?(this.offset=b-e,this):d};d.prototype.readCString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);
-}var c=a,e,d=-1;l.b(function(){if(0===d)return null;if(a>=this.limit)throw RangeError("Illegal range: Truncated data, "+a+" < "+this.limit);return 0===(d=this.view.getUint8(a++))?null:d}.bind(this),e=s(),!0);return b?(this.offset=a,e()):{string:e(),length:a-c}};d.prototype.writeIString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
-b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,d;d=l.a(m(a),this.noAssert)[1];b+=4+d;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=4+d;this.view.setUint32(b,d,this.littleEndian);b+=4;l.c(m(a),function(a){this.view.setUint8(b++,a)}.bind(this));if(b!==e+4+d)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+4+d));return c?(this.offset=b,this):b-e};d.prototype.readIString=
-function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}var c=0,e=a,c=this.view.getUint32(a,this.littleEndian);a+=4;var d=a+c;l.b(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c=s(),this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-
-e}};d.METRICS_CHARS="c";d.METRICS_BYTES="b";d.prototype.writeUTF8String=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e,d=b;e=l.a(m(a))[1];b+=e;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=e;l.c(m(a),function(a){this.view.setUint8(b++,
-a)}.bind(this));return c?(this.offset=b,this):b-d};d.prototype.writeString=d.prototype.writeUTF8String;d.calculateUTF8Chars=function(a){return l.a(m(a))[0]};d.calculateUTF8Bytes=function(a){return l.a(m(a))[1]};d.prototype.readUTF8String=function(a,b,c){"number"===typeof b&&(c=b,b=void 0);var e="undefined"===typeof c;e&&(c=this.offset);"undefined"===typeof b&&(b=d.METRICS_CHARS);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");a|=0;if("number"!==
-typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}var h=0,f=c,g;if(b===d.METRICS_CHARS){g=s();l.g(function(){return h<a&&c<this.limit?this.view.getUint8(c++):null}.bind(this),function(a){++h;l.e(a,g)}.bind(this));if(h!==a)throw new RangeError("Illegal range: Truncated data, "+h+" == "+a);return e?(this.offset=c,g()):{string:g(),length:c-f}}if(b===
-d.METRICS_BYTES){if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+a>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+"+a+") <= "+this.buffer.byteLength);}var n=c+a;l.b(function(){return c<n?this.view.getUint8(c++):null}.bind(this),g=s(),this.noAssert);if(c!==n)throw new RangeError("Illegal range: Truncated data, "+c+" == "+n);return e?(this.offset=c,g()):{string:g(),length:c-f}}throw new TypeError("Unsupported metrics: "+
-b);};d.prototype.readString=d.prototype.readUTF8String;d.prototype.writeVString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,h,f;h=l.a(m(a),this.noAssert)[1];f=d.calculateVarint32(h);
-b+=f+h;var g=this.buffer.byteLength;b>g&&this.resize((g*=2)>b?g:b);b-=f+h;b+=this.writeVarint32(h,b);l.c(m(a),function(a){this.view.setUint8(b++,a)}.bind(this));if(b!==e+h+f)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+h+f));return c?(this.offset=b,this):b-e};d.prototype.readVString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
-a+" (+1) <= "+this.buffer.byteLength);}var c=this.readVarint32(a),e=a;a+=c.length;var c=c.value,d=a+c,c=s();l.b(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c,this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-e}};d.prototype.append=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");
-c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;c+=b;var h=this.buffer.byteLength;c>h&&this.resize((h*=2)>c?h:c);(new Uint8Array(this.buffer,c-b)).set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit));a.offset+=b;e&&(this.offset+=b);return this};d.prototype.appendTo=function(a,b){a.append(this,b);return this};d.prototype.assert=function(a){this.noAssert=
-!a;return this};d.prototype.capacity=function(){return this.buffer.byteLength};d.prototype.clear=function(){this.offset=0;this.limit=this.buffer.byteLength;this.markedOffset=-1;return this};d.prototype.clone=function(a){var b=new d(0,this.littleEndian,this.noAssert);a?(a=new ArrayBuffer(this.buffer.byteLength),(new Uint8Array(a)).set(this.buffer),b.buffer=a,b.view=new DataView(a)):(b.buffer=this.buffer,b.view=this.view);b.offset=this.offset;b.markedOffset=this.markedOffset;b.limit=this.limit;return b};
-d.prototype.compact=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(0===a&&b===this.buffer.byteLength)return this;var c=b-a;if(0===
-c)return this.buffer=r,this.view=null,0<=this.markedOffset&&(this.markedOffset-=a),this.limit=this.offset=0,this;var e=new ArrayBuffer(c);(new Uint8Array(e)).set((new Uint8Array(this.buffer)).subarray(a,b));this.buffer=e;this.view=new DataView(e);0<=this.markedOffset&&(this.markedOffset-=a);this.offset=0;this.limit=c;return this};d.prototype.copy=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");
-a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return new d(0,this.littleEndian,this.noAssert);var c=b-a,e=new d(c,this.littleEndian,this.noAssert);e.offset=0;e.limit=c;0<=e.markedOffset&&(e.markedOffset-=a);this.copyTo(e,0,a,b);return e};d.prototype.copyTo=function(a,b,c,e){var h,f;if(!this.noAssert&&!d.isByteBuffer(a))throw new TypeError("Illegal target: Not a ByteBuffer");
-b=(f="undefined"===typeof b)?a.offset:b|0;c=(h="undefined"===typeof c)?this.offset:c|0;e="undefined"===typeof e?this.limit:e|0;if(0>b||b>a.buffer.byteLength)throw new RangeError("Illegal target range: 0 <= "+b+" <= "+a.buffer.byteLength);if(0>c||e>this.buffer.byteLength)throw new RangeError("Illegal source range: 0 <= "+c+" <= "+this.buffer.byteLength);var g=e-c;if(0===g)return a;a.ensureCapacity(b+g);(new Uint8Array(a.buffer)).set((new Uint8Array(this.buffer)).subarray(c,e),b);h&&(this.offset+=g);
-f&&(a.offset+=g);return this};d.prototype.ensureCapacity=function(a){var b=this.buffer.byteLength;return b<a?this.resize((b*=2)>a?b:a):this};d.prototype.fill=function(a,b,c){var e="undefined"===typeof b;e&&(b=this.offset);"string"===typeof a&&0<a.length&&(a=a.charCodeAt(0));"undefined"===typeof b&&(b=this.offset);"undefined"===typeof c&&(c=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%
-1)throw new TypeError("Illegal begin: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal end: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+b+" <= "+c+" <= "+this.buffer.byteLength);}if(b>=c)return this;for(;b<c;)this.view.setUint8(b++,a);e&&(this.offset=b);return this};d.prototype.flip=function(){this.limit=this.offset;this.offset=0;return this};d.prototype.mark=function(a){a="undefined"===typeof a?this.offset:
-a;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+0) <= "+this.buffer.byteLength);}this.markedOffset=a;return this};d.prototype.order=function(a){if(!this.noAssert&&"boolean"!==typeof a)throw new TypeError("Illegal littleEndian: Not a boolean");this.littleEndian=!!a;return this};d.prototype.LE=function(a){this.littleEndian="undefined"!==typeof a?
-!!a:!0;return this};d.prototype.BE=function(a){this.littleEndian="undefined"!==typeof a?!a:!1;return this};d.prototype.prepend=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||
-(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;var h=b-c,f;if(0<h){var g=new ArrayBuffer(this.buffer.byteLength+h);f=new Uint8Array(g);f.set((new Uint8Array(this.buffer)).subarray(c,this.buffer.byteLength),b);this.buffer=g;this.view=new DataView(g);this.offset+=h;0<=this.markedOffset&&(this.markedOffset+=h);this.limit+=h;c+=h}else f=new Uint8Array(this.buffer);f.set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit),c-b);a.offset=a.limit;e&&(this.offset-=b);return this};d.prototype.prependTo=
-function(a,b){a.prepend(this,b);return this};d.prototype.printDebug=function(a){"function"!==typeof a&&(a=console.log.bind(console));a(this.toString()+"\n-------------------------------------------------------------------\n"+this.toDebug(!0))};d.prototype.remaining=function(){return this.limit-this.offset};d.prototype.reset=function(){0<=this.markedOffset?(this.offset=this.markedOffset,this.markedOffset=-1):this.offset=0;return this};d.prototype.resize=function(a){if(!this.noAssert){if("number"!==
-typeof a||0!==a%1)throw new TypeError("Illegal capacity: "+a+" (not an integer)");a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);}this.buffer.byteLength<a&&(a=new ArrayBuffer(a),(new Uint8Array(a)).set(new Uint8Array(this.buffer)),this.buffer=a,this.view=new DataView(a));return this};d.prototype.reverse=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");
-a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return this;Array.prototype.reverse.call((new Uint8Array(this.buffer)).subarray(a,b));this.view=new DataView(this.buffer);return this};d.prototype.skip=function(a){if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");
-a|=0}var b=this.offset+a;if(!this.noAssert&&(0>b||b>this.buffer.byteLength))throw new RangeError("Illegal length: 0 <= "+this.offset+" + "+a+" <= "+this.buffer.byteLength);this.offset=b;return this};d.prototype.slice=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");
-b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c=this.clone();c.offset=a;c.limit=b;return c};d.prototype.toBuffer=function(a){var b=this.offset,c=this.limit;if(b>c)var e=b,b=c,c=e;if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal limit: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
-b+" <= "+c+" <= "+this.buffer.byteLength);}if(!a&&0===b&&c===this.buffer.byteLength)return this.buffer;if(b===c)return r;a=new ArrayBuffer(c-b);(new Uint8Array(a)).set((new Uint8Array(this.buffer)).subarray(b,c),0);return a};d.prototype.toArrayBuffer=d.prototype.toBuffer;d.prototype.toString=function(a){if("undefined"===typeof a)return"ByteBufferAB(offset="+this.offset+",markedOffset="+this.markedOffset+",limit="+this.limit+",capacity="+this.capacity()+")";switch(a){case "utf8":return this.toUTF8();
-case "base64":return this.toBase64();case "hex":return this.toHex();case "binary":return this.toBinary();case "debug":return this.toDebug();case "columns":return this.m();default:throw Error("Unsupported encoding: "+a);}};var u=function(){for(var a={},b=[65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,43,47],c=[],e=0,d=b.length;e<d;++e)c[b[e]]=
-e;a.i=function(a,c){for(var e,d;null!==(e=a());)c(b[e>>2&63]),d=(e&3)<<4,null!==(e=a())?(d|=e>>4&15,c(b[(d|e>>4&15)&63]),d=(e&15)<<2,null!==(e=a())?(c(b[(d|e>>6&3)&63]),c(b[e&63])):(c(b[d&63]),c(61))):(c(b[d&63]),c(61),c(61))};a.h=function(a,b){function e(a){throw Error("Illegal character code: "+a);}for(var d,h,k;null!==(d=a());)if(h=c[d],"undefined"===typeof h&&e(d),null!==(d=a())&&(k=c[d],"undefined"===typeof k&&e(d),b(h<<2>>>0|(k&48)>>4),null!==(d=a()))){h=c[d];if("undefined"===typeof h)if(61===
-d)break;else e(d);b((k&15)<<4>>>0|(h&60)>>2);if(null!==(d=a())){k=c[d];if("undefined"===typeof k)if(61===d)break;else e(d);b((h&3)<<6>>>0|k)}}};a.test=function(a){return/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(a)};return a}();d.prototype.toBase64=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||
-0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c;u.i(function(){return a<b?this.view.getUint8(a++):null}.bind(this),c=s());return c()};d.fromBase64=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%4)throw new TypeError("Illegal str: Length not a multiple of 4");}var e=new d(a.length/4*3,b,c),
-h=0;u.h(m(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};d.btoa=function(a){return d.fromBinary(a).toBase64()};d.atob=function(a){return d.fromBase64(a).toBinary()};d.prototype.toBinary=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>
-b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return"";for(var c=[];a<b;)c.push(this.view.getUint8(a++));return String.fromCharCode.apply(String,c)};d.fromBinary=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(var e=0,h=a.length,f=new d(h,b,c);e<h;){b=a.charCodeAt(e);if(!c&&255<b)throw new TypeError("Illegal charCode at "+e+": 0 <= "+b+" <= 255");f.view.setUint8(e++,b)}f.limit=
-h;return f};d.prototype.toDebug=function(a){for(var b=-1,c=this.buffer.byteLength,e,d="",f="",g="";b<c;){-1!==b&&(e=this.view.getUint8(b),d=16>e?d+("0"+e.toString(16).toUpperCase()):d+e.toString(16).toUpperCase(),a&&(f+=32<e&&127>e?String.fromCharCode(e):"."));++b;if(a&&0<b&&0===b%16&&b!==c){for(;51>d.length;)d+=" ";g+=d+f+"\n";d=f=""}d=b===this.offset&&b===this.limit?d+(b===this.markedOffset?"!":"|"):b===this.offset?d+(b===this.markedOffset?"[":"<"):b===this.limit?d+(b===this.markedOffset?"]":">"):
-d+(b===this.markedOffset?"'":a||0!==b&&b!==c?" ":"")}if(a&&" "!==d){for(;51>d.length;)d+=" ";g+=d+f+"\n"}return a?g:d};d.fromDebug=function(a,b,c){var e=a.length;b=new d((e+1)/3|0,b,c);for(var h=0,f=0,g,k=!1,l=!1,m=!1,q=!1,p=!1;h<e;){switch(g=a.charAt(h++)){case "!":if(!c){if(l||m||q){p=!0;break}l=m=q=!0}b.offset=b.markedOffset=b.limit=f;k=!1;break;case "|":if(!c){if(l||q){p=!0;break}l=q=!0}b.offset=b.limit=f;k=!1;break;case "[":if(!c){if(l||m){p=!0;break}l=m=!0}b.offset=b.markedOffset=f;k=!1;break;
-case "<":if(!c){if(l){p=!0;break}l=!0}b.offset=f;k=!1;break;case "]":if(!c){if(q||m){p=!0;break}q=m=!0}b.limit=b.markedOffset=f;k=!1;break;case ">":if(!c){if(q){p=!0;break}q=!0}b.limit=f;k=!1;break;case "'":if(!c){if(m){p=!0;break}m=!0}b.markedOffset=f;k=!1;break;case " ":k=!1;break;default:if(!c&&k){p=!0;break}g=parseInt(g+a.charAt(h++),16);if(!c&&(isNaN(g)||0>g||255<g))throw new TypeError("Illegal str: Not a debug encoded string");b.view.setUint8(f++,g);k=!0}if(p)throw new TypeError("Illegal str: Invalid symbol at "+
-h);}if(!c){if(!l||!q)throw new TypeError("Illegal str: Missing offset or limit");if(f<b.buffer.byteLength)throw new TypeError("Illegal str: Not a debug encoded string (is it hex?) "+f+" < "+e);}return b};d.prototype.toHex=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");
-b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}for(var c=Array(b-a),e;a<b;)e=this.view.getUint8(a++),16>e?c.push("0",e.toString(16)):c.push(e.toString(16));return c.join("")};d.fromHex=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%2)throw new TypeError("Illegal str: Length not a multiple of 2");}var e=a.length;b=new d(e/2|0,b);for(var h,f=0,g=0;f<e;f+=
-2){h=parseInt(a.substring(f,f+2),16);if(!c&&(!isFinite(h)||0>h||255<h))throw new TypeError("Illegal str: Contains non-hex characters");b.view.setUint8(g++,h)}b.limit=g;return b};var l=function(){var a={k:1114111,j:function(a,c){var e=null;"number"===typeof a&&(e=a,a=function(){return null});for(;null!==e||null!==(e=a());)128>e?c(e&127):(2048>e?c(e>>6&31|192):(65536>e?c(e>>12&15|224):(c(e>>18&7|240),c(e>>12&63|128)),c(e>>6&63|128)),c(e&63|128)),e=null},g:function(a,c){function e(a){a=a.slice(0,a.indexOf(null));
-var b=Error(a.toString());b.name="TruncatedError";b.bytes=a;throw b;}for(var d,f,g,k;null!==(d=a());)if(0===(d&128))c(d);else if(192===(d&224))null===(f=a())&&e([d,f]),c((d&31)<<6|f&63);else if(224===(d&240))null!==(f=a())&&null!==(g=a())||e([d,f,g]),c((d&15)<<12|(f&63)<<6|g&63);else if(240===(d&248))null!==(f=a())&&null!==(g=a())&&null!==(k=a())||e([d,f,g,k]),c((d&7)<<18|(f&63)<<12|(g&63)<<6|k&63);else throw RangeError("Illegal starting byte: "+d);},d:function(a,c){for(var e,d=null;null!==(e=null!==
-d?d:a());)55296<=e&&57343>=e&&null!==(d=a())&&56320<=d&&57343>=d?(c(1024*(e-55296)+d-56320+65536),d=null):c(e);null!==d&&c(d)},e:function(a,c){var d=null;"number"===typeof a&&(d=a,a=function(){return null});for(;null!==d||null!==(d=a());)65535>=d?c(d):(d-=65536,c((d>>10)+55296),c(d%1024+56320)),d=null},c:function(b,c){a.d(b,function(b){a.j(b,c)})},b:function(b,c){a.g(b,function(b){a.e(b,c)})},f:function(a){return 128>a?1:2048>a?2:65536>a?3:4},l:function(b){for(var c,d=0;null!==(c=b());)d+=a.f(c);
-return d},a:function(b){var c=0,d=0;a.d(b,function(b){++c;d+=a.f(b)});return[c,d]}};return a}();d.prototype.toUTF8=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+
-" <= "+this.buffer.byteLength);}var c=this,d;try{l.b(function(){return a<b?c.view.getUint8(a++):null},d=s())}catch(h){if(a!==b)throw new RangeError("Illegal range: Truncated data, "+a+" != "+b);}return d()};d.fromUTF8=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");var e=new d(l.a(m(a),!0)[1],b,c),h=0;l.c(m(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};return d}"undefined"!==typeof module&&module.exports?module.exports=t(require("long")):"function"===
-typeof define&&define.amd?define("ByteBuffer",["Long"],function(k){return t(k)}):(r.dcodeIO=r.dcodeIO||{}).ByteBuffer=t(r.dcodeIO.Long)})(this);
+(function(r){function s(l){function d(a,b,c){"undefined"===typeof a&&(a=d.DEFAULT_CAPACITY);"undefined"===typeof b&&(b=d.DEFAULT_ENDIAN);"undefined"===typeof c&&(c=d.DEFAULT_NOASSERT);if(!c){a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);if("boolean"!==typeof b)throw new TypeError("Illegal littleEndian: Not a boolean");if("boolean"!==typeof c)throw new TypeError("Illegal noAssert: Not a boolean");}this.buffer=0===a?r:new ArrayBuffer(a);this.view=0===a?null:new DataView(this.buffer);
+this.offset=0;this.markedOffset=-1;this.limit=a;this.littleEndian="undefined"!==typeof b?!!b:!1;this.noAssert=!!c}d.VERSION="3.2.0";d.LITTLE_ENDIAN=!0;d.BIG_ENDIAN=!1;d.DEFAULT_CAPACITY=16;d.DEFAULT_ENDIAN=d.BIG_ENDIAN;d.DEFAULT_NOASSERT=!1;d.Long=l||null;var r=new ArrayBuffer(0);d.allocate=function(a,b,c){return new d(a,b,c)};d.concat=function(a,b,c,e){if("boolean"===typeof b||"string"!==typeof b)e=c,c=b,b=void 0;for(var h=0,f=0,g=a.length,n;f<g;++f)d.isByteBuffer(a[f])||(a[f]=d.wrap(a[f],b)),n=
+a[f].limit-a[f].offset,0<n&&(h+=n);if(0===h)return new d(0,c,e);b=new d(h,c,e);e=new Uint8Array(b.buffer);for(f=0;f<g;)c=a[f++],n=c.limit-c.offset,0>=n||(e.set((new Uint8Array(c.buffer)).subarray(c.offset,c.limit),b.offset),b.offset+=n);b.limit=b.offset;b.offset=0;return b};d.isByteBuffer=function(a){return a&&a instanceof d};d.type=function(){return ArrayBuffer};d.wrap=function(a,b,c,e){"string"!==typeof b&&(e=c,c=b,b=void 0);if("string"===typeof a)switch("undefined"===typeof b&&(b="utf8"),b){case "base64":return d.fromBase64(a,
+c);case "hex":return d.fromHex(a,c);case "binary":return d.fromBinary(a,c);case "utf8":return d.fromUTF8(a,c);case "debug":return d.fromDebug(a,c);default:throw new TypeError("Unsupported encoding: "+b);}if(null===a||"object"!==typeof a)throw new TypeError("Illegal buffer: null or non-object");if(d.isByteBuffer(a))return b=d.prototype.clone.call(a),b.markedOffset=-1,b;if(a instanceof Uint8Array)b=new d(0,c,e),0<a.length&&(b.buffer=a.buffer,b.offset=a.byteOffset,b.limit=a.byteOffset+a.length,b.view=
+0<a.length?new DataView(a.buffer):null);else if(a instanceof ArrayBuffer)b=new d(0,c,e),0<a.byteLength&&(b.buffer=a,b.offset=0,b.limit=a.byteLength,b.view=0<a.byteLength?new DataView(a):null);else if("[object Array]"===Object.prototype.toString.call(a))for(b=new d(a.length,c,e),b.limit=a.length,i=0;i<a.length;++i)b.view.setUint8(i,a[i]);else throw new TypeError("Illegal buffer");return b};d.prototype.writeInt8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==
+typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt8(b-1,a);c&&(this.offset+=1);return this};d.prototype.writeByte=d.prototype.writeInt8;d.prototype.readInt8=function(a){var b=
+"undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}a=this.view.getInt8(a);b&&(this.offset+=1);return a};d.prototype.readByte=d.prototype.readInt8;d.prototype.writeUint8=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||
+0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=1;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint8(b-1,a);c&&(this.offset+=1);return this};d.prototype.readUint8=function(a){var b="undefined"===typeof a;b&&(a=this.offset);
+if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}a=this.view.getUint8(a);b&&(this.offset+=1);return a};d.prototype.writeInt16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==
+typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.writeShort=d.prototype.writeInt16;d.prototype.readInt16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==
+typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getInt16(a,this.littleEndian);b&&(this.offset+=2);return a};d.prototype.readShort=d.prototype.readInt16;d.prototype.writeUint16=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");
+a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=2;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint16(b-2,a,this.littleEndian);c&&(this.offset+=2);return this};d.prototype.readUint16=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%
+1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+2>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+2) <= "+this.buffer.byteLength);}a=this.view.getUint16(a,this.littleEndian);b&&(this.offset+=2);return a};d.prototype.writeInt32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setInt32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.writeInt=d.prototype.writeInt32;d.prototype.readInt32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+
+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getInt32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readInt=d.prototype.readInt32;d.prototype.writeUint32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setUint32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.readUint32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||
+a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getUint32(a,this.littleEndian);b&&(this.offset+=4);return a};l&&(d.prototype.writeInt64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=l.fromNumber(a);else if(!(a&&a instanceof l))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=l.fromNumber(a));b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},d.prototype.writeLong=d.prototype.writeInt64,d.prototype.readInt64=
+function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new l(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!1):new l(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!1);b&&(this.offset+=8);return a},d.prototype.readLong=d.prototype.readInt64,
+d.prototype.writeUint64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=l.fromNumber(a);else if(!(a&&a instanceof l))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a&&(a=l.fromNumber(a));
+b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);b-=8;this.littleEndian?(this.view.setInt32(b,a.low,!0),this.view.setInt32(b+4,a.high,!0)):(this.view.setInt32(b,a.high,!1),this.view.setInt32(b+4,a.low,!1));c&&(this.offset+=8);return this},d.prototype.readUint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+
+a+" (+8) <= "+this.buffer.byteLength);}a=this.littleEndian?new l(this.view.getInt32(a,!0),this.view.getInt32(a+4,!0),!0):new l(this.view.getInt32(a+4,!1),this.view.getInt32(a,!1),!0);b&&(this.offset+=8);return a});d.prototype.writeFloat32=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=
+0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=4;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat32(b-4,a,this.littleEndian);c&&(this.offset+=4);return this};d.prototype.writeFloat=d.prototype.writeFloat32;d.prototype.readFloat32=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");
+a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}a=this.view.getFloat32(a,this.littleEndian);b&&(this.offset+=4);return a};d.prototype.readFloat=d.prototype.readFloat32;d.prototype.writeFloat64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a)throw new TypeError("Illegal value: "+a+" (not a number)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}b+=8;var e=this.buffer.byteLength;b>e&&this.resize((e*=2)>b?e:b);this.view.setFloat64(b-8,a,this.littleEndian);c&&(this.offset+=8);return this};d.prototype.writeDouble=d.prototype.writeFloat64;d.prototype.readFloat64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+
+a+" (not an integer)");a>>>=0;if(0>a||a+8>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+8) <= "+this.buffer.byteLength);}a=this.view.getFloat64(a,this.littleEndian);b&&(this.offset+=8);return a};d.prototype.readDouble=d.prototype.readFloat64;d.MAX_VARINT32_BYTES=5;d.calculateVarint32=function(a){a>>>=0;return 128>a?1:16384>a?2:2097152>a?3:268435456>a?4:5};d.zigZagEncode32=function(a){return((a|=0)<<1^a>>31)>>>0};d.zigZagDecode32=function(a){return a>>>1^-(a&1)|0};d.prototype.writeVarint32=
+function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=d.calculateVarint32(a);b+=e;var h=this.buffer.byteLength;b>h&&this.resize((h*=2)>b?h:b);b-=e;this.view.setUint8(b,
+e=a|128);a>>>=0;128<=a?(e=a>>7|128,this.view.setUint8(b+1,e),16384<=a?(e=a>>14|128,this.view.setUint8(b+2,e),2097152<=a?(e=a>>21|128,this.view.setUint8(b+3,e),268435456<=a?(this.view.setUint8(b+4,a>>28&15),e=5):(this.view.setUint8(b+3,e&127),e=4)):(this.view.setUint8(b+2,e&127),e=3)):(this.view.setUint8(b+1,e&127),e=2)):(this.view.setUint8(b,e&127),e=1);return c?(this.offset+=e,this):e};d.prototype.writeVarint32ZigZag=function(a,b){return this.writeVarint32(d.zigZagEncode32(a),b)};d.prototype.readVarint32=
+function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=0,e=0,d;do d=this.view.getUint8(a+c),5>c&&(e|=(d&127)<<7*c>>>0),++c;while(128===(d&128));e|=0;return b?(this.offset+=c,e):{value:e,length:c}};d.prototype.readVarint32ZigZag=function(a){a=this.readVarint32(a);
+"object"===typeof a?a.value=d.zigZagDecode32(a.value):a=d.zigZagDecode32(a);return a};l&&(d.MAX_VARINT64_BYTES=10,d.calculateVarint64=function(a){"number"===typeof a&&(a=l.fromNumber(a));var b=a.toInt()>>>0,c=a.shiftRightUnsigned(28).toInt()>>>0;a=a.shiftRightUnsigned(56).toInt()>>>0;return 0==a?0==c?16384>b?128>b?1:2:2097152>b?3:4:16384>c?128>c?5:6:2097152>c?7:8:128>a?9:10},d.zigZagEncode64=function(a){"number"===typeof a?a=l.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftLeft(1).xor(a.shiftRight(63)).toUnsigned()},
+d.zigZagDecode64=function(a){"number"===typeof a?a=l.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());return a.shiftRightUnsigned(1).xor(a.and(l.ONE).toSigned().negate()).toSigned()},d.prototype.writeVarint64=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"===typeof a)a=l.fromNumber(a);else if(!(a&&a instanceof l))throw new TypeError("Illegal value: "+a+" (not an integer or Long)");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}"number"===typeof a?a=l.fromNumber(a,!1):!1!==a.unsigned&&(a=a.toSigned());var e=d.calculateVarint64(a),h=a.toInt()>>>0,f=a.shiftRightUnsigned(28).toInt()>>>0,g=a.shiftRightUnsigned(56).toInt()>>>0;b+=e;var n=this.buffer.byteLength;b>n&&this.resize((n*=2)>b?n:b);b-=e;switch(e){case 10:this.view.setUint8(b+9,g>>>7&1);case 9:this.view.setUint8(b+8,9!==
+e?g|128:g&127);case 8:this.view.setUint8(b+7,8!==e?f>>>21|128:f>>>21&127);case 7:this.view.setUint8(b+6,7!==e?f>>>14|128:f>>>14&127);case 6:this.view.setUint8(b+5,6!==e?f>>>7|128:f>>>7&127);case 5:this.view.setUint8(b+4,5!==e?f|128:f&127);case 4:this.view.setUint8(b+3,4!==e?h>>>21|128:h>>>21&127);case 3:this.view.setUint8(b+2,3!==e?h>>>14|128:h>>>14&127);case 2:this.view.setUint8(b+1,2!==e?h>>>7|128:h>>>7&127);case 1:this.view.setUint8(b,1!==e?h|128:h&127)}return c?(this.offset+=e,this):e},d.prototype.writeVarint64ZigZag=
+function(a,b){return this.writeVarint64(d.zigZagEncode64(a),b)},d.prototype.readVarint64=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=a,e=0,d=0,f=0,g=0,g=this.view.getUint8(a++),e=g&127;if(g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<7,g&128&&
+(g=this.view.getUint8(a++),e|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),e|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),d=g&127,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<7,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<14,g&128&&(g=this.view.getUint8(a++),d|=(g&127)<<21,g&128&&(g=this.view.getUint8(a++),f=g&127,g&128&&(g=this.view.getUint8(a++),f|=(g&127)<<7,g&128))))))))))throw Error("Data must be corrupt: Buffer overrun");e=l.fromBits(e|d<<28,d>>>4|f<<24,!1);return b?(this.offset=a,e):{value:e,
+length:a-c}},d.prototype.readVarint64ZigZag=function(a){(a=this.readVarint64(a))&&a.value instanceof l?a.value=d.zigZagDecode64(a.value):a=d.zigZagDecode64(a);return a});d.prototype.writeCString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);var e,d=a.length;if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(e=0;e<d;++e)if(0===a.charCodeAt(e))throw new RangeError("Illegal str: Contains NULL-characters");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+
+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}e=b;d=k.b(k.a(a))[1];b+=d+1;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=d+1;k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));this.view.setUint8(b++,0);return c?(this.offset=b-e,this):d};d.prototype.readCString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+
+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=a,e,d=-1;k.d(function(){if(0===d)return null;if(a>=this.limit)throw RangeError("Illegal range: Truncated data, "+a+" < "+this.limit);return 0===(d=this.view.getUint8(a++))?null:d}.bind(this),e=k.c(),!0);return b?(this.offset=a,e()):{string:e(),length:a-c}};d.prototype.writeIString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==
+typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,d;d=k.b(k.a(a),this.noAssert)[1];b+=4+d;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=4+d;this.view.setUint32(b,d,this.littleEndian);b+=4;k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));
+if(b!==e+4+d)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+4+d));return c?(this.offset=b,this):b-e};d.prototype.readIString=function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+4>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+4) <= "+this.buffer.byteLength);}var c=0,e=a,c=this.view.getUint32(a,this.littleEndian);a+=
+4;var d=a+c;k.d(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c=k.c(),this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-e}};d.METRICS_CHARS="c";d.METRICS_BYTES="b";d.prototype.writeUTF8String=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+
+this.buffer.byteLength);}var e,d=b;e=k.b(k.a(a))[1];b+=e;var f=this.buffer.byteLength;b>f&&this.resize((f*=2)>b?f:b);b-=e;k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));return c?(this.offset=b,this):b-d};d.prototype.writeString=d.prototype.writeUTF8String;d.calculateUTF8Chars=function(a){return k.b(k.a(a))[0]};d.calculateUTF8Bytes=function(a){return k.b(k.a(a))[1]};d.prototype.readUTF8String=function(a,b,c){"number"===typeof b&&(c=b,b=void 0);var e="undefined"===typeof c;e&&(c=this.offset);
+"undefined"===typeof b&&(b=d.METRICS_CHARS);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");a|=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}var h=0,f=c,g;if(b===d.METRICS_CHARS){g=k.c();k.i(function(){return h<a&&c<this.limit?this.view.getUint8(c++):null}.bind(this),
+function(a){++h;k.g(a,g)}.bind(this));if(h!==a)throw new RangeError("Illegal range: Truncated data, "+h+" == "+a);return e?(this.offset=c,g()):{string:g(),length:c-f}}if(b===d.METRICS_BYTES){if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+a>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+"+a+") <= "+this.buffer.byteLength);}var n=c+a;k.d(function(){return c<n?this.view.getUint8(c++):null}.bind(this),
+g=k.c(),this.noAssert);if(c!==n)throw new RangeError("Illegal range: Truncated data, "+c+" == "+n);return e?(this.offset=c,g()):{string:g(),length:c-f}}throw new TypeError("Unsupported metrics: "+b);};d.prototype.readString=d.prototype.readUTF8String;d.prototype.writeVString=function(a,b){var c="undefined"===typeof b;c&&(b=this.offset);if(!this.noAssert){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: "+b+
+" (not an integer)");b>>>=0;if(0>b||b+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+b+" (+0) <= "+this.buffer.byteLength);}var e=b,h,f;h=k.b(k.a(a),this.noAssert)[1];f=d.calculateVarint32(h);b+=f+h;var g=this.buffer.byteLength;b>g&&this.resize((g*=2)>b?g:b);b-=f+h;b+=this.writeVarint32(h,b);k.e(k.a(a),function(a){this.view.setUint8(b++,a)}.bind(this));if(b!==e+h+f)throw new RangeError("Illegal range: Truncated data, "+b+" == "+(b+h+f));return c?(this.offset=b,this):b-e};d.prototype.readVString=
+function(a){var b="undefined"===typeof a;b&&(a=this.offset);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+1>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+1) <= "+this.buffer.byteLength);}var c=this.readVarint32(a),e=a;a+=c.length;var c=c.value,d=a+c,c=k.c();k.d(function(){return a<d?this.view.getUint8(a++):null}.bind(this),c,this.noAssert);c=c();return b?(this.offset=a,c):{string:c,length:a-
+e}};d.prototype.append=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;c+=b;var h=this.buffer.byteLength;c>h&&this.resize((h*=
+2)>c?h:c);(new Uint8Array(this.buffer,c-b)).set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit));a.offset+=b;e&&(this.offset+=b);return this};d.prototype.appendTo=function(a,b){a.append(this,b);return this};d.prototype.assert=function(a){this.noAssert=!a;return this};d.prototype.capacity=function(){return this.buffer.byteLength};d.prototype.clear=function(){this.offset=0;this.limit=this.buffer.byteLength;this.markedOffset=-1;return this};d.prototype.clone=function(a){var b=new d(0,this.littleEndian,
+this.noAssert);a?(a=new ArrayBuffer(this.buffer.byteLength),(new Uint8Array(a)).set(this.buffer),b.buffer=a,b.view=new DataView(a)):(b.buffer=this.buffer,b.view=this.view);b.offset=this.offset;b.markedOffset=this.markedOffset;b.limit=this.limit;return b};d.prototype.compact=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||
+0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(0===a&&b===this.buffer.byteLength)return this;var c=b-a;if(0===c)return this.buffer=r,this.view=null,0<=this.markedOffset&&(this.markedOffset-=a),this.limit=this.offset=0,this;var e=new ArrayBuffer(c);(new Uint8Array(e)).set((new Uint8Array(this.buffer)).subarray(a,b));this.buffer=e;this.view=new DataView(e);
+0<=this.markedOffset&&(this.markedOffset-=a);this.offset=0;this.limit=c;return this};d.prototype.copy=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);
+}if(a===b)return new d(0,this.littleEndian,this.noAssert);var c=b-a,e=new d(c,this.littleEndian,this.noAssert);e.offset=0;e.limit=c;0<=e.markedOffset&&(e.markedOffset-=a);this.copyTo(e,0,a,b);return e};d.prototype.copyTo=function(a,b,c,e){var h,f;if(!this.noAssert&&!d.isByteBuffer(a))throw new TypeError("Illegal target: Not a ByteBuffer");b=(f="undefined"===typeof b)?a.offset:b|0;c=(h="undefined"===typeof c)?this.offset:c|0;e="undefined"===typeof e?this.limit:e|0;if(0>b||b>a.buffer.byteLength)throw new RangeError("Illegal target range: 0 <= "+
+b+" <= "+a.buffer.byteLength);if(0>c||e>this.buffer.byteLength)throw new RangeError("Illegal source range: 0 <= "+c+" <= "+this.buffer.byteLength);var g=e-c;if(0===g)return a;a.ensureCapacity(b+g);(new Uint8Array(a.buffer)).set((new Uint8Array(this.buffer)).subarray(c,e),b);h&&(this.offset+=g);f&&(a.offset+=g);return this};d.prototype.ensureCapacity=function(a){var b=this.buffer.byteLength;return b<a?this.resize((b*=2)>a?b:a):this};d.prototype.fill=function(a,b,c){var e="undefined"===typeof b;e&&
+(b=this.offset);"string"===typeof a&&0<a.length&&(a=a.charCodeAt(0));"undefined"===typeof b&&(b=this.offset);"undefined"===typeof c&&(c=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal value: "+a+" (not an integer)");a|=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal begin: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal end: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
+b+" <= "+c+" <= "+this.buffer.byteLength);}if(b>=c)return this;for(;b<c;)this.view.setUint8(b++,a);e&&(this.offset=b);return this};d.prototype.flip=function(){this.limit=this.offset;this.offset=0;return this};d.prototype.mark=function(a){a="undefined"===typeof a?this.offset:a;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal offset: "+a+" (not an integer)");a>>>=0;if(0>a||a+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+a+" (+0) <= "+this.buffer.byteLength);
+}this.markedOffset=a;return this};d.prototype.order=function(a){if(!this.noAssert&&"boolean"!==typeof a)throw new TypeError("Illegal littleEndian: Not a boolean");this.littleEndian=!!a;return this};d.prototype.LE=function(a){this.littleEndian="undefined"!==typeof a?!!a:!0;return this};d.prototype.BE=function(a){this.littleEndian="undefined"!==typeof a?!a:!1;return this};d.prototype.prepend=function(a,b,c){if("number"===typeof b||"string"!==typeof b)c=b,b=void 0;var e="undefined"===typeof c;e&&(c=
+this.offset);if(!this.noAssert){if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal offset: "+c+" (not an integer)");c>>>=0;if(0>c||c+0>this.buffer.byteLength)throw new RangeError("Illegal offset: 0 <= "+c+" (+0) <= "+this.buffer.byteLength);}a instanceof d||(a=d.wrap(a,b));b=a.limit-a.offset;if(0>=b)return this;var h=b-c,f;if(0<h){var g=new ArrayBuffer(this.buffer.byteLength+h);f=new Uint8Array(g);f.set((new Uint8Array(this.buffer)).subarray(c,this.buffer.byteLength),b);this.buffer=g;this.view=
+new DataView(g);this.offset+=h;0<=this.markedOffset&&(this.markedOffset+=h);this.limit+=h;c+=h}else f=new Uint8Array(this.buffer);f.set((new Uint8Array(a.buffer)).subarray(a.offset,a.limit),c-b);a.offset=a.limit;e&&(this.offset-=b);return this};d.prototype.prependTo=function(a,b){a.prepend(this,b);return this};d.prototype.printDebug=function(a){"function"!==typeof a&&(a=console.log.bind(console));a(this.toString()+"\n-------------------------------------------------------------------\n"+this.toDebug(!0))};
+d.prototype.remaining=function(){return this.limit-this.offset};d.prototype.reset=function(){0<=this.markedOffset?(this.offset=this.markedOffset,this.markedOffset=-1):this.offset=0;return this};d.prototype.resize=function(a){if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal capacity: "+a+" (not an integer)");a|=0;if(0>a)throw new RangeError("Illegal capacity: 0 <= "+a);}this.buffer.byteLength<a&&(a=new ArrayBuffer(a),(new Uint8Array(a)).set(new Uint8Array(this.buffer)),
+this.buffer=a,this.view=new DataView(a));return this};d.prototype.reverse=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return this;
+Array.prototype.reverse.call((new Uint8Array(this.buffer)).subarray(a,b));this.view=new DataView(this.buffer);return this};d.prototype.skip=function(a){if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal length: "+a+" (not an integer)");a|=0}var b=this.offset+a;if(!this.noAssert&&(0>b||b>this.buffer.byteLength))throw new RangeError("Illegal length: 0 <= "+this.offset+" + "+a+" <= "+this.buffer.byteLength);this.offset=b;return this};d.prototype.slice=function(a,b){"undefined"===
+typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c=this.clone();c.offset=a;c.limit=b;return c};d.prototype.toBuffer=function(a){var b=this.offset,c=this.limit;
+if(b>c)var e=b,b=c,c=e;if(!this.noAssert){if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal offset: Not an integer");b>>>=0;if("number"!==typeof c||0!==c%1)throw new TypeError("Illegal limit: Not an integer");c>>>=0;if(0>b||b>c||c>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+b+" <= "+c+" <= "+this.buffer.byteLength);}if(!a&&0===b&&c===this.buffer.byteLength)return this.buffer;if(b===c)return r;a=new ArrayBuffer(c-b);(new Uint8Array(a)).set((new Uint8Array(this.buffer)).subarray(b,
+c),0);return a};d.prototype.toArrayBuffer=d.prototype.toBuffer;d.prototype.toString=function(a){if("undefined"===typeof a)return"ByteBufferAB(offset="+this.offset+",markedOffset="+this.markedOffset+",limit="+this.limit+",capacity="+this.capacity()+")";switch(a){case "utf8":return this.toUTF8();case "base64":return this.toBase64();case "hex":return this.toHex();case "binary":return this.toBinary();case "debug":return this.toDebug();case "columns":return this.m();default:throw Error("Unsupported encoding: "+
+a);}};var m="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",m=m+"";d.prototype.toBase64=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+
+this.buffer.byteLength);}if(a===b)return"";for(var c,e,d,f,g,k,l="";a<b;)c=this.view.getUint8(a++),e=(f=a<b)?this.view.getUint8(a++):0,d=(g=a<b)?this.view.getUint8(a++):0,k=c>>2,c=(c&3)<<4|e>>4,e=(e&15)<<2|d>>6,d&=63,g||(d=64,f||(e=64)),l+=m.charAt(k)+m.charAt(c)+m.charAt(e)+m.charAt(d);return l};d.fromBase64=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%4)throw new TypeError("Illegal str: Length not a multiple of 4");}var e=a.length,
+h=0,f;for(f=a.length-1;0<=f;--f)if("="===a.charAt(f))h++;else break;if(2<h)throw new TypeError("Illegal str: Suffix is too large");if(0===e)return new d(0,b,c);var g,k,l,p=new d(e/4*3-h,b,c);for(b=f=0;f<e;){h=m.indexOf(a.charAt(f++));g=f<e?m.indexOf(a.charAt(f++)):0;k=f<e?m.indexOf(a.charAt(f++)):0;l=f<e?m.indexOf(a.charAt(f++)):0;if(!c&&(0>h||0>g||0>k||0>l))throw new TypeError("Illegal str: Contains non-base64 characters");p.view.setUint8(b++,h<<2|g>>4);64!==k&&(p.view.setUint8(b++,g<<4&240|k>>2,
+b),64!==l&&p.view.setUint8(b++,k<<6&192|l))}p.limit=b;return p};d.btoa=function(a){return d.fromBinary(a).toBase64()};d.atob=function(a){return d.fromBase64(a).toBinary()};d.prototype.toBinary=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
+a+" <= "+b+" <= "+this.buffer.byteLength);}if(a===b)return"";for(var c=[];a<b;)c.push(this.view.getUint8(a++));return String.fromCharCode.apply(String,c)};d.fromBinary=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");for(var e=0,h=a.length,f=new d(h,b,c);e<h;){b=a.charCodeAt(e);if(!c&&255<b)throw new TypeError("Illegal charCode at "+e+": 0 <= "+b+" <= 255");f.view.setUint8(e++,b)}f.limit=h;return f};d.prototype.toDebug=function(a){for(var b=-1,c=this.buffer.byteLength,
+e,d="",f="",g="";b<c;){-1!==b&&(e=this.view.getUint8(b),d=16>e?d+("0"+e.toString(16).toUpperCase()):d+e.toString(16).toUpperCase(),a&&(f+=32<e&&127>e?String.fromCharCode(e):"."));++b;if(a&&0<b&&0===b%16&&b!==c){for(;51>d.length;)d+=" ";g+=d+f+"\n";d=f=""}d=b===this.offset&&b===this.limit?d+(b===this.markedOffset?"!":"|"):b===this.offset?d+(b===this.markedOffset?"[":"<"):b===this.limit?d+(b===this.markedOffset?"]":">"):d+(b===this.markedOffset?"'":a||0!==b&&b!==c?" ":"")}if(a&&" "!==d){for(;51>d.length;)d+=
+" ";g+=d+f+"\n"}return a?g:d};d.fromDebug=function(a,b,c){var e=a.length;b=new d((e+1)/3|0,b,c);for(var h=0,f=0,g,k=!1,l=!1,p=!1,m=!1,q=!1;h<e;){switch(g=a.charAt(h++)){case "!":if(!c){if(l||p||m){q=!0;break}l=p=m=!0}b.offset=b.markedOffset=b.limit=f;k=!1;break;case "|":if(!c){if(l||m){q=!0;break}l=m=!0}b.offset=b.limit=f;k=!1;break;case "[":if(!c){if(l||p){q=!0;break}l=p=!0}b.offset=b.markedOffset=f;k=!1;break;case "<":if(!c){if(l){q=!0;break}l=!0}b.offset=f;k=!1;break;case "]":if(!c){if(m||p){q=
+!0;break}m=p=!0}b.limit=b.markedOffset=f;k=!1;break;case ">":if(!c){if(m){q=!0;break}m=!0}b.limit=f;k=!1;break;case "'":if(!c){if(p){q=!0;break}p=!0}b.markedOffset=f;k=!1;break;case " ":k=!1;break;default:if(!c&&k){q=!0;break}g=parseInt(g+a.charAt(h++),16);if(!c&&(isNaN(g)||0>g||255<g))throw new TypeError("Illegal str: Not a debug encoded string");b.view.setUint8(f++,g);k=!0}if(q)throw new TypeError("Illegal str: Invalid symbol at "+h);}if(!c){if(!l||!m)throw new TypeError("Illegal str: Missing offset or limit");
+if(f<b.buffer.byteLength)throw new TypeError("Illegal str: Not a debug encoded string (is it hex?) "+f+" < "+e);}return b};d.prototype.toHex=function(a,b){a="undefined"===typeof a?this.offset:a;b="undefined"===typeof b?this.limit:b;if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+
+a+" <= "+b+" <= "+this.buffer.byteLength);}for(var c=Array(b-a),e;a<b;)e=this.view.getUint8(a++),16>e?c.push("0",e.toString(16)):c.push(e.toString(16));return c.join("")};d.fromHex=function(a,b,c){if(!c){if("string"!==typeof a)throw new TypeError("Illegal str: Not a string");if(0!==a.length%2)throw new TypeError("Illegal str: Length not a multiple of 2");}var e=a.length;b=new d(e/2|0,b);for(var h,f=0,g=0;f<e;f+=2){h=parseInt(a.substring(f,f+2),16);if(!c&&(!isFinite(h)||0>h||255<h))throw new TypeError("Illegal str: Contains non-hex characters");
+b.view.setUint8(g++,h)}b.limit=g;return b};var k=function(){var a={k:1114111,j:function(a,c){var e=null;"number"===typeof a&&(e=a,a=function(){return null});for(;null!==e||null!==(e=a());)128>e?c(e&127):(2048>e?c(e>>6&31|192):(65536>e?c(e>>12&15|224):(c(e>>18&7|240),c(e>>12&63|128)),c(e>>6&63|128)),c(e&63|128)),e=null},i:function(a,c){function e(a){a=a.slice(0,a.indexOf(null));var b=Error(a.toString());b.name="TruncatedError";b.bytes=a;throw b;}for(var d,f,g,k;null!==(d=a());)if(0===(d&128))c(d);
+else if(192===(d&224))null===(f=a())&&e([d,f]),c((d&31)<<6|f&63);else if(224===(d&240))null!==(f=a())&&null!==(g=a())||e([d,f,g]),c((d&15)<<12|(f&63)<<6|g&63);else if(240===(d&248))null!==(f=a())&&null!==(g=a())&&null!==(k=a())||e([d,f,g,k]),c((d&7)<<18|(f&63)<<12|(g&63)<<6|k&63);else throw RangeError("Illegal starting byte: "+d);},f:function(a,c){for(var e,d=null;null!==(e=null!==d?d:a());)55296<=e&&57343>=e&&null!==(d=a())&&56320<=d&&57343>=d?(c(1024*(e-55296)+d-56320+65536),d=null):c(e);null!==
+d&&c(d)},g:function(a,c){var e=null;"number"===typeof a&&(e=a,a=function(){return null});for(;null!==e||null!==(e=a());)65535>=e?c(e):(e-=65536,c((e>>10)+55296),c(e%1024+56320)),e=null},e:function(b,c){a.f(b,function(b){a.j(b,c)})},d:function(b,c){a.i(b,function(b){a.g(b,c)})},h:function(a){return 128>a?1:2048>a?2:65536>a?3:4},l:function(b){for(var c,d=0;null!==(c=b());)d+=a.h(c);return d},b:function(b){var c=0,d=0;a.f(b,function(b){++c;d+=a.h(b)});return[c,d]}};return a}(),s=String.fromCharCode;
+k.a=function(a){var b=0;return function(){return b<a.length?a.charCodeAt(b++):null}};k.c=function(){var a=[],b=[];return function(){if(0===arguments.length)return b.join("")+s.apply(String,a);1024<a.length+arguments.length&&(b.push(s.apply(String,a)),a.length=0);Array.prototype.push.apply(a,arguments)}};d.prototype.toUTF8=function(a,b){"undefined"===typeof a&&(a=this.offset);"undefined"===typeof b&&(b=this.limit);if(!this.noAssert){if("number"!==typeof a||0!==a%1)throw new TypeError("Illegal begin: Not an integer");
+a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c=this,d;try{k.d(function(){return a<b?c.view.getUint8(a++):null},d=k.c())}catch(h){if(a!==b)throw new RangeError("Illegal range: Truncated data, "+a+" != "+b);}return d()};d.fromUTF8=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");
+var e=new d(k.b(k.a(a),!0)[1],b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};return d}"undefined"!==typeof module&&module.exports?module.exports=s(require("long")):"function"===typeof define&&define.amd?define("ByteBuffer",["Long"],function(l){return s(l)}):(r.dcodeIO=r.dcodeIO||{}).ByteBuffer=s(r.dcodeIO.Long)})(this);
 
-},{"long":101}],100:[function(require,module,exports){
+},{"long":104}],103:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
  Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -27400,7 +27918,7 @@ typeof define&&define.amd?define("ByteBuffer",["Long"],function(k){return t(k)})
 
 })(this);
 
-},{}],101:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
  Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -27420,10 +27938,11 @@ typeof define&&define.amd?define("ByteBuffer",["Long"],function(k){return t(k)})
 
 module.exports = require("./dist/Long.js");
 
-},{"./dist/Long.js":100}],102:[function(require,module,exports){
+},{"./dist/Long.js":103}],105:[function(require,module,exports){
 (function (Buffer){
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+var debug = require("debug")("MessageChannelTransport");
 
 MessageChannelTransport.protocolKey = "messageChannel";
 
@@ -27433,6 +27952,7 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
+  debug("constructor")
   Transport.call(this);
   this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
   return this;
@@ -27443,7 +27963,6 @@ MessageChannelTransport.prototype = new Transport();
 MessageChannelTransport.prototype.name = "MessageChannelTransport";
 
 MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
-  //console.log(Transport);
   Transport.ConnectionInfo.call(this);
   this.port = port;
 };
@@ -27470,15 +27989,16 @@ MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  console.log("messageChannel connect");
+  debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
+    debug("onmessage called")
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
         self.elementReader.onReceivedData(new Buffer(ev.data));
       } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ", ex);
+        debug(" onmessage exception: %s", ex);
         return;
       }
     }
@@ -27492,16 +28012,18 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
  */
 MessageChannelTransport.prototype.send = function(element)
 {
+  debug("send")
   this.connectionInfo.getPort().postMessage(element);
 };
 
 module.exports = MessageChannelTransport;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":47,"ndn-lib/js/transport/transport.js":86}],103:[function(require,module,exports){
+},{"buffer":5,"debug":26,"ndn-lib/js/encoding/element-reader.js":50,"ndn-lib/js/transport/transport.js":89}],106:[function(require,module,exports){
 (function (Buffer){
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+var debug  = require("debug")("DataChannelTransport");
 
 
 /**Transport Class for HTML5 DataChannels
@@ -27510,6 +28032,7 @@ var Transport = require("ndn-lib/js/transport/transport.js").Transport;
  *@returns {DataChannelTransport}
  */
 function DataChannelTransport (channel) {
+  debug("constructor", channel)
   Transport.call(this);
   this.connectionInfo = new DataChannelTransport.ConnectionInfo(channel);
   return this;
@@ -27548,37 +28071,22 @@ DataChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 DataChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  console.log("DataChannel connect");
+  debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
-  connectionInfo.getChannel().onmessage = function(ev) {
-    if (ev.data.buffer instanceof ArrayBuffer) {
-      try {
-        self.elementReader.onReceivedData(new Buffer(ev.data));
-      } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ", ex);
-        return;
-      }
-    }
-  };
 
   connectionInfo.getChannel().onmessage = function(ev) {
-    //console.log('dc.onmessage called', ev)
+    debug('onmessage called', ev)
     if (ev.data instanceof ArrayBuffer) {
 
       var result = ev.data;
-      //console.log('RecvHandle called.', result);
       var bytearray = new Buffer(new Uint8Array(result));
-      //console.log(bytearray)
-
-      //console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
 
       try {
-        //console.log(self, face)
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(bytearray);
       } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ",   ex);
+        cdebug("onmessage exception: ",   ex);
         return;
       }
     }
@@ -27586,29 +28094,29 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
 
 
   connectionInfo.getChannel().onopen = function(ev) {
-    console.log('dc.onopen: ReadyState: ' + this.readyState);
+    debug('onopen: ReadyState: %s' ,this.readyState);
         // Face.registerPrefix will fetch the ndndid when needed.
 
     onopenCallback();
   }
 
   connectionInfo.getChannel().onerror = function(ev) {
-    //console.log('dc.onerror: ReadyState: ' + this.readyState);
-    //console.log(ev);
-    //console.log('dc.onerror: WebRTC error: ' + ev.data);
+    debug('dc.onerror: ReadyState: ' + this.readyState);
+    debug('dc.onerror: WebRTC error: ' + ev.data);
   }
 
   connectionInfo.getChannel().onclose = function(ev) {
-    //console.log('dc.onclose: WebRTC connection closed.');
+    debug('dc.onclose: WebRTC connection closed.');
     self.dc = null;
 
     // Close Face when WebSocket is closed
-    self.face.readyStatus = ndn.Face.CLOSED;
+    self.face.readyStatus = 3;
     self.face.closeByTransport();
-    //console.log("NDN.onclose event fired.");
+    onclosedCallback();
   }
 
   if (connectionInfo.getChannel().readyState === "open"){
+    debug("connect called with channel open, firing callback")
     onopenCallback();
   }
 };
@@ -27618,8 +28126,12 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
  */
 DataChannelTransport.prototype.send = function(element)
 {
-  //console.log("attempting to send", element, this.connectionInfo.getChannel())
-  this.connectionInfo.getChannel().send(element.toArrayBuffer());
+  debug("attempting to send", element, this.connectionInfo.getChannel())
+  if(this.connectionInfo.getChannel().readyState === "open"){
+    this.connectionInfo.getChannel().send(element.toArrayBuffer());
+  } else {
+    debug("not trying to send, dataChannel not open")
+  }
 };
 
 
@@ -27646,7 +28158,7 @@ DataChannelTransport.defineListener = function(subject, namespace){
 module.exports = DataChannelTransport;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5,"ndn-lib/js/encoding/element-reader.js":47,"ndn-lib/js/transport/transport.js":86}],104:[function(require,module,exports){
+},{"buffer":5,"debug":26,"ndn-lib/js/encoding/element-reader.js":50,"ndn-lib/js/transport/transport.js":89}],107:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
   , Transport1, Transport2, face1, face2, inst
@@ -27677,7 +28189,7 @@ function msSpec (Transport){
 
 Abstract(Transport, msSpec);
 
-},{"../../../../src/Transports/browser/MessageChannel.js":102,"../../../node/Transports/Abstract.js":106,"ndn-lib":35}],105:[function(require,module,exports){
+},{"../../../../src/Transports/browser/MessageChannel.js":105,"../../../node/Transports/Abstract.js":109,"ndn-lib":38}],108:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
   , DTransport = require("../../../../src/Transports/browser/WebRTCDataChannel.js")
@@ -27859,7 +28371,7 @@ function dcSpec (Transport){
 Abstract(Transport, msSpec);
 Abstract(DTransport, dcSpec);
 
-},{"../../../../src/Transports/browser/MessageChannel.js":102,"../../../../src/Transports/browser/WebRTCDataChannel.js":103,"../../../node/Transports/Abstract.js":106,"ndn-lib":35}],106:[function(require,module,exports){
+},{"../../../../src/Transports/browser/MessageChannel.js":105,"../../../../src/Transports/browser/WebRTCDataChannel.js":106,"../../../node/Transports/Abstract.js":109,"ndn-lib":38}],109:[function(require,module,exports){
 var assert = require('assert')
 
 module.exports = function(Transport, moveOn){
@@ -27887,4 +28399,4 @@ var listener ;
 }
 
 
-},{"assert":2}]},{},[104,105]);
+},{"assert":2}]},{},[107,108]);

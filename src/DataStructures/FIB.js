@@ -1,5 +1,6 @@
 var binarySearch = require("./../Utility/binarySearch.js")
-  , ndn;
+  , ndn
+  , debug = require("debug")("FIB");
 
 /**A Forwarding Entry
  *@constructor
@@ -44,18 +45,22 @@ FibEntry.type = "FibEntry";
  *@returns {Array} an array of nextHops
  */
 FibEntry.prototype.getNextHops = function(excludingFaceID){
+  debug("Entry getting next hops excluding: %s", excludingFaceID);
+  var returns;
   if(excludingFaceID !== undefined){
     var q = {faceID: excludingFaceID }
       , i = binarySearch(this.nextHops, q, "faceID");
     if (i >= 0){
-      return this.nextHops.slice(0,i).concat(this.nextHops.slice(i + 1));
+      returns = this.nextHops.slice(0,i).concat(this.nextHops.slice(i + 1));
     } else {
-      return this.nextHops;
+      returns = this.nextHops;
     }
   } else {
-    console.log("returning nextHops");
-    return this.nextHops;
+
+    returns = this.nextHops;
   }
+  debug("returning array of %s nextHops", returns.length);
+  return returns;
 };
 
 /**Remove a nextHop (will do nothing if a nextHop with the given faceID does not exist)
@@ -112,13 +117,16 @@ FIB.installNDN = function(NDN){
  */
 FIB.prototype.lookup = function(prefix){
   prefix = (typeof prefix === "string") ? new ndn.Name(prefix) : prefix;
-
+  debug("lookup %s", prefix.toUri());
   var ent = this.nameTree.lookup(prefix)
     , entry = ent.fibEntry;
 
+
   if (entry){
+    debug("found existing fib Entry with ", ent.fibEntry.nextHops.length, " next hops");
     return entry;
   }else{
+    debug("no entry found at that node, creating empty");
     return (ent.fibEntry = new FibEntry({prefix: prefix, nextHops: []}));
   }
 };
@@ -128,7 +136,7 @@ FIB.prototype.lookup = function(prefix){
  *@returns {Object} Iterator object with .next() and .hasNext = Boolean
  */
 FIB.prototype.findAllFibEntries = function(prefix){
-
+  debug("findAllFibEntries: constructing iterator for entries matching ", prefix.toUri());
   var inner =  this.nameTree.findAllMatches(prefix, function(match){
     if (match.fibEntry && (match.fibEntry.nextHops.length > 0)){
       return true;
@@ -141,10 +149,12 @@ FIB.prototype.findAllFibEntries = function(prefix){
     , next : function(){
       if (inner.hasNext){
         var next = inner.next();
-
+        debug("returning fibEntry at prefix %s", next.prefix.toUri());
         if (inner.hasNext){
+          debug("more fib entries exist for %s", prefix.toUri());
           this.hasNext = true;
         } else {
+          debug("no more fib entries exist for %s", prefix.toUri());
           this.hasNext = false;
         }
         return next.fibEntry;

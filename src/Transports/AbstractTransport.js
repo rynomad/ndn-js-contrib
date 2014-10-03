@@ -29,6 +29,15 @@ AbstractTransport.defineListener = function(){
   };
 };
 
+AbstractTransport.ConnectionInfo = function AbstractChannelTransportConnectionInfo(port){
+  //console.log(Transport);
+  Transport.ConnectionInfo.call(this);
+  this.port = port;
+};
+
+AbstractTransport.ConnectionInfo.prototype = new Transport.ConnectionInfo();
+AbstractTransport.ConnectionInfo.prototype.name = "_abstract.ConnectionInfo";
+
 AbstractTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback)
 {
   onopenCallback();
@@ -37,7 +46,7 @@ AbstractTransport.prototype.connect = function(connectionInfo, elementListener, 
 
 AbstractTransport.prototype.send = function(/*Buffer*/ data)
 {
-  this.sendCb(data);
+  console.log(data);
 };
 
 AbstractTransport.prototype.close = function()

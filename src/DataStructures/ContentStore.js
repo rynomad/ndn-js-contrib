@@ -1,4 +1,4 @@
-var debug = false;
+var debug = require("debug")("ContentStore");
 
 function pubKeyMatch (ar1, ar2){
   if (!ar1){
@@ -61,8 +61,11 @@ csEntry.prototype.stale = function(node){
  *@returns {ContentStore} - a new store
  */
 var ContentStore = function ContentStore(nameTree, entryClass){
+  entryClass = entryClass || csEntry;
+  debug("ContentStore constructed with %s entry class", entryClass.type);
+
   this.nameTree = nameTree;
-  this.EntryClass = entryClass || csEntry;
+  this.EntryClass = entryClass;
   return this;
 };
 
@@ -72,24 +75,26 @@ var ContentStore = function ContentStore(nameTree, entryClass){
  *@returns {Buffer | null}
  */
 ContentStore.prototype.check = function(interest, callback, node, suffixCount, childTracker, stack){
+  debug("checking for data matching interest : %s", interest.toUri());
+
   callback = callback || function(element){return element;};
   node = node || this.nameTree.lookup(interest.name);
   stack = stack || 1;
   stack++;
+
   if (stack++ > Object.keys(this.nameTree).length * 2){
-    console.log("stack over");
+    debug("stack overflow, fix content store check!!!");
     return callback(null);
   }
-
-  //console.log(node[this.EntryClass.type], this.EntryClass.type)
-  //console.log(node[this.EntryClass.type])
 
   var self = this;
 
   if (node[this.EntryClass.type]
-      && interest.name.match(node[this.EntryClass.type].name)
+      && interest.matchesName(node[this.EntryClass.type].name)
       && pubKeyMatch(interest.publisherPublicKeyDigest, node[this.EntryClass.type].publisherPublicKeyDigest)
-     ){
+     )
+     {
+    debug("check found data at %s", node.prefix.toUri() );
     return node[this.EntryClass.type].getElement(callback);
   }
 
@@ -102,20 +107,22 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
     , minSuffix = interest.getMinSuffixComponents()
     , childSelector = interest.getChildSelector()
     , atMaxSuffix = (maxSuffix && (suffixCount === maxSuffix))
-    , hasChildren = (node.children.length > 0)
-    , hasMoreSiblings = function(node){
-      if (debug) {console.log(childTracker.length, node.parent.children.length, childTracker[childTracker.length - 1] );}
-      return  (!!childTracker.length && !!node.parent && (node.parent.children.length > childTracker[childTracker.length - 1] + 1));
-    };
+    , hasChildren = (node.children.length > 0);
 
-  if (debug) {console.log(node.prefix.toUri(), interest.name.toUri(), childTracker, hasMoreSiblings(node));}
+  function hasMoreSiblings (node){
+    var bool = (!!childTracker.length && !!node.parent && (node.parent.children.length > childTracker[childTracker.length - 1] + 1));
+    debug("checking if node %s has more siblings : ", bool);
+
+    return bool;
+  }
+
+  debug("checker at node %s" , node.prefix.toUri());
 
   function toChild(node){
-    if (debug) {console.log("toChild", childTracker);}
+    debug("checker moving to child");
     suffixCount++;
     childTracker.push(0);
     if (!childSelector){ //leftmost == 0 == falsey
-
       return self.check(interest, callback, node.children[0], suffixCount, childTracker , stack++);
     } else {
 
@@ -124,23 +131,24 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
   }
 
   function toSibling(node){
-    if (debug) {console.log("toSibling from ", node.prefix.toUri(), childTracker, node);}
+    debug("checker moving to sibling");
     childTracker[childTracker.length - 1]++;
 
     if (!childSelector){
-      if (debug) {console.log(node.prefix.toUri(), childTracker, node.parent.children[childTracker[childTracker.length - 1]].prefix.toUri());}
+
       return self.check(interest, callback, node.parent.children[childTracker[childTracker.length - 1]], suffixCount, childTracker, stack++);
     } else {
-      if (debug) {console.log(node.prefix.toUri(), childTracker, node.parent.children[node.parent.children.length  + ~childTracker[childTracker.length - 1]].prefix.toUri());}
+
       return self.check(interest, callback, node.parent.children[node.parent.children.length  + ~childTracker[childTracker.length - 1]], suffixCount, childTracker, stack++);
     }
   }
 
   function toAncestorSibling(node, stack){
-    if (debug) {console.log("toAncestorSibling from ",node.prefix.toUri(), childTracker);}
+    debug("checker moving to ancestor sibling");
     suffixCount--;
     childTracker.pop();
     if (stack++ > 10000){
+      debug("stack over inside ancestorSibling!!!!!");
       return callback(null);
     }
 
@@ -185,13 +193,14 @@ ContentStore.prototype.check = function(interest, callback, node, suffixCount, c
  *@returns {ContentStore} - for chaining
  */
 ContentStore.prototype.insert = function(element, data){
+  debug("inserting %s", data.name.toUri());
   var Entry = this.EntryClass;
   var freshness = data.getMetaInfo().getFreshnessPeriod();
   var node = this.nameTree.lookup(data.name)
   , entry = new Entry(element, data);
   node[Entry.type] = entry;
   node[Entry.type].nameTreeNode = node;
-  //console.log(freshness,data, data.name.toUri())
+  debug("inserting %s with freshness value of %s", data.name.toUri(), freshness);
   setTimeout(function(){
     if (node[Entry.type]) {node[Entry.type].stale(node);}
   }, freshness || 20 );

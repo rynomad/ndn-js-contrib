@@ -1,5 +1,6 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+var debug  = require("debug")("DataChannelTransport");
 
 
 /**Transport Class for HTML5 DataChannels
@@ -8,6 +9,7 @@ var Transport = require("ndn-lib/js/transport/transport.js").Transport;
  *@returns {DataChannelTransport}
  */
 function DataChannelTransport (channel) {
+  debug("constructor", channel)
   Transport.call(this);
   this.connectionInfo = new DataChannelTransport.ConnectionInfo(channel);
   return this;
@@ -46,37 +48,22 @@ DataChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 DataChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  console.log("DataChannel connect");
+  debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
-  connectionInfo.getChannel().onmessage = function(ev) {
-    if (ev.data.buffer instanceof ArrayBuffer) {
-      try {
-        self.elementReader.onReceivedData(new Buffer(ev.data));
-      } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ", ex);
-        return;
-      }
-    }
-  };
 
   connectionInfo.getChannel().onmessage = function(ev) {
-    //console.log('dc.onmessage called', ev)
+    debug('onmessage called', ev)
     if (ev.data instanceof ArrayBuffer) {
 
       var result = ev.data;
-      //console.log('RecvHandle called.', result);
       var bytearray = new Buffer(new Uint8Array(result));
-      //console.log(bytearray)
-
-      //console.log('BINARY RESPONSE IS ' + bytearray.toString('hex'));
 
       try {
-        //console.log(self, face)
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(bytearray);
       } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ",   ex);
+        cdebug("onmessage exception: ",   ex);
         return;
       }
     }
@@ -84,30 +71,29 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
 
 
   connectionInfo.getChannel().onopen = function(ev) {
-    console.log('dc.onopen: ReadyState: ' + this.readyState);
+    debug('onopen: ReadyState: %s' ,this.readyState);
         // Face.registerPrefix will fetch the ndndid when needed.
 
     onopenCallback();
   }
 
   connectionInfo.getChannel().onerror = function(ev) {
-    //console.log('dc.onerror: ReadyState: ' + this.readyState);
-    //console.log(ev);
-    //console.log('dc.onerror: WebRTC error: ' + ev.data);
+    debug('dc.onerror: ReadyState: ' + this.readyState);
+    debug('dc.onerror: WebRTC error: ' + ev.data);
   }
 
   connectionInfo.getChannel().onclose = function(ev) {
-    console.log('dc.onclose: WebRTC connection closed.');
+    debug('dc.onclose: WebRTC connection closed.');
     self.dc = null;
 
     // Close Face when WebSocket is closed
     self.face.readyStatus = 3;
     self.face.closeByTransport();
     onclosedCallback();
-    //console.log("NDN.onclose event fired.");
   }
 
   if (connectionInfo.getChannel().readyState === "open"){
+    debug("connect called with channel open, firing callback")
     onopenCallback();
   }
 };
@@ -117,11 +103,11 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
  */
 DataChannelTransport.prototype.send = function(element)
 {
-  //console.log("attempting to send", element, this.connectionInfo.getChannel())
+  debug("attempting to send", element, this.connectionInfo.getChannel())
   if(this.connectionInfo.getChannel().readyState === "open"){
     this.connectionInfo.getChannel().send(element.toArrayBuffer());
   } else {
-    console.log("not trying to send, dataChannel not open")
+    debug("not trying to send, dataChannel not open")
   }
 };
 

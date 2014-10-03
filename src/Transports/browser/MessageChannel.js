@@ -1,5 +1,6 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+var debug = require("debug")("MessageChannelTransport");
 
 MessageChannelTransport.protocolKey = "messageChannel";
 
@@ -9,6 +10,7 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
+  debug("constructor")
   Transport.call(this);
   this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
   return this;
@@ -19,7 +21,6 @@ MessageChannelTransport.prototype = new Transport();
 MessageChannelTransport.prototype.name = "MessageChannelTransport";
 
 MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
-  //console.log(Transport);
   Transport.ConnectionInfo.call(this);
   this.port = port;
 };
@@ -46,15 +47,16 @@ MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  console.log("messageChannel connect");
+  debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
+    debug("onmessage called")
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
         self.elementReader.onReceivedData(new Buffer(ev.data));
       } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ", ex);
+        debug(" onmessage exception: %s", ex);
         return;
       }
     }
@@ -68,6 +70,7 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
  */
 MessageChannelTransport.prototype.send = function(element)
 {
+  debug("send")
   this.connectionInfo.getPort().postMessage(element);
 };
 
