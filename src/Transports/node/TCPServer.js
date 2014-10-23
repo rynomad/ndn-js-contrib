@@ -6,7 +6,7 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
   , Transport = require("ndn-lib/js/transport/transport.js").Transport
   , net = require('net')
-  , debug  = require("debug")("TCPServerTransport");
+  , var debug = {}, debug  = require("debug")("TCPServerTransport");
 
 
 var TCPServerTransport = function serverTcpTransport(socketOrAddress)
@@ -14,17 +14,17 @@ var TCPServerTransport = function serverTcpTransport(socketOrAddress)
   var self = this;
   if (typeof socketOrAddress === "string"){
 
-    debug("constructed with string: %s", socketOrAddress);
+    debug.debug("constructed with string: %s", socketOrAddress);
     this.socket = net.connect(socketOrAddress.split(":")[2] || 7474, socketOrAddress.split("://")[1].split(":")[0] || 'localhost', function(sock){
       self.socket = sock;
-      debug("made socket")
+      debug.debug("made socket")
       self.connectedHost = socketOrAddress.split("://")[1] || 'localhost'; // Read by Face.
       self.connectedPort = socketOrAddress.split(":")[2] || 7474;
 
       self.sock_ready = true;
     });
   } else {
-    debug("constructed with existing socket");
+    debug.debug("constructed with existing socket");
     this.socket = socketOrHostAndPort;
     this.connectedHost = null; // Read by Face.
     this.connectedPort = null; // Read by Face.
@@ -56,18 +56,18 @@ TCPServerTransport.defineListener = function(Subject, port){
   port = port || 7474;
 
 
-  debug("defining listener on port: %s", port);
+  debug.debug("defining listener on port: %s", port);
 
   this.Listener = function (interfaces) {
     this.server = net.createServer(function(socket){
-      debug("server got new client socket")
+      debug.debug("server got new client socket")
       socket.on('end', function() {
-        debug('socket disconnected');
+        debug.debug('socket disconnected');
       });
       interfaces.newFace("tcpServerTransport", socket);
     });
     this.server.listen(port, function(){
-      debug('server awaiting connections');
+      debug.debug('server awaiting connections');
     });
   };
 };
@@ -81,7 +81,7 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
   elementListener.readyStatus = 2;
 
   this.socket.on('data', function(data) {
-    debug("got data");
+    debug.debug("got data");
     if (typeof data === 'object') {
       // Make a copy of data (maybe a customBuf or a String)
       var buf = new Buffer(data);
@@ -89,7 +89,7 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(buf);
       } catch (ex) {
-        debug("NDN.TcpTransport.ondata exception: " + ex);
+        debug.debug("NDN.TcpTransport.ondata exception: " + ex);
         return;
       }
     }
@@ -97,11 +97,11 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
 
 
   this.socket.on('error', function() {
-    debug('socket.onerror: TCP socket error');
+    debug.debug('socket.onerror: TCP socket error');
   });
 
   this.socket.on('close', function() {
-    debug('socket.onclose: TCP connection closed. calling closeByTransport');
+    debug.debug('socket.onclose: TCP connection closed. calling closeByTransport');
 
     self.socket = null;
 
@@ -109,7 +109,7 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
     elementListener.closeByTransport();
   });
   this.socket.on('connection', function() {
-    debug('new connection, calling onOpenCallback');
+    debug.debug('new connection, calling onOpenCallback');
     onopenCallback();
   });
 
@@ -122,17 +122,17 @@ TCPServerTransport.prototype.send = function(/*Buffer*/ data)
 {
   if (this.sock_ready)
   {
-    debug("writing data to socket");
+    debug.debug("writing data to socket");
     this.socket.write(data);
   }else{
-    debug('TCP connection is not established.');
+    debug.debug('TCP connection is not established.');
   }
 };
 
 TCPServerTransport.prototype.close = function()
 {
   this.socket.end();
-  debug('TCP connection closed.');
+  debug.debug('TCP connection closed.');
 };
 
 module.exports = TCPServerTransport;

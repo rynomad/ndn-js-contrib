@@ -10,7 +10,7 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
-  debug("constructor")
+  debug.debug("constructor")
   Transport.call(this);
   this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
   return this;
@@ -47,16 +47,16 @@ MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  debug("connect");
+  debug.debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
-    debug("onmessage called")
+    debug.debug("onmessage called")
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
         self.elementReader.onReceivedData(new Buffer(ev.data));
       } catch (ex) {
-        debug(" onmessage exception: %s", ex);
+        debug.debug(" onmessage exception: %s", ex);
         return;
       }
     }
@@ -70,7 +70,7 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
  */
 MessageChannelTransport.prototype.send = function(element)
 {
-  debug("send")
+  debug.debug("send")
   this.connectionInfo.getPort().postMessage(element);
 };
 

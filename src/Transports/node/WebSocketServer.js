@@ -7,7 +7,7 @@ var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementRead
   , Transport = require("ndn-lib/js/transport/transport.js").Transport
   , wes = require('ws')
   , wss = wes.Server
-  , debug = require("debug")("WebSocketServerTransport");
+  , var debug = {}; debug.debug = require("debug")("WebSocketServerTransport");
 
 /** ServerSide websocket transport,
  *@constructor
@@ -19,13 +19,13 @@ var WebSocketServerTransport = function WebSocketServerTransport(ws)
   var Self = this;
   Transport.call(this);
   if (typeof ws === "string"){
-    debug("constructor called with string %s", ws)
+    debug.debug("constructor called with string %s", ws)
     if (ws.split(":").length === 2){
       ws = ws + ":7575";
     }
     this.ws = new wes(ws);
   } else{
-    debug("constructor called with websocket")
+    debug.debug("constructor called with websocket")
     this.ws = ws;
   }
 
@@ -56,12 +56,12 @@ WebSocketServerTransport.ConnectionInfo.prototype.getSocket = function()
 WebSocketServerTransport.defineListener = function(Subject, port){
   var Self = this;
   port = port || 7575;
-  debug("begin listening on port %s", port)
+  debug.debug("begin listening on port %s", port)
 
   this.Listener = function(interfaces){
     Self.server = new wss({port: port});
     Self.server.on('connection', function(ws){
-      debug("got incoming connection, constructing face")
+      debug.debug("got incoming connection, constructing face")
       interfaces.newFace("WebSocketServerTransport", ws);
     });
   };
@@ -77,14 +77,14 @@ WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onope
 
   this.ws.on('message', function(data) {
     if (typeof data === 'object') {
-      debug("got message")
+      debug.debug("got message")
       // Make a copy of data (maybe a customBuf or a String)
       var buf = new Buffer(data);
       try {
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(buf);
       } catch (ex) {
-        debug("NDN.WebSocketServerTransport.ondata exception: " + ex);
+        debug.debug("NDN.WebSocketServerTransport.ondata exception: " + ex);
         return;
       }
     }
@@ -92,11 +92,11 @@ WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onope
 
 
   this.ws.on('error', function(er) {
-    debug('ws.onerror: ws socket error', er);
+    debug.debug('ws.onerror: ws socket error', er);
   });
 
   this.ws.on('close', function() {
-    debug('ws.onclose: ws connection closed.');
+    debug.debug('ws.onclose: ws connection closed.');
 
     self.ws = null;
 
@@ -117,10 +117,10 @@ WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onope
 WebSocketServerTransport.prototype.send = function(/*Buffer*/ data)
 {
   try{
-    debug("sending data", data)
+    debug.debug("sending data", data)
     this.ws.send(data, {binary: true});
   }catch (er){
-    debug('connection is not established.', er);
+    debug.debug('connection is not established.', er);
   }
 };
 

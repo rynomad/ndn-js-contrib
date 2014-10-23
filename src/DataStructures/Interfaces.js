@@ -1,6 +1,6 @@
 var ndn
   , Face
-  , debug = require("debug")("Interfaces")
+  ,debug = {}; debug.debug= require("debug")("Interfaces")
   , ndn = require("ndn-lib")
   , TlvDecoder = require("ndn-lib/js/encoding/tlv/tlv-decoder.js").TlvDecoder
   , Tlv = require("ndn-lib/js/encoding/tlv/tlv.js").Tlv;
@@ -11,7 +11,7 @@ var ndn
  *@returns {Interfaces} - a new Interface manager
  */
 var Interfaces = function Interfaces(Subject){
-  debug("constructed");
+ debug.debug("constructed");
   this.subject = Subject;
   this.transports = {};
   Face = ndn.Face;
@@ -38,9 +38,9 @@ Interfaces.prototype.transports = {};
  */
 Interfaces.prototype.installTransport = function(Transport){
   this.transports[Transport.prototype.name] = Transport;
-  debug("installing %s", Transport.prototype.name);
+ debug.debug("installing %s", Transport.prototype.name);
   if (Transport.Listener){
-    debug("calling listener method");
+   debug.debug("calling listener method");
     Transport.Listener(this);
   }
 
@@ -54,27 +54,27 @@ Interfaces.prototype.installTransport = function(Transport){
  */
 Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, onclose) {
   var Self = this;
-  debug("newFace called");
-  debug("protocol: %s", protocol);
-  debug("connectionParameters: %s", connectionParameters);
-  debug("onopen: %s", onopen);
-  debug("onclose: %s", onclose);
+ debug.debug("newFace called");
+ debug.debug("protocol: %s", protocol);
+ debug.debug("connectionParameters: %s", connectionParameters);
+ debug.debug("onopen: %s", onopen);
+ debug.debug("onclose: %s", onclose);
 
   if (!this.transports[protocol]){
-    debug("transport protocol not supported (or installed), aborting");
+   debug.debug("transport protocol %s not supported (or installed), aborting", protocol);
     return -1;
   } else {
     var Transport = new this.transports[protocol](connectionParameters)
       , newFace =  new ndn.Face(Transport, Transport.connectionInfo);
 
-    debug("transport and face constructed");
+   debug.debug("transport and face constructed");
 
     this.Faces.push(newFace);
     newFace.faceID = this.Faces.length - 1;
     var connectionInfo;
 
     if (protocol === "WebSocketTransport"){
-      debug("TOFIX: align better with ndn-js transport API");
+     debug.debug("TOFIX: align better with ndn-js transport API");
       connectionInfo = new this.transports[protocol].ConnectionInfo(connectionParameters.host, connectionParameters.port);
     } else {
       connectionInfo = newFace.connectionInfo;
@@ -84,18 +84,18 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
     }
 
     newFace.transport.connect(connectionInfo, newFace, function(){
-      debug("TOFIX: calling connect manually, onopen triggered for face %s over transport %s", newFace.faceID, protocol);
+     debug.debug("TOFIX: calling connect manually, onopen triggered for face %s over transport %s", newFace.faceID, protocol);
 
       newFace.onReceivedElement = function(element){
-        debug("onReceivedElement called on face %s", newFace.faceID);
+       debug.debug("onReceivedElement called on face %s", newFace.faceID);
 
         var decoder = new TlvDecoder(element);
         if (decoder.peekType(Tlv.Interest, element.length)) {
-          debug("detected Interest");
+         debug.debug("detected Interest");
           Self.subject.handleInterest(element, this.faceID);
         }
         else if (decoder.peekType(Tlv.Data, element.length)) {
-          debug("detected Data");
+         debug.debug("detected Data");
           Self.subject.handleData(element, this.faceID);
         }
       };
@@ -106,13 +106,13 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
       };
 
       if (onopen) {
-        debug("calling onopen for face %s", newFace.faceID);
+       debug.debug("calling onopen for face %s", newFace.faceID);
         onopen(newFace.faceID);
       }
     }, function(){
       //onclose event TODO
       if (onclose) {
-        debug("calling onclose for face %s", newFace.faceID);
+       debug.debug("calling onclose for face %s", newFace.faceID);
         onclose(newFace.faceID);
       }
     });
@@ -129,12 +129,12 @@ Interfaces.prototype.closeFace = function(){};
  *@returns {Interfaces} for chaining
  */
 Interfaces.prototype.dispatch = function(element, faceFlag, callback){
-  debug("dispatch to flag: %s", faceFlag);
+ debug.debug("dispatch to flag: %s", faceFlag);
   if (faceFlag){
     for (var i = 0; i < faceFlag.toString(2).length; i++){
       if (faceFlag & (1<<i) ){
         if (this.Faces[i]){
-          debug("send on face %s", i);
+         debug.debug("send on face %s", i);
           this.Faces[i].transport.send(element);
         }
         if (callback){

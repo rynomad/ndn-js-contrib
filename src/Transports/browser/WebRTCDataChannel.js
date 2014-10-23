@@ -1,6 +1,6 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
-var debug  = require("debug")("DataChannelTransport");
+vardebug = {}; debug.debug = require("debug")("DataChannelTransport");
 
 
 /**Transport Class for HTML5 DataChannels
@@ -9,7 +9,7 @@ var debug  = require("debug")("DataChannelTransport");
  *@returns {DataChannelTransport}
  */
 function DataChannelTransport (channel) {
-  debug("constructor", channel)
+ debug.debug("constructor", channel)
   Transport.call(this);
   this.connectionInfo = new DataChannelTransport.ConnectionInfo(channel);
   return this;
@@ -48,12 +48,12 @@ DataChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 DataChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  debug("connect");
+ debug.debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
 
   connectionInfo.getChannel().onmessage = function(ev) {
-    debug('onmessage called', ev)
+   debug.debug('onmessage called', ev)
     if (ev.data instanceof ArrayBuffer) {
 
       var result = ev.data;
@@ -71,19 +71,19 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
 
 
   connectionInfo.getChannel().onopen = function(ev) {
-    debug('onopen: ReadyState: %s' ,this.readyState);
+   debug.debug('onopen: ReadyState: %s' ,this.readyState);
         // Face.registerPrefix will fetch the ndndid when needed.
 
     onopenCallback();
   }
 
   connectionInfo.getChannel().onerror = function(ev) {
-    debug('dc.onerror: ReadyState: ' + this.readyState);
-    debug('dc.onerror: WebRTC error: ' + ev.data);
+   debug.debug('dc.onerror: ReadyState: ' + this.readyState);
+   debug.debug('dc.onerror: WebRTC error: ' + ev.data);
   }
 
   connectionInfo.getChannel().onclose = function(ev) {
-    debug('dc.onclose: WebRTC connection closed.');
+   debug.debug('dc.onclose: WebRTC connection closed.');
     self.dc = null;
 
     // Close Face when WebSocket is closed
@@ -93,7 +93,7 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
   }
 
   if (connectionInfo.getChannel().readyState === "open"){
-    debug("connect called with channel open, firing callback")
+   debug.debug("connect called with channel open, firing callback")
     onopenCallback();
   }
 };
@@ -103,11 +103,11 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
  */
 DataChannelTransport.prototype.send = function(element)
 {
-  debug("attempting to send", element, this.connectionInfo.getChannel())
+ debug.debug("attempting to send", element, this.connectionInfo.getChannel())
   if(this.connectionInfo.getChannel().readyState === "open"){
     this.connectionInfo.getChannel().send(element.toArrayBuffer());
   } else {
-    debug("not trying to send, dataChannel not open")
+   debug.debug("not trying to send, dataChannel not open")
   }
 };
 

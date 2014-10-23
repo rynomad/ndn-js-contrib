@@ -42,6 +42,15 @@ module.exports = function(grunt){
         }
       }
     },
+    removelogging : {
+      main : {
+        src : 'src/**/*.js',
+        dest : 'build/**/*.js',
+        options : {
+          nodes : ['console.log', 'debug']
+        }
+      }
+    },
     jsdoc : {
       dist : {
         src: ['src/**/*.js'],
@@ -102,6 +111,29 @@ module.exports = function(grunt){
       PIT: ['src/DataStructures/PIT.js'],
       Interfaces: ['src/DataStructures/Interfaces.js'],
       Transports: ['src/Transports/*.js']
+    },
+    removelogging : {
+      dist:{
+        src : 'src/**/*.js',
+        namespace: ["debug"]
+      }
+    },
+    copy:{
+      toTmp:{
+        files:[
+          {expand: true, src: ['src/**'], dest: 'tmp/'},
+        ]
+      },
+      toDist:{
+        files:[
+          {expand: true, src: ['src/**'], dest: 'dist/'}
+        ]
+      },
+      toSrc:{
+        files:[
+          {expand: true, src: ['tmp/**'], dest: 'src/'}
+        ]
+      }
     }
   })
 
@@ -112,6 +144,12 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-plato");
+  grunt.loadNpmTasks('grunt-remove-logging');
+
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  //grunt.loadNpmTasks('grunt-contrib-clean');
+
+  grunt.registerTask("stripDebug", ["copy:toTmp", "removelogging", "copy:toDist","copy:toSrc" ])
 
   grunt.registerTask("build", ["browserify:build", "uglify:build"])
   grunt.registerTask("suite", ["jshint", "browserify:testDataStructures", "browserify:testTransports", "mochaTest"])

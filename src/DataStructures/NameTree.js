@@ -1,7 +1,6 @@
 var NameTreeNode = require("./NameTreeNode.js")
   , binaryIndexOf = require("./../Utility/binarySearch.js")
   , ndn
-  , debug = require("./../Utility/debug.js").NameTree;
 
 /**Creates an empty NameTree.
  *@constructor
