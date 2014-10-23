@@ -142,4 +142,3 @@ describe("ContentStore", function(){
     setTimeout(function(){assert(!cache.check(i)); done()}, 4001)
   })
 })
-

@@ -4568,7 +4568,7 @@ ASN1HEX.getDecendantHexTLVByNthList = _asnhex_getDecendantHexTLVByNthList;
 exports.ASN1HEX = ASN1HEX;
 module.exports = exports;
 
-},{"jsbn":100}],30:[function(require,module,exports){
+},{"jsbn":103}],30:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -6101,7 +6101,7 @@ KJUR.crypto.Signature = function(params) {
 exports.KJUR = KJUR;
 module.exports = exports;
 
-},{"./sha256.js":37,"jsbn":100}],33:[function(require,module,exports){
+},{"./sha256.js":37,"jsbn":103}],33:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -6311,7 +6311,7 @@ RSAKey.prototype.encryptOAEP = RSAEncryptOAEP;
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"jsbn":100}],34:[function(require,module,exports){
+},{"jsbn":103}],34:[function(require,module,exports){
 // Copyright (c) 2003-2009  Tom Wu
 // All Rights Reserved.
 // 
@@ -6583,7 +6583,7 @@ RSAKey.prototype.decryptOAEP = RSADecryptOAEP;
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"./rsa.js":33,"jsbn":100}],35:[function(require,module,exports){
+},{"./rsa.js":33,"jsbn":103}],35:[function(require,module,exports){
 /*! rsapem-1.1.js (c) 2012 Kenji Urushima | kjur.github.com/jsrsasign/license
  */
 //
@@ -7111,7 +7111,7 @@ RSAKey.SALT_LEN_RECOVER = -2;
 exports.RSAKey = RSAKey;
 module.exports = exports;
 
-},{"./rsapem-1.1.js":35,"jsbn":100}],37:[function(require,module,exports){
+},{"./rsapem-1.1.js":35,"jsbn":103}],37:[function(require,module,exports){
 /*
 CryptoJS v3.1.2
 code.google.com/p/crypto-js
@@ -7359,7 +7359,9 @@ exports.NoVerifyPolicyManager = require('./js/security/policy/no-verify-policy-m
 exports.SelfVerifyPolicyManager = require('./js/security/policy/self-verify-policy-manager.js').SelfVerifyPolicyManager;
 exports.KeyChain = require('./js/security/key-chain.js').KeyChain;
 
-},{"./js/closure.js":41,"./js/data.js":43,"./js/encoding/binary-xml-wire-format.js":47,"./js/encoding/data-utils.js":48,"./js/encoding/encoding-utils.js":51,"./js/encoding/protobuf-tlv.js":52,"./js/encoding/tlv-wire-format.js":54,"./js/encoding/wire-format.js":59,"./js/exclude.js":60,"./js/face.js":62,"./js/forwarding-flags.js":64,"./js/interest.js":65,"./js/key-locator.js":66,"./js/key.js":67,"./js/meta-info.js":69,"./js/name.js":70,"./js/publisher-public-key-digest.js":72,"./js/security/identity/identity-manager.js":75,"./js/security/identity/identity-storage.js":76,"./js/security/identity/memory-identity-storage.js":77,"./js/security/identity/memory-private-key-storage.js":78,"./js/security/key-chain.js":80,"./js/security/key-manager.js":81,"./js/security/policy/no-verify-policy-manager.js":82,"./js/security/policy/policy-manager.js":83,"./js/security/policy/self-verify-policy-manager.js":84,"./js/security/policy/validation-request.js":85,"./js/security/security-exception.js":86,"./js/security/security-types.js":87,"./js/sha256-with-rsa-signature.js":88,"./js/transport/tcp-transport.js":39,"./js/transport/unix-transport.js":90,"./js/util/blob.js":92,"./js/util/memory-content-cache.js":95,"./js/util/name-enumeration.js":96,"./js/util/ndn-time.js":98}],39:[function(require,module,exports){
+exports.ChronoSync2013 = require('./js/sync/chrono-sync2013.js').ChronoSync2013;
+
+},{"./js/closure.js":41,"./js/data.js":43,"./js/encoding/binary-xml-wire-format.js":47,"./js/encoding/data-utils.js":48,"./js/encoding/encoding-utils.js":51,"./js/encoding/protobuf-tlv.js":52,"./js/encoding/tlv-wire-format.js":54,"./js/encoding/wire-format.js":59,"./js/exclude.js":60,"./js/face.js":62,"./js/forwarding-flags.js":64,"./js/interest.js":65,"./js/key-locator.js":66,"./js/key.js":67,"./js/meta-info.js":69,"./js/name.js":70,"./js/publisher-public-key-digest.js":72,"./js/security/identity/identity-manager.js":75,"./js/security/identity/identity-storage.js":76,"./js/security/identity/memory-identity-storage.js":77,"./js/security/identity/memory-private-key-storage.js":78,"./js/security/key-chain.js":80,"./js/security/key-manager.js":81,"./js/security/policy/no-verify-policy-manager.js":82,"./js/security/policy/policy-manager.js":83,"./js/security/policy/self-verify-policy-manager.js":84,"./js/security/policy/validation-request.js":85,"./js/security/security-exception.js":86,"./js/security/security-types.js":87,"./js/sha256-with-rsa-signature.js":88,"./js/sync/chrono-sync2013.js":89,"./js/transport/tcp-transport.js":39,"./js/transport/unix-transport.js":93,"./js/util/blob.js":95,"./js/util/memory-content-cache.js":98,"./js/util/name-enumeration.js":99,"./js/util/ndn-time.js":101}],39:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -7372,17 +7374,17 @@ exports.KeyChain = require('./js/security/key-chain.js').KeyChain;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 // The Face constructor uses TcpTransport by default which is not available in the browser, so override to WebSocketTransport.
 exports.TcpTransport = require("./transport/web-socket-transport").WebSocketTransport;
 
-},{"./transport/web-socket-transport":91}],40:[function(require,module,exports){
+},{"./transport/web-socket-transport":94}],40:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -7396,11 +7398,11 @@ exports.TcpTransport = require("./transport/web-socket-transport").WebSocketTran
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var ASN1HEX = require('../contrib/securityLib/asn1hex-1.1.js').ASN1HEX
@@ -7561,11 +7563,11 @@ module.exports = exports
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -7653,11 +7655,11 @@ exports.UpcallInfo = UpcallInfo;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var ForwardingFlags = require('./forwarding-flags.js').ForwardingFlags;
@@ -7860,11 +7862,11 @@ ControlParameters.prototype.setExpirationPeriod = function(expirationPeriod)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Crypto = require("./crypto.js");
@@ -7923,7 +7925,7 @@ var Data = function Data(name, metaInfoOrContent, arg3)
 
   this.signature = new Sha256WithRsaSignature();
 
-  this.wireEncoding = SignedBlob();
+  this.wireEncoding = new SignedBlob();
 };
 
 exports.Data = Data;
@@ -7985,7 +7987,7 @@ Data.prototype.setName = function(name)
     new Name(name) : new Name();
 
   // The object has changed, so the wireEncoding is invalid.
-  this.wireEncoding = SignedBlob();
+  this.wireEncoding = new SignedBlob();
   return this;
 };
 
@@ -8000,7 +8002,7 @@ Data.prototype.setMetaInfo = function(metaInfo)
     new MetaInfo(metaInfo) : new MetaInfo();
 
   // The object has changed, so the wireEncoding is invalid.
-  this.wireEncoding = SignedBlob();
+  this.wireEncoding = new SignedBlob();
   return this;
 };
 
@@ -8015,7 +8017,7 @@ Data.prototype.setSignature = function(signature)
     signature.clone() : new Sha256WithRsaSignature();
 
   // The object has changed, so the wireEncoding is invalid.
-  this.wireEncoding = SignedBlob();
+  this.wireEncoding = new SignedBlob();
   return this;
 };
 
@@ -8034,7 +8036,7 @@ Data.prototype.setContent = function(content)
     this.content = new Buffer(content);
 
   // The object has changed, so the wireEncoding is invalid.
-  this.wireEncoding = SignedBlob();
+  this.wireEncoding = new SignedBlob();
   return this;
 };
 
@@ -8210,7 +8212,7 @@ ContentObject.prototype = new Data();
 exports.ContentObject = ContentObject;
 
 }).call(this,require("buffer").Buffer)
-},{"./crypto.js":40,"./encoding/binary-xml-encoder.js":45,"./encoding/binary-xml-wire-format.js":47,"./encoding/data-utils.js":48,"./encoding/wire-format.js":59,"./key-locator.js":66,"./meta-info.js":69,"./name.js":70,"./security/key-manager.js":81,"./sha256-with-rsa-signature.js":88,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"./util/signed-blob.js":99,"buffer":5}],44:[function(require,module,exports){
+},{"./crypto.js":40,"./encoding/binary-xml-encoder.js":45,"./encoding/binary-xml-wire-format.js":47,"./encoding/data-utils.js":48,"./encoding/wire-format.js":59,"./key-locator.js":66,"./meta-info.js":69,"./name.js":70,"./security/key-manager.js":81,"./sha256-with-rsa-signature.js":88,"./util/blob.js":95,"./util/ndn-protoco-id-tags.js":100,"./util/signed-blob.js":102,"buffer":5}],44:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class is used to decode ndnb binary elements (blob, type/value pairs).
@@ -8226,11 +8228,11 @@ exports.ContentObject = ContentObject;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var NDNProtocolDTags = require('../util/ndn-protoco-id-tags.js').NDNProtocolDTags;
@@ -8938,7 +8940,7 @@ BinaryXMLDecoder.prototype.seek = function(offset)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../log.js":68,"../util/ndn-protoco-id-tags.js":97,"../util/ndn-time.js":98,"./data-utils.js":48,"./decoding-exception.js":49,"buffer":5}],45:[function(require,module,exports){
+},{"../log.js":68,"../util/ndn-protoco-id-tags.js":100,"../util/ndn-time.js":101,"./data-utils.js":48,"./decoding-exception.js":49,"buffer":5}],45:[function(require,module,exports){
 /**
  * This class is used to encode ndnb binary elements (blob, type/value pairs).
  *
@@ -8953,11 +8955,11 @@ BinaryXMLDecoder.prototype.seek = function(offset)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var LOG = require('../log.js').Log.LOG;
@@ -9386,7 +9388,7 @@ BinaryXMLEncoder.prototype.getReducedOstream = function()
   return this.ostream.slice(0, this.offset);
 };
 
-},{"../log.js":68,"../util/dynamic-buffer.js":94,"../util/ndn-protoco-id-tags.js":97,"./data-utils.js":48}],46:[function(require,module,exports){
+},{"../log.js":68,"../util/dynamic-buffer.js":97,"../util/ndn-protoco-id-tags.js":100,"./data-utils.js":48}],46:[function(require,module,exports){
 /**
  * This class uses BinaryXMLDecoder to follow the structure of a ndnb binary element to
  * determine its end.
@@ -9402,11 +9404,11 @@ BinaryXMLEncoder.prototype.getReducedOstream = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var BinaryXMLDecoder = require('./binary-xml-decoder.js').BinaryXMLDecoder;
@@ -9594,7 +9596,7 @@ BinaryXMLStructureDecoder.prototype.seek = function(offset)
   this.offset = offset;
 };
 
-},{"../util/dynamic-buffer.js":94,"./binary-xml-decoder.js":44}],47:[function(require,module,exports){
+},{"../util/dynamic-buffer.js":97,"./binary-xml-decoder.js":44}],47:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -9607,11 +9609,11 @@ BinaryXMLStructureDecoder.prototype.seek = function(offset)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Blob = require('../util/blob.js').Blob;
@@ -9667,6 +9669,13 @@ BinaryXmlWireFormat.prototype.encodeInterest = function(interest)
  * Decode input as a Binary XML interest and set the fields of the interest object.
  * @param {Interest} interest The Interest object whose fields are updated.
  * @param {Buffer} input The buffer with the bytes to decode.
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
  */
 BinaryXmlWireFormat.prototype.decodeInterest = function(interest, input)
 {
@@ -9803,13 +9812,20 @@ BinaryXmlWireFormat.encodeInterest = function(interest, encoder)
  * Use the decoder to place the result in interest.
  * @param {Interest} interest
  * @param {BinaryXMLDecoder} decoder
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
  */
 BinaryXmlWireFormat.decodeInterest = function(interest, decoder)
 {
   decoder.readElementStartDTag(NDNProtocolDTags.Interest);
 
   interest.setName(new Name());
-  interest.getName().from_ndnb(decoder);
+  var offsets = interest.getName().from_ndnb(decoder);
 
   if (decoder.peekDTag(NDNProtocolDTags.MinSuffixComponents))
     interest.setMinSuffixComponents(decoder.readIntegerDTagElement(NDNProtocolDTags.MinSuffixComponents));
@@ -9873,6 +9889,7 @@ BinaryXmlWireFormat.decodeInterest = function(interest, decoder)
     interest.setNonce(null);
 
   decoder.readElementClose();
+  return offsets;
 };
 
 /**
@@ -9961,7 +9978,7 @@ BinaryXmlWireFormat.decodeData = function(data, decoder)
            signedPortionEndOffset: signedPortionEndOffset };
 };
 
-},{"../exclude.js":60,"../key-locator.js":66,"../meta-info.js":69,"../name.js":70,"../publisher-public-key-digest.js":72,"../sha256-with-rsa-signature.js":88,"../util/blob.js":92,"../util/ndn-protoco-id-tags.js":97,"./binary-xml-decoder.js":44,"./binary-xml-encoder.js":45,"./data-utils.js":48,"./wire-format.js":59}],48:[function(require,module,exports){
+},{"../exclude.js":60,"../key-locator.js":66,"../meta-info.js":69,"../name.js":70,"../publisher-public-key-digest.js":72,"../sha256-with-rsa-signature.js":88,"../util/blob.js":95,"../util/ndn-protoco-id-tags.js":100,"./binary-xml-decoder.js":44,"./binary-xml-encoder.js":45,"./data-utils.js":48,"./wire-format.js":59}],48:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class contains utilities to help parse the data
@@ -9978,11 +9995,11 @@ BinaryXmlWireFormat.decodeData = function(data, decoder)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -10239,7 +10256,8 @@ DataUtils.bigEndianToUnsignedInt = function(bytes)
 {
   var result = 0;
   for (var i = 0; i < bytes.length; ++i) {
-    result <<= 8;
+    // Multiply by 0x100 instead of shift by 8 because << is restricted to 32 bits.
+    result *= 0x100;
     result += bytes[i];
   }
   return result;
@@ -10262,7 +10280,8 @@ DataUtils.nonNegativeIntToBigEndian = function(value)
   while (value != 0) {
     ++i;
     result[size - i] = value & 0xff;
-    value >>= 8;
+    // Divide by 0x100 and floor instead of shift by 8 because >> is restricted to 32 bits.
+    value = Math.floor(value / 0x100);
   }
   return result.slice(size - i, size);
 };
@@ -10295,11 +10314,11 @@ DataUtils.shuffle = function(array)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -10333,11 +10352,11 @@ exports.DecodingException = DecodingException;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var DataUtils = require('./data-utils.js').DataUtils;
@@ -10445,11 +10464,11 @@ ElementReader.prototype.onReceivedData = function(/* Buffer */ data)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var DataUtils = require('./data-utils.js').DataUtils;
@@ -10631,8 +10650,8 @@ EncodingUtils.dataToHtml = function(/* Data */ data)
 
       output+= "<br />";
     }
-    if (data.getMetaInfo() != null && data.getMetaInfo().getFinalBlockID().getValue().size() > 0) {
-      output += "FinalBlockID: "+ data.getMetaInfo().getFinalBlockID().getValue().toHex();
+    if (data.getMetaInfo() != null && data.getMetaInfo().getFinalBlockId().getValue().size() > 0) {
+      output += "FinalBlockId: "+ data.getMetaInfo().getFinalBlockId().getValue().toHex();
       output+= "<br />";
     }
     if (data.getMetaInfo() != null && data.getMetaInfo().locator != null && data.getMetaInfo().locator.getType()) {
@@ -10697,11 +10716,11 @@ function encodeToBinaryContentObject(data) { return data.wireEncode().buf(); }
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var TlvEncoder = require('./tlv/tlv-encoder.js').TlvEncoder;
@@ -10909,7 +10928,7 @@ ProtobufTlv._decodeFieldValue = function(field, tlvType, decoder, endOffset)
     throw new Error("ProtobufTlv.decode: Unknown field type");
 };
 
-},{"../util/blob.js":92,"./tlv/tlv-decoder.js":55,"./tlv/tlv-encoder.js":56,"protobufjs/dist/ProtoBuf.js":101}],53:[function(require,module,exports){
+},{"../util/blob.js":95,"./tlv/tlv-decoder.js":55,"./tlv/tlv-encoder.js":56,"protobufjs/dist/ProtoBuf.js":104}],53:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -10923,11 +10942,11 @@ ProtobufTlv._decodeFieldValue = function(field, tlvType, decoder, endOffset)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Crypto = require('../crypto.js');
@@ -11030,13 +11049,20 @@ Tlv0_1WireFormat.prototype.encodeInterest = function(interest)
  * object.
  * @param {Interest} interest The Interest object whose fields are updated.
  * @param {Buffer} input The buffer with the bytes to decode.
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
  */
 Tlv0_1WireFormat.prototype.decodeInterest = function(interest, input)
 {
   var decoder = new TlvDecoder(input);
 
   var endOffset = decoder.readNestedTlvsStart(Tlv.Interest);
-  Tlv0_1WireFormat.decodeName(interest.getName(), decoder);
+  var offsets = Tlv0_1WireFormat.decodeName(interest.getName(), decoder);
   if (decoder.peekType(Tlv.Selectors, endOffset))
     Tlv0_1WireFormat.decodeSelectors(interest, decoder);
   // Require a Nonce, but don't force it to be 4 bytes.
@@ -11050,6 +11076,7 @@ Tlv0_1WireFormat.prototype.decodeInterest = function(interest, input)
   interest.setNonce(nonce);
 
   decoder.finishNestedTlvs(endOffset);
+  return offsets;
 };
 
 /**
@@ -11222,7 +11249,7 @@ Tlv0_1WireFormat.prototype.decodeSignatureInfoAndValue = function
   var decoder = new TlvDecoder(signatureInfo);
   Tlv0_1WireFormat.decodeSignatureInfo(signatureHolder, decoder);
 
-  decoder = TlvDecoder(signatureValue);
+  decoder = new TlvDecoder(signatureValue);
   // TODO: The library needs to handle other signature types than
   //   SignatureSha256WithRsa.
   signatureHolder.getSignature().setSignature
@@ -11299,15 +11326,37 @@ Tlv0_1WireFormat.encodeName = function(name, encoder)
            signedPortionEndOffset: signedPortionEndOffset };
 };
 
+/**
+ * Clear the name, decode a Name from the decoder and set the fields of the name
+ * object.
+ * @param {Name} name The name object whose fields are updated.
+ * @param {TlvDecoder} decoder The decoder with the input.
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
+ */
 Tlv0_1WireFormat.decodeName = function(name, decoder)
 {
   name.clear();
 
   var endOffset = decoder.readNestedTlvsStart(Tlv.Name);
-  while (decoder.getOffset() < endOffset)
-      name.append(decoder.readBlobTlv(Tlv.NameComponent));
+  var signedPortionBeginOffset = decoder.getOffset();
+  // In case there are no components, set signedPortionEndOffset arbitrarily.
+  var signedPortionEndOffset = signedPortionBeginOffset;
+
+  while (decoder.getOffset() < endOffset) {
+    signedPortionEndOffset = decoder.getOffset();
+    name.append(decoder.readBlobTlv(Tlv.NameComponent));
+  }
 
   decoder.finishNestedTlvs(endOffset);
+
+  return { signedPortionBeginOffset: signedPortionBeginOffset,
+           signedPortionEndOffset: signedPortionEndOffset };
 };
 
 /**
@@ -11520,7 +11569,7 @@ Tlv0_1WireFormat.encodeMetaInfo = function(metaInfo, encoder)
   var saveLength = encoder.getLength();
 
   // Encode backwards.
-  var finalBlockIdBuf = metaInfo.getFinalBlockID().getValue().buf();
+  var finalBlockIdBuf = metaInfo.getFinalBlockId().getValue().buf();
   if (finalBlockIdBuf != null && finalBlockIdBuf.length > 0) {
     // FinalBlockId has an inner NameComponent.
     var finalBlockIdSaveLength = encoder.getLength();
@@ -11558,17 +11607,17 @@ Tlv0_1WireFormat.decodeMetaInfo = function(metaInfo, decoder)
     (decoder.readOptionalNonNegativeIntegerTlv(Tlv.FreshnessPeriod, endOffset));
   if (decoder.peekType(Tlv.FinalBlockId, endOffset)) {
     var finalBlockIdEndOffset = decoder.readNestedTlvsStart(Tlv.FinalBlockId);
-    metaInfo.setFinalBlockID(decoder.readBlobTlv(Tlv.NameComponent));
+    metaInfo.setFinalBlockId(decoder.readBlobTlv(Tlv.NameComponent));
     decoder.finishNestedTlvs(finalBlockIdEndOffset);
   }
   else
-    metaInfo.setFinalBlockID(null);
+    metaInfo.setFinalBlockId(null);
 
   decoder.finishNestedTlvs(endOffset);
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../crypto.js":40,"../exclude.js":60,"../forwarding-flags.js":64,"../key-locator.js":66,"../meta-info.js":69,"../publisher-public-key-digest.js":72,"../sha256-with-rsa-signature.js":88,"../util/blob.js":92,"./decoding-exception.js":49,"./tlv/tlv-decoder.js":55,"./tlv/tlv-encoder.js":56,"./tlv/tlv.js":58,"./wire-format.js":59,"buffer":5}],54:[function(require,module,exports){
+},{"../crypto.js":40,"../exclude.js":60,"../forwarding-flags.js":64,"../key-locator.js":66,"../meta-info.js":69,"../publisher-public-key-digest.js":72,"../sha256-with-rsa-signature.js":88,"../util/blob.js":95,"./decoding-exception.js":49,"./tlv/tlv-decoder.js":55,"./tlv/tlv-encoder.js":56,"./tlv/tlv.js":58,"./wire-format.js":59,"buffer":5}],54:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -11581,11 +11630,11 @@ Tlv0_1WireFormat.decodeMetaInfo = function(metaInfo, decoder)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var WireFormat = require('./wire-format.js').WireFormat;
@@ -11641,11 +11690,11 @@ WireFormat.setDefaultWireFormat(TlvWireFormat.get());
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var DecodingException = require('../decoding-exception.js').DecodingException;
@@ -11695,17 +11744,21 @@ TlvDecoder.prototype.readExtendedVarNumber = function(firstOctet)
     this.offset += 2;
   }
   else if (firstOctet == 254) {
-    result = ((this.input[this.offset] << 24) +
+    // Use abs because << 24 can set the high bit of the 32-bit int making it negative.
+    result = (Math.abs(this.input[this.offset] << 24) +
           (this.input[this.offset + 1] << 16) +
           (this.input[this.offset + 2] << 8) +
            this.input[this.offset + 3]);
     this.offset += 4;
   }
   else {
-    result = ((this.input[this.offset] << 56) +
-          (this.input[this.offset + 1] << 48) +
-          (this.input[this.offset + 2] << 40) +
-          (this.input[this.offset + 3] << 32) +
+    // Get the high byte first because JavaScript << is restricted to 32 bits.
+    // Use abs because << 24 can set the high bit of the 32-bit int making it negative.
+    var highByte = Math.abs(this.input[this.offset] << 24) +
+                           (this.input[this.offset + 1] << 16) +
+                           (this.input[this.offset + 2] << 8) +
+                            this.input[this.offset + 3];
+    result = (highByte * 0x100000000 +
           (this.input[this.offset + 4] << 24) +
           (this.input[this.offset + 5] << 16) +
           (this.input[this.offset + 6] << 8) +
@@ -11830,19 +11883,23 @@ TlvDecoder.prototype.readNonNegativeInteger = function(length)
     result = ((this.input[this.offset] << 8) +
            this.input[this.offset + 1]);
   else if (length == 4)
-    result = ((this.input[this.offset] << 24) +
+    // Use abs because << 24 can set the high bit of the 32-bit int making it negative.
+    result = (Math.abs(this.input[this.offset] << 24) +
           (this.input[this.offset + 1] << 16) +
           (this.input[this.offset + 2] << 8) +
            this.input[this.offset + 3]);
-  else if (length == 8)
-    result = ((this.input[this.offset] << 56) +
-          (this.input[this.offset + 1] << 48) +
-          (this.input[this.offset + 2] << 40) +
-          (this.input[this.offset + 3] << 32) +
-          (this.input[this.offset + 4] << 24) +
+  else if (length == 8) {
+    // Use abs because << 24 can set the high bit of the 32-bit int making it negative.
+    var highByte = Math.abs(this.input[this.offset] << 24) +
+                       (this.input[this.offset + 1] << 16) +
+                       (this.input[this.offset + 2] << 8) +
+                        this.input[this.offset + 3];
+    result = (highByte * 0x100000000 +
+          Math.abs(this.input[this.offset + 4] << 24) +
           (this.input[this.offset + 5] << 16) +
           (this.input[this.offset + 6] << 8) +
            this.input[this.offset + 7]);
+  }
   else
     throw new DecodingException("Invalid length for a TLV nonNegativeInteger");
 
@@ -11980,14 +12037,15 @@ TlvDecoder.prototype.seek = function(offset)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var DynamicBuffer = require('../../util/dynamic-buffer.js').DynamicBuffer;
+var Tlv = require('./tlv.js').Tlv;
 
 /**
  * Create a new TlvEncoder with an initialCapacity for the encoding buffer.
@@ -12052,10 +12110,11 @@ TlvEncoder.prototype.writeVarNumber = function(varNumber)
     this.output.ensureLengthFromBack(this.length);
     var offset = this.output.array.length - this.length;
     this.output.array[offset] = 255;
-    this.output.array[offset + 1] = (varNumber >> 56) & 0xff;
-    this.output.array[offset + 2] = (varNumber >> 48) & 0xff;
-    this.output.array[offset + 3] = (varNumber >> 40) & 0xff;
-    this.output.array[offset + 4] = (varNumber >> 32) & 0xff;
+    var highBytes = Tlv.getHighBytes(varNumber);
+    this.output.array[offset + 1] = (highBytes >> 24) & 0xff;
+    this.output.array[offset + 2] = (highBytes >> 16) & 0xff;
+    this.output.array[offset + 3] = (highBytes >> 8)  & 0xff;
+    this.output.array[offset + 4] = (highBytes)       & 0xff;
     this.output.array[offset + 5] = (varNumber >> 24) & 0xff;
     this.output.array[offset + 6] = (varNumber >> 16) & 0xff;
     this.output.array[offset + 7] = (varNumber >> 8) & 0xff;
@@ -12114,10 +12173,11 @@ TlvEncoder.prototype.writeNonNegativeInteger = function(value)
     this.length += 8;
     this.output.ensureLengthFromBack(this.length);
     var offset = this.output.array.length - this.length;
-    this.output.array[offset]     = (value >> 56) & 0xff;
-    this.output.array[offset + 1] = (value >> 48) & 0xff;
-    this.output.array[offset + 2] = (value >> 40) & 0xff;
-    this.output.array[offset + 3] = (value >> 32) & 0xff;
+    var highBytes = Tlv.getHighBytes(value);
+    this.output.array[offset]     = (highBytes >> 24) & 0xff;
+    this.output.array[offset + 1] = (highBytes >> 16) & 0xff;
+    this.output.array[offset + 2] = (highBytes >> 8)  & 0xff;
+    this.output.array[offset + 3] = (highBytes)       & 0xff;
     this.output.array[offset + 4] = (value >> 24) & 0xff;
     this.output.array[offset + 5] = (value >> 16) & 0xff;
     this.output.array[offset + 6] = (value >> 8) & 0xff;
@@ -12196,7 +12256,7 @@ TlvEncoder.prototype.getOutput = function()
   return this.output.array.slice(this.output.array.length - this.length);
 };
 
-},{"../../util/dynamic-buffer.js":94}],57:[function(require,module,exports){
+},{"../../util/dynamic-buffer.js":97,"./tlv.js":58}],57:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -12210,11 +12270,11 @@ TlvEncoder.prototype.getOutput = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var TlvDecoder = require('./tlv-decoder.js').TlvDecoder;
@@ -12434,11 +12494,11 @@ TlvStructureDecoder.prototype.seek = function(offset)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -12511,6 +12571,22 @@ Tlv.ControlParameters_Flags =               108;
 Tlv.ControlParameters_Strategy =            107;
 Tlv.ControlParameters_ExpirationPeriod =    109;
 
+/**
+ * Strip off the lower 32 bits of x and divide by 2^32, returning the "high
+ * bytes" above 32 bits.  This is necessary because JavaScript << and >> are
+ * restricted to 32 bits.
+ * (This could be a general function, but we define it here so that the
+ * Tlv encoder/decoder is self-contained.)
+ * @param {number} x
+ * @returns {number}
+ */
+Tlv.getHighBytes = function(x)
+{
+  // Don't use floor because we expect the caller to use & and >> on the result
+  // which already strip off the fraction.
+  return (x - (x % 0x100000000)) / 0x100000000;
+};
+
 },{}],59:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -12524,11 +12600,11 @@ Tlv.ControlParameters_ExpirationPeriod =    109;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -12563,6 +12639,13 @@ WireFormat.prototype.encodeInterest = function(interest)
  * Your derived class should override.
  * @param {Interest} interest The Interest object whose fields are updated.
  * @param {Buffer} input The buffer with the bytes to decode.
+ * @returns {object} An associative array with fields
+ * (signedPortionBeginOffset, signedPortionEndOffset) where
+ * signedPortionBeginOffset is the offset in the encoding of the beginning of
+ * the signed portion, and signedPortionEndOffset is the offset in the encoding
+ * of the end of the signed portion. The signed portion starts from the first
+ * name component and ends just before the final name component (which is
+ * assumed to be a signature for a signed interest).
  * @throws Error This always throws an "unimplemented" error. The derived class should override.
  */
 WireFormat.prototype.decodeInterest = function(interest, input)
@@ -12711,11 +12794,11 @@ var TlvWireFormat = require('./tlv-wire-format.js').TlvWireFormat;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Name = require('./name.js').Name;
@@ -12949,7 +13032,7 @@ Exclude.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/data-utils.js":48,"./name.js":70,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97}],61:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/data-utils.js":48,"./name.js":70,"./util/blob.js":95,"./util/ndn-protoco-id-tags.js":100}],61:[function(require,module,exports){
 /**
  * This class represents Face Instances
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -12963,11 +13046,11 @@ Exclude.prototype.getChangeCount = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var NDNProtocolDTags = require('./util/ndn-protoco-id-tags.js').NDNProtocolDTags;
@@ -13076,7 +13159,7 @@ FaceInstance.prototype.getElementLabel = function()
 };
 
 
-},{"./publisher-public-key-digest.js":72,"./util/ndn-protoco-id-tags.js":97}],62:[function(require,module,exports){
+},{"./publisher-public-key-digest.js":72,"./util/ndn-protoco-id-tags.js":100}],62:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents the top-level object for communicating with an NDN host.
@@ -13091,11 +13174,11 @@ FaceInstance.prototype.getElementLabel = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var crypto = require('crypto');
@@ -13106,6 +13189,7 @@ var Data = require('./data.js').Data;
 var MetaInfo = require('./meta-info.js').MetaInfo;
 var ForwardingEntry = require('./forwarding-entry.js').ForwardingEntry;
 var ControlParameters = require('./control-parameters.js').ControlParameters;
+var WireFormat = require('./encoding/wire-format.js').WireFormat;
 var TlvWireFormat = require('./encoding/tlv-wire-format.js').TlvWireFormat;
 var BinaryXmlWireFormat = require('./encoding/binary-xml-wire-format.js').BinaryXmlWireFormat;
 var Tlv = require('./encoding/tlv/tlv.js').Tlv;
@@ -13249,6 +13333,7 @@ var Face = function Face(transportOrSettings, connectionInfo)
   this.commandKeyChain = null;
   this.commandCertificateName = new Name();
   this.commandInterestGenerator = new CommandInterestGenerator();
+  this.timeoutPrefix = new Name("/local/timeout");
 };
 
 exports.Face = Face;
@@ -13514,6 +13599,7 @@ Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
 {
   // There are several overloaded versions of expressInterest, each shown inline below.
 
+  var interest;
   // expressInterest(Name name, Closure closure);                      // deprecated
   // expressInterest(Name name, Closure closure,   Interest template); // deprecated
   if (arg2 && arg2.upcall && typeof arg2.upcall == 'function') {
@@ -13537,7 +13623,6 @@ Face.prototype.expressInterest = function(interestOrName, arg2, arg3, arg4)
     return this.expressInterestWithClosure(interest, arg2);
   }
 
-  var interest;
   var onData;
   var onTimeout;
   // expressInterest(Interest interest, function onData);
@@ -13727,7 +13812,9 @@ Face.prototype.expressInterestHelper = function(pendingInterestId, interest, clo
     }
   }
 
-  this.transport.send(binaryInterest.buf());
+  // Special case: For timeoutPrefix we don't actually send the interest.
+  if (!this.timeoutPrefix.match(interest.getName()))
+    this.transport.send(binaryInterest.buf());
 };
 
 /**
@@ -14517,7 +14604,7 @@ NDN.OPENED = Face.OPENED;
 NDN.CLOSED = Face.CLOSED;
 
 }).call(this,require("buffer").Buffer)
-},{"./closure.js":41,"./control-parameters.js":42,"./data.js":43,"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/binary-xml-wire-format.js":47,"./encoding/data-utils.js":48,"./encoding/tlv-wire-format.js":54,"./encoding/tlv/tlv-decoder.js":55,"./encoding/tlv/tlv.js":58,"./forwarding-entry.js":63,"./forwarding-flags.js":64,"./interest.js":65,"./key-locator.js":66,"./key.js":67,"./log.js":68,"./meta-info.js":69,"./name.js":70,"./security/key-manager.js":81,"./transport/tcp-transport.js":39,"./transport/transport.js":89,"./transport/unix-transport.js":90,"./util/command-interest-generator.js":93,"./util/ndn-protoco-id-tags.js":97,"buffer":5,"crypto":11,"fs":1}],63:[function(require,module,exports){
+},{"./closure.js":41,"./control-parameters.js":42,"./data.js":43,"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/binary-xml-wire-format.js":47,"./encoding/data-utils.js":48,"./encoding/tlv-wire-format.js":54,"./encoding/tlv/tlv-decoder.js":55,"./encoding/tlv/tlv.js":58,"./encoding/wire-format.js":59,"./forwarding-entry.js":63,"./forwarding-flags.js":64,"./interest.js":65,"./key-locator.js":66,"./key.js":67,"./log.js":68,"./meta-info.js":69,"./name.js":70,"./security/key-manager.js":81,"./transport/tcp-transport.js":39,"./transport/transport.js":92,"./transport/unix-transport.js":93,"./util/command-interest-generator.js":96,"./util/ndn-protoco-id-tags.js":100,"buffer":5,"crypto":11,"fs":1}],63:[function(require,module,exports){
 /**
  * This class represents Forwarding Entries
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -14531,11 +14618,11 @@ NDN.CLOSED = Face.CLOSED;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var ForwardingFlags = require('./forwarding-flags.js').ForwardingFlags;
@@ -14614,7 +14701,7 @@ ForwardingEntry.prototype.to_ndnb = function(
 
 ForwardingEntry.prototype.getElementLabel = function() { return NDNProtocolDTags.ForwardingEntry; }
 
-},{"./forwarding-flags.js":64,"./name.js":70,"./publisher-public-key-digest.js":72,"./util/ndn-protoco-id-tags.js":97}],64:[function(require,module,exports){
+},{"./forwarding-flags.js":64,"./name.js":70,"./publisher-public-key-digest.js":72,"./util/ndn-protoco-id-tags.js":100}],64:[function(require,module,exports){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -14627,11 +14714,11 @@ ForwardingEntry.prototype.getElementLabel = function() { return NDNProtocolDTags
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -14852,14 +14939,15 @@ ForwardingFlags.prototype.setCaptureOk = function(value) { this.captureOk = valu
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Blob = require('./util/blob.js').Blob;
+var SignedBlob = require('./util/signed-blob.js').SignedBlob;
 var Name = require('./name.js').Name;
 var Exclude = require('./exclude.js').Exclude;
 var PublisherPublicKeyDigest = require('./publisher-public-key-digest.js').PublisherPublicKeyDigest;
@@ -14924,6 +15012,8 @@ var Interest = function Interest
       // Copy and make sure it is a Buffer.
       this.nonce = new Buffer(nonce);
   }
+
+  this.wireEncoding = new SignedBlob();
 };
 
 exports.Interest = Interest;
@@ -15098,8 +15188,9 @@ Interest.prototype.getInterestLifetimeMilliseconds = function()
 
 Interest.prototype.setName = function(name)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.name = typeof name === 'object' && name instanceof Name ?
               new Name(name) : new Name();
@@ -15107,16 +15198,18 @@ Interest.prototype.setName = function(name)
 
 Interest.prototype.setMinSuffixComponents = function(minSuffixComponents)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.minSuffixComponents = minSuffixComponents;
 };
 
 Interest.prototype.setMaxSuffixComponents = function(maxSuffixComponents)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.maxSuffixComponents = maxSuffixComponents;
 };
@@ -15129,8 +15222,9 @@ Interest.prototype.setMaxSuffixComponents = function(maxSuffixComponents)
  */
 Interest.prototype.setExclude = function(exclude)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.exclude = typeof exclude === 'object' && exclude instanceof Exclude ?
                  new Exclude(exclude) : new Exclude();
@@ -15138,8 +15232,9 @@ Interest.prototype.setExclude = function(exclude)
 
 Interest.prototype.setChildSelector = function(childSelector)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.childSelector = childSelector;
 };
@@ -15149,8 +15244,9 @@ Interest.prototype.setChildSelector = function(childSelector)
  */
 Interest.prototype.setAnswerOriginKind = function(answerOriginKind)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.answerOriginKind = answerOriginKind;
 };
@@ -15161,8 +15257,9 @@ Interest.prototype.setAnswerOriginKind = function(answerOriginKind)
  */
 Interest.prototype.setMustBeFresh = function(mustBeFresh)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   if (this.answerOriginKind == null || this.answerOriginKind < 0) {
     // It is is already the default where MustBeFresh is true.
@@ -15182,16 +15279,18 @@ Interest.prototype.setMustBeFresh = function(mustBeFresh)
 
 Interest.prototype.setScope = function(scope)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.scope = scope;
 };
 
 Interest.prototype.setInterestLifetimeMilliseconds = function(interestLifetimeMilliseconds)
 {
-  // The object has changed, so the nonce is invalid.
+  // The object has changed, so the nonce and wireEncoding are invalid.
   this.nonce = null;
+  this.wireEncoding = new SignedBlob();
 
   this.interestLifetime = interestLifetimeMilliseconds;
 };
@@ -15202,6 +15301,9 @@ Interest.prototype.setInterestLifetimeMilliseconds = function(interestLifetimeMi
  */
 Interest.prototype.setNonce = function(nonce)
 {
+  // The object has changed, so the wireEncoding is invalid.
+  this.wireEncoding = new SignedBlob();
+
   if (nonce) {
     if (typeof nonce === 'object' && nonce instanceof Blob)
       this.nonce = nonce.buf();
@@ -15255,13 +15357,17 @@ Interest.prototype.toUri = function()
  * Encode this Interest for a particular wire format.
  * @param {WireFormat} wireFormat (optional) A WireFormat object  used to encode
  * this object. If omitted, use WireFormat.getDefaultWireFormat().
- * @returns {Blob} The encoded buffer in a Blob object.
+ * @returns {SignedBlob} The encoded buffer in a SignedBlob object.
  */
 Interest.prototype.wireEncode = function(wireFormat)
 {
   wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
   var result = wireFormat.encodeInterest(this);
-  return result.encoding;
+  // TODO: Implement setDefaultWireEncoding with getChangeCount support.
+  this.wireEncoding = new SignedBlob
+    (result.encoding, result.signedPortionBeginOffset,
+     result.signedPortionEndOffset);
+  return this.wireEncoding;
 };
 
 /**
@@ -15276,7 +15382,13 @@ Interest.prototype.wireDecode = function(input, wireFormat)
   // If input is a blob, get its buf().
   var decodeBuffer = typeof input === 'object' && input instanceof Blob ?
                      input.buf() : input;
-  wireFormat.decodeInterest(this, decodeBuffer);
+  var result = wireFormat.decodeInterest(this, decodeBuffer);
+  // TODO: Implement setDefaultWireEncoding with getChangeCount support.
+  // In the Blob constructor, set copy true, but if input is already a Blob, it
+  //   won't copy.
+  this.wireEncoding = new SignedBlob
+    (new Blob(input, true), result.signedPortionBeginOffset,
+     result.signedPortionEndOffset);
 };
 
 // Since binary-xml-wire-format.js includes this file, put these at the bottom
@@ -15318,7 +15430,7 @@ Interest.prototype.decode = function(input, wireFormat)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-wire-format.js":47,"./encoding/wire-format.js":59,"./exclude.js":60,"./key-locator.js":66,"./name.js":70,"./publisher-public-key-digest.js":72,"./util/blob.js":92,"buffer":5}],66:[function(require,module,exports){
+},{"./encoding/binary-xml-wire-format.js":47,"./encoding/wire-format.js":59,"./exclude.js":60,"./key-locator.js":66,"./name.js":70,"./publisher-public-key-digest.js":72,"./util/blob.js":95,"./util/signed-blob.js":102,"buffer":5}],66:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents an NDN KeyLocator object.
@@ -15334,11 +15446,11 @@ Interest.prototype.decode = function(input, wireFormat)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Blob = require('./util/blob.js').Blob;
@@ -15634,7 +15746,7 @@ KeyName.prototype.getElementLabel = function() { return NDNProtocolDTags.KeyName
 
 
 }).call(this,require("buffer").Buffer)
-},{"./log.js":68,"./name.js":70,"./publisher-id.js":71,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"buffer":5}],67:[function(require,module,exports){
+},{"./log.js":68,"./name.js":70,"./publisher-id.js":71,"./util/blob.js":95,"./util/ndn-protoco-id-tags.js":100,"buffer":5}],67:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents Key Objects
@@ -15649,11 +15761,11 @@ KeyName.prototype.getElementLabel = function() { return NDNProtocolDTags.KeyName
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var DataUtils = require('./encoding/data-utils.js').DataUtils;
@@ -15800,11 +15912,11 @@ Key.createFromPEM = function(obj)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -15838,11 +15950,11 @@ Log.LOG = 0;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var BinaryXMLEncoder = require('./encoding/binary-xml-encoder.js').BinaryXMLEncoder;
@@ -15875,7 +15987,7 @@ exports.ContentType = ContentType;
  * Create a new MetaInfo with the optional values.
  * @constructor
  */
-var MetaInfo = function MetaInfo(publisherOrMetaInfo, timestamp, type, locator, freshnessSeconds, finalBlockID, skipSetFields)
+var MetaInfo = function MetaInfo(publisherOrMetaInfo, timestamp, type, locator, freshnessSeconds, finalBlockId, skipSetFields)
 {
   if (typeof publisherOrMetaInfo === 'object' &&
       publisherOrMetaInfo instanceof MetaInfo) {
@@ -15895,7 +16007,7 @@ var MetaInfo = function MetaInfo(publisherOrMetaInfo, timestamp, type, locator, 
     this.type = type == null || type < 0 ? ContentType.BLOB : type; // ContentType
     this.locator = locator == null ? new KeyLocator() : new KeyLocator(locator);
     this.freshnessSeconds = freshnessSeconds; // Integer
-    this.finalBlockID = finalBlockID; //byte array
+    this.finalBlockID = finalBlockId; //byte array
 
     if (!skipSetFields)
       this.setFields();
@@ -15935,15 +16047,23 @@ MetaInfo.prototype.getFreshnessPeriod = function()
  * @returns {Name.Component} The final block ID as a Name.Component. If the
  * Name.Component getValue().size() is 0, then the final block ID is not specified.
  */
-MetaInfo.prototype.getFinalBlockID = function()
+MetaInfo.prototype.getFinalBlockId = function()
 {
   // For backwards-compatibility, leave this.finalBlockID as a Buffer but return a Name.Component.
   return new Name.Component(new Blob(this.finalBlockID, true));
 };
 
 /**
- * @deprecated Use getFinalBlockID. This method returns a Buffer which is the former
- * behavior of getFinalBlockID, and should only be used while updating your code.
+ * @deprecated Use getFinalBlockId.
+ */
+MetaInfo.prototype.getFinalBlockID = function()
+{
+  return this.getFinalBlockId();
+};
+
+/**
+ * @deprecated Use getFinalBlockId. This method returns a Buffer which is the former
+ * behavior of getFinalBlockId, and should only be used while updating your code.
  */
 MetaInfo.prototype.getFinalBlockIDAsBuffer = function()
 {
@@ -15977,18 +16097,26 @@ MetaInfo.prototype.setFreshnessPeriod = function(freshnessPeriod)
   ++this.changeCount;
 };
 
-MetaInfo.prototype.setFinalBlockID = function(finalBlockID)
+MetaInfo.prototype.setFinalBlockId = function(finalBlockId)
 {
   // TODO: finalBlockID should be a Name.Component, not Buffer.
-  if (finalBlockID == null)
+  if (finalBlockId == null)
     this.finalBlockID = null;
-  else if (typeof finalBlockID === 'object' && finalBlockID instanceof Blob)
-    this.finalBlockID = finalBlockID.buf();
-  else if (typeof finalBlockID === 'object' && finalBlockID instanceof Name.Component)
-    this.finalBlockID = finalBlockID.getValue().buf();
+  else if (typeof finalBlockId === 'object' && finalBlockId instanceof Blob)
+    this.finalBlockID = finalBlockId.buf();
+  else if (typeof finalBlockId === 'object' && finalBlockId instanceof Name.Component)
+    this.finalBlockID = finalBlockId.getValue().buf();
   else
-    this.finalBlockID = new Buffer(finalBlockID);
+    this.finalBlockID = new Buffer(finalBlockId);
   ++this.changeCount;
+};
+
+/**
+ * @deprecated Use setFinalBlockId.
+ */
+MetaInfo.prototype.setFinalBlockID = function(finalBlockId)
+{
+  this.setFinalBlockId(finalBlockId);
 };
 
 MetaInfo.prototype.setFields = function()
@@ -16142,10 +16270,10 @@ MetaInfo.prototype.getChangeCount = function()
 /**
  * @deprecated Use new MetaInfo.
  */
-var SignedInfo = function SignedInfo(publisherOrMetaInfo, timestamp, type, locator, freshnessSeconds, finalBlockID)
+var SignedInfo = function SignedInfo(publisherOrMetaInfo, timestamp, type, locator, freshnessSeconds, finalBlockId)
 {
   // Call the base constructor.
-  MetaInfo.call(this, publisherOrMetaInfo, timestamp, type, locator, freshnessSeconds, finalBlockID);
+  MetaInfo.call(this, publisherOrMetaInfo, timestamp, type, locator, freshnessSeconds, finalBlockId);
 }
 
 // Set skipSetFields true since we only need the prototype functions.
@@ -16154,7 +16282,7 @@ SignedInfo.prototype = new MetaInfo(null, null, null, null, null, null, true);
 exports.SignedInfo = SignedInfo;
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./key-locator.js":66,"./log.js":68,"./name.js":70,"./publisher-public-key-digest.js":72,"./security/key-manager.js":81,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"./util/ndn-time.js":98,"buffer":5}],70:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./key-locator.js":66,"./log.js":68,"./name.js":70,"./publisher-public-key-digest.js":72,"./security/key-manager.js":81,"./util/blob.js":95,"./util/ndn-protoco-id-tags.js":100,"./util/ndn-time.js":101,"buffer":5}],70:[function(require,module,exports){
 (function (Buffer){
 /**
  * This class represents a Name as an array of components where each is a byte array.
@@ -16169,11 +16297,11 @@ exports.SignedInfo = SignedInfo;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Blob = require('./util/blob.js').Blob;
@@ -16515,14 +16643,22 @@ Name.prototype.set = function(uri)
 Name.prototype.from_ndnb = function(/*XMLDecoder*/ decoder)
 {
   decoder.readElementStartDTag(this.getElementLabel());
+  var signedPortionBeginOffset = decoder.getOffset();
+  // In case there are no components, set signedPortionEndOffset arbitrarily.
+  var signedPortionEndOffset = signedPortionBeginOffset;
 
   this.components = [];
 
-  while (decoder.peekDTag(NDNProtocolDTags.Component))
+  while (decoder.peekDTag(NDNProtocolDTags.Component)) {
+    signedPortionEndOffset = decoder.getOffset();
     this.append(decoder.readBinaryDTagElement(NDNProtocolDTags.Component));
+  }
 
   decoder.readElementClose();
   ++this.changeCount;
+
+  return { signedPortionBeginOffset: signedPortionBeginOffset,
+           signedPortionEndOffset: signedPortionEndOffset };
 };
 
 /**
@@ -16712,13 +16848,18 @@ Name.prototype.addSegment = function(number)
 
 /**
  * Get a new name, constructed as a subset of components.
- * @param {number} iStartComponent The index if the first component to get.
+ * @param {number} iStartComponent The index if the first component to get. If
+ * iStartComponent is -N then return return components starting from
+ * name.size() - N.
  * @param {number} (optional) nComponents The number of components starting at iStartComponent.  If omitted,
  * return components starting at iStartComponent until the end of the name.
  * @returns {Name} A new name.
  */
 Name.prototype.getSubName = function(iStartComponent, nComponents)
 {
+  if (iStartComponent < 0)
+    iStartComponent = this.components.length - (-iStartComponent);
+
   if (nComponents == undefined)
     nComponents = this.components.length - iStartComponent;
 
@@ -17044,7 +17185,7 @@ Name.prototype.getChangeCount = function()
 var TlvEncoder = require('./encoding/tlv/tlv-encoder.js').TlvEncoder;
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/data-utils.js":48,"./encoding/tlv/tlv-encoder.js":56,"./log.js":68,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"buffer":5}],71:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./encoding/data-utils.js":48,"./encoding/tlv/tlv-encoder.js":56,"./log.js":68,"./util/blob.js":95,"./util/ndn-protoco-id-tags.js":100,"buffer":5}],71:[function(require,module,exports){
 /**
  * This class represents Publisher and PublisherType Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -17058,11 +17199,11 @@ var TlvEncoder = require('./encoding/tlv/tlv-encoder.js').TlvEncoder;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var NDNProtocolDTags = require('./util/ndn-protoco-id-tags.js').NDNProtocolDTags;
@@ -17171,7 +17312,7 @@ PublisherID.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./encoding/decoding-exception.js":49,"./util/ndn-protoco-id-tags.js":97}],72:[function(require,module,exports){
+},{"./encoding/decoding-exception.js":49,"./util/ndn-protoco-id-tags.js":100}],72:[function(require,module,exports){
 /**
  * This class represents PublisherPublicKeyDigest Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -17185,11 +17326,11 @@ PublisherID.prototype.getChangeCount = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var NDNProtocolDTags = require('./util/ndn-protoco-id-tags.js').NDNProtocolDTags;
@@ -17254,7 +17395,7 @@ PublisherPublicKeyDigest.prototype.getChangeCount = function()
   return this.changeCount;
 };
 
-},{"./log.js":68,"./util/ndn-protoco-id-tags.js":97}],73:[function(require,module,exports){
+},{"./log.js":68,"./util/ndn-protoco-id-tags.js":100}],73:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -17268,11 +17409,11 @@ PublisherPublicKeyDigest.prototype.getChangeCount = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var IdentityCertificate = function IdentityCertificate()
@@ -17321,11 +17462,11 @@ IdentityCertificate.certificateNameToPublicKeyName = function(certificateName)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var SecurityException = require('../security-exception.js').SecurityException;
@@ -17416,11 +17557,11 @@ PublicKey.prototype.getKeyDer = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Name = require('../../name.js').Name;
@@ -17735,6 +17876,7 @@ IdentityManager.certificateNameToPublicKeyName = function(certificateName)
   return tmpName.getSubName(0, i).append(tmpName.getSubName
     (i + 1, tmpName.size() - i - 1));
 };
+
 }).call(this,require("buffer").Buffer)
 },{"../../data.js":43,"../../encoding/wire-format.js":59,"../../key-locator.js":66,"../../name.js":70,"../../sha256-with-rsa-signature.js":88,"../security-exception.js":86,"buffer":5}],76:[function(require,module,exports){
 /**
@@ -17750,11 +17892,11 @@ IdentityManager.certificateNameToPublicKeyName = function(certificateName)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Name = require('../../name.js').Name;
@@ -18019,11 +18161,11 @@ IdentityStorage.prototype.setDefaultCertificateNameForKey = function
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Data = require('../../data.js').Data;
@@ -18324,7 +18466,7 @@ MemoryIdentityStorage.prototype.setDefaultCertificateNameForKey = function
   throw new Error("MemoryIdentityStorage.setDefaultCertificateNameForKey is not implemented");
 };
 
-},{"../../data.js":43,"../../encoding/data-utils.js":48,"../../name.js":70,"../../util/blob.js":92,"../security-exception.js":86,"../security-types.js":87,"./identity-storage.js":76}],78:[function(require,module,exports){
+},{"../../data.js":43,"../../encoding/data-utils.js":48,"../../name.js":70,"../../util/blob.js":95,"../security-exception.js":86,"../security-types.js":87,"./identity-storage.js":76}],78:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -18339,11 +18481,11 @@ MemoryIdentityStorage.prototype.setDefaultCertificateNameForKey = function
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Blob = require('../../util/blob.js').Blob;
@@ -18493,7 +18635,7 @@ MemoryPrivateKeyStorage.prototype.doesKeyExist = function(keyName, keyClass)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../../encoding/data-utils.js":48,"../../util/blob.js":92,"../certificate/public-key.js":74,"../security-exception.js":86,"../security-types.js":87,"./private-key-storage.js":79,"buffer":5,"crypto":11}],79:[function(require,module,exports){
+},{"../../encoding/data-utils.js":48,"../../util/blob.js":95,"../certificate/public-key.js":74,"../security-exception.js":86,"../security-types.js":87,"./private-key-storage.js":79,"buffer":5,"crypto":11}],79:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -18507,11 +18649,11 @@ MemoryPrivateKeyStorage.prototype.doesKeyExist = function(keyName, keyClass)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -18628,11 +18770,11 @@ PrivateKeyStorage.prototype.doesKeyExist = function(keyName, keyClass)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Name = require('../name.js').Name;
@@ -18913,7 +19055,7 @@ KeyChain.prototype.signInterest = function(interest, certificateName, wireFormat
   interest.getName().append(new Name.Component());
   // Encode once to get the signed portion.
   var encoding = interest.wireEncode(wireFormat);
-  var signedSignature = this.sign(encoding.buf(), certificateName);
+  var signedSignature = this.sign(encoding.signedBuf(), certificateName);
 
   // Remove the empty signature and append the real one.
   var encoder = new TlvEncoder(256);
@@ -19021,14 +19163,39 @@ KeyChain.prototype.verifyData = function
  * information to check the signature.
  * @param {Interest} interest The interest with the signature to check.
  * @param {function} onVerified If the signature is verified, this calls
- * onVerified(data).
+ * onVerified(interest).
  * @param {function} onVerifyFailed If the signature check fails, this calls
- * onVerifyFailed(data).
+ * onVerifyFailed(interest).
  */
 KeyChain.prototype.verifyInterest = function
   (interest, onVerified, onVerifyFailed, stepCount, wireFormat)
 {
-  throw new Error("KeyChain.verifyInterest is not implemented");
+  wireFormat = (wireFormat || WireFormat.getDefaultWireFormat());
+
+  if (this.policyManager.requireVerify(interest)) {
+    var nextStep = this.policyManager.checkVerificationPolicy
+      (interest, stepCount, onVerified, onVerifyFailed, wireFormat);
+    if (nextStep != null) {
+      /*
+      var thisKeyChain = this;
+      this.face.expressInterest
+        (nextStep.interest,
+         function(callbackInterest, callbackData) {
+           thisKeyChain.onCertificateData(callbackInterest, callbackData, nextStep);
+         },
+         function(callbackInterest) {
+           thisKeyChain.onCertificateInterestTimeout
+             (callbackInterest, nextStep.retry, onVerifyFailed, interest, nextStep);
+         });
+      */
+     throw new SecurityException(new Error
+        ("verifyInterest: ValidationRequest not implemented yet"));
+    }
+  }
+  else if (this.policyManager.skipVerifyAndTrust(interest))
+    onVerified(interest);
+  else
+    onVerifyFailed(interest);
 };
 
 /*****************************************
@@ -19128,11 +19295,11 @@ KeyChain.prototype.onCertificateInterestTimeout = function
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Key = require('../key.js').Key;
@@ -19218,11 +19385,11 @@ exports.globalKeyManager = globalKeyManager;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Name = require('../../name.js').Name;
@@ -19327,11 +19494,11 @@ NoVerifyPolicyManager.prototype.inferSigningIdentity = function(dataName)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -19438,14 +19605,15 @@ PolicyManager.prototype.inferSigningIdentity = function(dataName)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Name = require('../../name.js').Name;
+var Interest = require('../../interest.js').Interest;
 var Data = require('../../data.js').Data;
 var DataUtils = require('../../encoding/data-utils.js').DataUtils;
 var IdentityCertificate = require('../certificate/identity-certificate.js').IdentityCertificate;
@@ -19664,7 +19832,7 @@ SelfVerifyPolicyManager.verifySha256WithRsaSignature = function
   return verifier.verify(keyPem, signatureBytes);
 };
 
-},{"../../data.js":43,"../../encoding/data-utils.js":48,"../../encoding/wire-format.js":59,"../../key-locator.js":66,"../../name.js":70,"../certificate/identity-certificate.js":73,"../security-exception.js":86,"./policy-manager.js":83,"crypto":11}],85:[function(require,module,exports){
+},{"../../data.js":43,"../../encoding/data-utils.js":48,"../../encoding/wire-format.js":59,"../../interest.js":65,"../../key-locator.js":66,"../../name.js":70,"../certificate/identity-certificate.js":73,"../security-exception.js":86,"./policy-manager.js":83,"crypto":11}],85:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -19678,11 +19846,11 @@ SelfVerifyPolicyManager.verifySha256WithRsaSignature = function
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -19725,11 +19893,11 @@ exports.ValidationRequest = ValidationRequest;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -19765,11 +19933,11 @@ exports.SecurityException = SecurityException;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -19842,11 +20010,11 @@ EncryptMode.CFB_AES = 2;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Blob = require('./util/blob.js').Blob;
@@ -20033,7 +20201,970 @@ Signature.prototype = new Sha256WithRsaSignature();
 exports.Signature = Signature;
 
 }).call(this,require("buffer").Buffer)
-},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./key-locator.js":66,"./log.js":68,"./util/blob.js":92,"./util/ndn-protoco-id-tags.js":97,"buffer":5}],89:[function(require,module,exports){
+},{"./encoding/binary-xml-decoder.js":44,"./encoding/binary-xml-encoder.js":45,"./key-locator.js":66,"./log.js":68,"./util/blob.js":95,"./util/ndn-protoco-id-tags.js":100,"buffer":5}],89:[function(require,module,exports){
+/**
+ * This class represents the digest tree for chrono-sync2013.
+ * Copyright (C) 2014 Regents of the University of California.
+ * @author: Zhehao Wang, based on Jeff T.'s implementation in ndn-cpp
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
+ */
+
+var DigestTree = require('./digest-tree.js').DigestTree;
+var Interest = require('../interest.js').Interest;
+var Data = require('../data.js').Data;
+var Name = require('../name.js').Name;
+var Blob = require('../util/blob.js').Blob;
+var MemoryContentCache = require('../util/memory-content-cache.js').MemoryContentCache;
+
+/**
+ * Create a new ChronoSync2013 to communicate using the given face. Initialize
+ * the digest log with a digest of "00" and and empty content. Register the
+ * applicationBroadcastPrefix to receive interests for sync state messages and
+ * express an interest for the initial root digest "00".
+ * @param {function} onReceivedSyncState When ChronoSync receives a sync state message,
+ * this calls onReceivedSyncState(syncStates, isRecovery) where syncStates is the
+ * list of SyncState messages and isRecovery is true if this is the initial
+ * list of SyncState messages or from a recovery interest. (For example, if
+ * isRecovery is true, a chat application would not want to re-display all
+ * the associated chat messages.) The callback should send interests to fetch
+ * the application data for the sequence numbers in the sync state.
+ * @param {function} onInitialized This calls onInitialized() when the first sync data
+ * is received (or the interest times out because there are no other
+ * publishers yet).
+ * @param {Name} applicationDataPrefix The prefix used by this application instance
+ * for application data. For example, "/my/local/prefix/ndnchat4/0K4wChff2v".
+ * This is used when sending a sync message for a new sequence number.
+ * In the sync message, this uses applicationDataPrefix.toUri().
+ * @param {Name} applicationBroadcastPrefix The broadcast name prefix including the
+ * application name. For example, "/ndn/broadcast/ChronoChat-0.3/ndnchat1".
+ * This makes a copy of the name.
+ * @param {int} sessionNo The session number used with the applicationDataPrefix in
+ * sync state messages.
+ * @param {Face} face The Face for calling registerPrefix and expressInterest. The
+ * Face object must remain valid for the life of this ChronoSync2013 object.
+ * @param {KeyChain} keyChain To sign a data packet containing a sync state message, this
+ * calls keyChain.sign(data, certificateName).
+ * @param {Name} certificateName The certificate name of the key to use for signing a
+ * data packet containing a sync state message.
+ * @param {Milliseconds} syncLifetime The interest lifetime in milliseconds for sending
+ * sync interests.
+ * @param {function} onRegisterFailed If failed to register the prefix to receive
+ * interests for the applicationBroadcastPrefix, this calls
+ * onRegisterFailed(applicationBroadcastPrefix).
+ */
+var ChronoSync2013 = function ChronoSync2013(arg1, arg2, applicationDataPrefix, applicationBroadcastPrefix, sessionNo, face, keyChain, certificateName, syncLifetime, arg10)
+{
+  // assigning function pointers
+  this.onReceivedSyncState = arg1;
+  this.onInitialized = arg2;
+  this.applicationDataPrefixUri = applicationDataPrefix.toUri();
+  this.applicationBroadcastPrefix = applicationBroadcastPrefix;
+  this.session = sessionNo;
+  this.face = face;
+  this.keyChain = keyChain;
+  this.certificateName = certificateName;
+  this.sync_lifetime = syncLifetime;
+  this.usrseq = -1;
+  
+  this.digest_tree = new DigestTree();
+  this.contentCache = new MemoryContentCache(face);
+  
+  this.pendingInterestTable = [];
+  
+  this.digest_log = new Array();
+  this.digest_log.push(new ChronoSync2013.DigestLogEntry("00",[]));
+  
+  this.contentCache.registerPrefix(this.applicationBroadcastPrefix, arg10.bind(this), this.onInterest.bind(this));
+  
+  var interest = new Interest(this.applicationBroadcastPrefix);
+  interest.getName().append("00");
+  
+  interest.setInterestLifetimeMilliseconds(1000);
+  interest.setAnswerOriginKind(Interest.ANSWER_NO_CONTENT_STORE);
+  
+  this.SyncStateMsg = require('./sync-state.js').SyncStateMsg;
+  this.SyncState = require('./sync-state.js').SyncState;
+  
+  this.face.expressInterest(interest, this.onData.bind(this), this.initialTimeOut.bind(this));
+};
+
+exports.ChronoSync2013 = ChronoSync2013;
+
+ChronoSync2013.prototype.getProducerSequenceNo = function(dataPrefix, sessionNo)
+{
+  var index = this.digest_tree.find(dataPrefix, sessionNo);
+  if (index < 0) 
+    return -1;
+  else
+    return this.digest_tree.get(index).getSequenceNo();
+};
+
+/**
+ * Increment the sequence number, create a sync message with the new sequence number, 
+ * and publish a data packet where the name is applicationBroadcastPrefix + root 
+ * digest of current digest tree. Then add the sync message to digest tree and digest
+ * log which creates a new root digest. Finally, express an interest for the next sync
+ * update with the name applicationBroadcastPrefix + the new root digest.
+ * After this, application should publish the content for the new sequence number.
+ * Get the new sequence number with getSequenceNo().
+ */
+ChronoSync2013.prototype.publishNextSequenceNo = function()
+{
+  this.usrseq ++;
+  var content = [new this.SyncState({ name:this.applicationDataPrefixUri, 
+                                 type:'UPDATE', 
+                                 seqno:{
+                                   seq:this.usrseq,
+                                   session:this.session
+                                  }
+                                })];
+  var content_t = new this.SyncStateMsg({ss:content});
+  this.broadcastSyncState(this.digest_tree.getRoot(), content_t);
+  
+  if (!this.update(content))
+    console.log("Warning: ChronoSync: update did not create a new digest log entry");
+    
+  var interest = new Interest(this.applicationBroadcastPrefix);
+  interest.getName().append(this.digest_tree.getRoot());
+  interest.setInterestLifetimeMilliseconds(this.sync_lifetime);
+  
+  this.face.expressInterest(interest, this.onData.bind(this), this.syncTimeout.bind(this));
+};
+
+/**
+ * Get the sequence number of the latest data published by this application instance.
+ * @return {int} the sequence number
+ */
+ChronoSync2013.prototype.getSequenceNo = function()
+{
+  return this.usrseq;
+};
+
+// DigestLogEntry class
+
+ChronoSync2013.DigestLogEntry = function ChronoSync2013DisgestLogEntry(digest, data)
+{
+  this.digest = digest;
+  this.data = data;
+};
+
+ChronoSync2013.DigestLogEntry.prototype.getDigest = function()
+{
+  return this.digest;
+};
+
+ChronoSync2013.DigestLogEntry.prototype.getData = function()
+{
+  return this.data;
+};
+
+// PendingInterest class
+
+/**
+ * A PendingInterest holds an interest which onInterest received but could
+ * not satisfy. When we add a new data packet to this.contentCache, we will
+ * also check if it satisfies a pending interest.
+ */
+ChronoSync2013.PendingInterest = function ChronoSync2013PendingInterest(interest, transport)
+{
+  this.interest = interest;
+  this.transport = transport;
+  
+  if (this.interest.getInterestLifetimeMilliseconds() >= 0.0)
+    this.timeoutMilliseconds = (new Date()).getTime() + this.interest.getInterestLifetimeMilliseconds();
+  else
+    this.timeoutMilliseconds = -1.0;
+};
+
+ChronoSync2013.PendingInterest.prototype.getInterest = function()
+{
+  return this.interest;
+};
+
+ChronoSync2013.PendingInterest.prototype.getTransport = function()
+{
+  return this.transport;
+};
+
+ChronoSync2013.PendingInterest.prototype.isTimedOut = function(nowMilliseconds)
+{
+  return (this.timeoutTimeMilliseconds >= 0.0 && nowMilliseconds >= this.timeoutTimeMilliseconds);
+};
+
+// SyncState class
+/**
+ * A SyncState holds the values of a sync state message which is passed to the
+ * onReceivedSyncState callback which was given to the ChronoSyn2013
+ * constructor. Note: this has the same info as the Protobuf class
+ * Sync::SyncState, but we make a separate class so that we don't need the
+ * Protobuf definition in the ChronoSync API.
+ */
+ChronoSync2013.SyncState = function ChronoSync2013SyncState(dataPrefixUri, sessionNo, sequenceNo)
+{
+  this.dataPrefixUri_ = dataPrefixUri;
+  this.sessionNo_ = sessionNo;
+  this.sequenceNo_ = sequenceNo;
+};
+
+/**
+ * Get the application data prefix for this sync state message.
+ * @return The application data prefix as a Name URI string.
+ */
+ChronoSync2013.SyncState.prototype.getDataPrefix = function() 
+{
+  return this.dataPrefixUri_; 
+}
+
+/**
+ * Get the session number associated with the application data prefix for
+ * this sync state message.
+ * @return The session number.
+ */
+ChronoSync2013.SyncState.prototype.getSessionNo = function()
+{ 
+  return this.sessionNo_; 
+}
+
+/**
+ * Get the sequence number for this sync state message.
+ * @return The sequence number.
+ */
+ChronoSync2013.SyncState.prototype.getSequenceNo = function()
+{ 
+  return this.sequenceNo_; 
+}
+
+// Private methods for ChronoSync2013 class, 
+/**
+ * Make a data packet with the syncMessage and with name applicationBroadcastPrefix_ + digest.
+ * Sign and send.
+ * @param {string} The root digest as a hex string for the data packet name.
+ * @param {SyncStateMsg} The syncMessage updates the digest tree state with the given digest.
+ */
+ChronoSync2013.prototype.broadcastSyncState = function(digest, syncMessage)
+{
+  var array = new Uint8Array(syncMessage.toArrayBuffer());
+  var data = new Data(this.applicationBroadcastPrefix);
+  data.getName().append(digest);
+  data.setContent(new Blob(array, false));
+  this.keyChain.sign(data, this.certificateName);
+  this.contentCacheAdd(data);
+};
+
+/**
+ * Update the digest tree with the messages in content. If the digest tree root is not in
+ * the digest log, also add a log entry with the content.
+ * @param {SyncStates[]} The sync state messages
+ * @return {bool} True if added a digest log entry (because the updated digest tree root
+ * was not in the log), false if didn't add a log entry.
+ */
+ // Whatever's received by ondata, is pushed into digest log as its data directly
+ChronoSync2013.prototype.update = function(content)
+{
+  for (var i = 0; i < content.length; i++) {
+    if (content[i].type == 0) {
+      if (this.digest_tree.update(content[i].name, content[i].seqno.seq, content[i].seqno.session)) {
+        if (this.applicationDataPrefixUri == content[i].name)
+          this.usrseq = content[i].seqno.seq;
+      }
+    }
+  }
+  
+  if (this.logfind(this.digest_tree.getRoot()) == -1) {
+    var newlog = new ChronoSync2013.DigestLogEntry(this.digest_tree.getRoot(), content);
+    this.digest_log.push(newlog);
+    return true;
+  }
+  else
+    return false;
+};
+
+ChronoSync2013.prototype.logfind = function(digest)
+{
+  for (var i = 0; i < this.digest_log.length; i++) {
+    if(digest == this.digest_log[i].digest)
+      return i;
+  }
+  return -1;
+};
+
+/**
+ * Process the sync interest from the applicationBroadcastPrefix. If we can't
+ * satisfy the interest, add it to the pendingInterestTable so that a future
+ * call to contentCacheAdd may satisfy it.
+ */
+ChronoSync2013.prototype.onInterest = function(prefix, interest, transport, registerPrefixId)
+{
+  //search if the digest is already exist in the digest log
+  
+  var syncdigest = interest.getName().get(this.applicationBroadcastPrefix.size()).toEscapedString();
+  if (interest.getName().size() == this.applicationBroadcastPrefix.size() + 2) {
+    syncdigest = interest.getName().get(this.applicationBroadcastPrefix.size() + 1).toEscapedString();
+  }
+  if (interest.getName().size() == this.applicationBroadcastPrefix.size() + 2 || syncdigest == "00") {
+    this.processRecoveryInst(interest, syncdigest, transport);
+  }
+  else {
+    this.pendingInterestTable.push(new ChronoSync2013.PendingInterest(interest, transport));
+    
+    if (syncdigest != this.digest_tree.getRoot()) {
+      var index = this.logfind(syncdigest);
+      var content = [];
+      if(index == -1) {
+        var self = this;
+        // Are we sure that using a "/timeout" interest is the best future call approach?
+        var timeout = new Interest(new Name("/timeout"));
+        timeout.setInterestLifetimeMilliseconds(2000);
+        this.face.expressInterest(timeout, this.dummyOnData, this.judgeRecovery.bind(this, timeout, syncdigest, transport));
+      }
+      else {
+        //common interest processing
+        this.processSyncInst(index, syncdigest, transport);
+      }
+    }
+  }
+};
+
+/**
+ * Process sync/recovery data.
+ * @param {Interest}
+ * @param {Data}
+ */
+ChronoSync2013.prototype.onData = function(interest, co)
+{
+  var arr = new Uint8Array(co.getContent().size());
+  arr.set(co.getContent().buf());
+  var content_t = this.SyncStateMsg.decode(arr.buffer);
+  var content = content_t.ss;
+  
+  var isRecovery = false;
+  
+  if (this.digest_tree.getRoot() == "00") {
+    isRecovery = true;
+    this.initialOndata(content);
+  }
+  else {
+    // Note: if, for some reasons, this update did not update anything, 
+    // then the same message gets fetched again, and the same broadcast interest goes out again.
+    // It has the potential of creating loop, which existed in my tests.
+    if (interest.getName().size() == this.applicationBroadcastPrefix.size() + 2)
+      isRecovery = false;
+    else
+      isRecovery = true;
+  }
+  
+  var syncStates = [];
+
+  for (var i = 0; i < content.length; i++) {
+	if (content[i].type == 0) {
+	  syncStates.push(new ChronoSync2013.SyncState
+	    (content[i].name, content[i].seqno.session, content[i].seqno.seq));
+	}
+  }
+  
+  // Instead of using Protobuf, use our own definition of SyncStates to pass to onReceivedSyncState.
+  this.onReceivedSyncState(syncStates, isRecovery);
+  var updated = this.update(content);
+  
+  if (updated) {
+	var n = new Name(this.applicationBroadcastPrefix);
+	n.append(this.digest_tree.getRoot());
+  
+	var interest = new Interest(n);
+	interest.setInterestLifetimeMilliseconds(this.sync_lifetime);
+  
+	this.face.expressInterest(interest, this.onData.bind(this), this.syncTimeout.bind(this));
+  }
+};
+
+/**
+ * Interest variable not actually in use here
+ */
+ChronoSync2013.prototype.initialTimeOut = function(interest)
+{
+  console.log("no other people");
+    
+  this.usrseq++;
+  this.onInitialized();
+  var content = [new this.SyncState({ name:this.applicationDataPrefixUri,
+                                 type:'UPDATE',
+                                 seqno: {
+                                   seq:this.usrseq,
+                                   session:this.session
+                                 }
+                               })];
+  this.update(content);
+  var n = new Name(this.applicationBroadcastPrefix);
+  n.append(this.digest_tree.getRoot());
+  var retryInterest = new Interest(n);
+  retryInterest.setInterestLifetimeMilliseconds(this.sync_lifetime);
+  
+  this.face.expressInterest(retryInterest, this.onData.bind(this), this.syncTimeout.bind(this));  
+};
+
+ChronoSync2013.prototype.processRecoveryInst = function(interest, syncdigest, transport)
+{
+  if (this.logfind(syncdigest) != -1) {
+    var content = [];
+    
+    for(var i = 0; i < this.digest_tree.digestnode.length; i++) {
+      content[i] = new this.SyncState({ name:this.digest_tree.digestnode[i].getDataPrefix(),
+                                   type:'UPDATE',
+                                   seqno:{
+                                     seq:this.digest_tree.digestnode[i].getSequenceNo(),
+                                     session:this.digest_tree.digestnode[i].getSessionNo()
+                                    }
+                                 });
+    }
+    
+    if (content.length != 0) {
+      var content_t = new this.SyncStateMsg({ss:content});
+      var str = new Uint8Array(content_t.toArrayBuffer());
+      var co = new Data(interest.getName());
+      co.setContent(new Blob(str, false));
+      this.keyChain.sign(co, this.certificateName);
+      try {
+        transport.send(co.wireEncode().buf());
+      } catch (e) {
+        console.log(e.toString());
+      }
+    }
+  }
+};
+
+/**
+ * Common interest processing, using digest log to find the difference after syncdigest_t
+ * @return True if sent a data packet to satisfy the interest.
+ */
+ChronoSync2013.prototype.processSyncInst = function(index, syncdigest_t, transport)
+{
+  var content = [];
+  var data_name = [];
+  var data_seq = [];
+  var data_ses = [];
+
+  for (var j = index + 1; j < this.digest_log.length; j++) {
+    var temp = this.digest_log[j].getData();
+    for (var i = 0 ; i < temp.length ; i++) {
+      if (temp[i].type != 0) {
+        continue;
+      }
+      if (this.digest_tree.find(temp[i].name, temp[i].seqno.session) != -1) {
+        var n = data_name.indexOf(temp[i].name);
+        if (n = -1) {
+          data_name.push(temp[i].name);
+          data_seq.push(temp[i].seqno.seq);
+          data_ses.push(temp[i].seqno.session);
+        }
+        else {
+          data_seq[n] = temp[i].seqno.seq;
+          data_ses[n] = temp[i].seqno.session;
+        }
+      }
+    }
+  }
+  
+  for(var i = 0; i < data_name.length; i++) {
+    content[i] = new this.SyncState({ name:data_name[i],
+                                 type:'UPDATE',
+                                 seqno: {
+                                   seq:data_seq[i],
+                                   session:data_ses[i]
+                                 }
+                               });
+  }
+  if (content.length != 0) {
+    var content_t = new this.SyncStateMsg({ss:content});
+    var str = new Uint8Array(content_t.toArrayBuffer());
+    var n = new Name(this.prefix)
+    n.append(this.chatroom).append(syncdigest_t);
+    
+    var co = new Data(n);
+    co.setContent(new Blob(str, false));
+    this.keyChain.sign(co, this.certificateName);
+    try {
+      transport.send(co.wireEncode().buf());
+    }
+    catch (e) {
+      console.log(e.toString());
+    }
+  }
+};
+
+/**
+ * Send recovery interset.
+ * @param {string} syncdigest_t
+ */
+ChronoSync2013.prototype.sendRecovery = function(syncdigest_t)
+{
+  var n = new Name(this.applicationBroadcastPrefix);
+  n.append("recovery").append(syncdigest_t);
+  
+  var interest = new Interest(n);
+
+  interest.setInterestLifetimeMilliseconds(this.sync_lifetime);
+  
+  this.face.expressInterest(interest, this.onData.bind(this), this.syncTimeout.bind(this));
+};
+
+/*
+ * This is called by onInterest after a timeout to check if a recovery is needed.
+ * This method has an interest argument because we use it as the onTimeout for
+ * Face.expressInterest.
+ * @param {Interest}
+ * @param {string}
+ * @param {Transport}
+ */
+ChronoSync2013.prototype.judgeRecovery = function(interest, syncdigest_t, transport)
+{
+  //console.log("*** judgeRecovery interest " + interest.getName().toUri() + " times out. Digest: " + syncdigest_t + " ***");
+  var index = this.logfind(syncdigest_t);
+  if (index != -1) {
+    if (syncdigest_t != this.digest_tree.root)
+      this.processSyncInst(index, syncdigest_t, transport);
+  }
+  else
+    this.sendRecovery(syncdigest_t);
+};
+
+ChronoSync2013.prototype.syncTimeout = function(interest)
+{
+  var component = interest.getName().get(4).toEscapedString();
+  if (component == this.digest_tree.root) {
+    var n = new Name(interest.getName());
+    var newInterest = new Interest(n);
+    
+    interest.setInterestLifetimeMilliseconds(this.sync_lifetime);
+    this.face.expressInterest(newInterest, this.onData.bind(this), this.syncTimeout.bind(this));
+  }           
+};
+
+ChronoSync2013.prototype.initialOndata = function(content)
+{
+  this.update(content);
+    
+  var digest_t = this.digest_tree.getRoot();
+  for (var i = 0; i < content.length; i++) {
+    if (content[i].name == this.applicationDataPrefixUri && content[i].seqno.session == this.session) {
+      //if the user was an old comer, after add the static log he need to increase his seqno by 1
+      var content_t = [new this.SyncState({ name:this.applicationDataPrefixUri,
+                                       type:'UPDATE',
+                                       seqno: {
+                                         seq:content[i].seqno.seq + 1,
+                                         session:this.session
+                                       }
+                                     })];
+      if (this.update(content_t)) {
+        var newlog = new ChronoSync2013.DigestLogEntry(this.digest_tree.getRoot(), content_t);
+        this.digest_log.push(newlog);
+        this.onInitialized();
+      }
+    }
+  }
+  
+  var content_t;
+  if (this.usrseq >= 0) {
+    //send the data packet with new seqno back
+    content_t = new this.SyncState({ name:this.applicationDataPrefixUri,
+                                   type:'UPDATE',
+                                   seqno: { 
+                                     seq:this.usrseq,
+                                     session:this.session
+                                   }
+                                 });
+  }
+  else
+    content_t = new this.SyncState({ name:this.applicationDataPrefixUri,
+                                   type:'UPDATE',
+                                   seqno: {
+                                     seq:0,
+                                     session:this.session
+                                   }
+                                 });
+  var content_tt = new this.SyncStateMsg({ss:content_t});
+  this.broadcastSyncState(digest_t, content_tt);
+  
+  if (this.digest_tree.find(this.applicationDataPrefixUri, this.session) == -1) {
+    //the user haven't put himself in the digest tree
+    this.usrseq++;
+    var content = [new this.SyncState({ name:this.applicationDataPrefixUri,
+                                   type:'UPDATE',
+                                   seqno: { 
+                                     seq:this.usrseq,
+                                     session:this.session
+                                   }
+                                 })];
+    if (this.update(content)) {
+      this.onInitialized();
+    }
+  }
+};
+
+ChronoSync2013.prototype.contentCacheAdd = function(data)
+{
+  this.contentCache.add(data);
+  
+  var nowMilliseconds = (new Date()).getTime();
+  
+  for (var i = this.pendingInterestTable.length - 1; i >= 0; i--) {
+    if (this.pendingInterestTable[i].isTimedOut(nowMilliseconds)) {
+      this.pendingInterestTable.splice(i,1);
+      continue;
+    }
+    if (this.pendingInterestTable[i].getInterest().matchesName(data.getName())) {
+      try {
+        this.pendingInterestTable[i].getTransport().send(data.wireEncode().buf());
+      }
+      catch (e) {
+      }
+      this.pendingInterestTable.splice(i,1);
+    }
+  }
+};
+
+ChronoSync2013.prototype.dummyOnData = function(interest, data)
+{
+  console.log("*** dummyOnData called. ***");
+};
+},{"../data.js":43,"../interest.js":65,"../name.js":70,"../util/blob.js":95,"../util/memory-content-cache.js":98,"./digest-tree.js":90,"./sync-state.js":91}],90:[function(require,module,exports){
+(function (Buffer){
+/**
+ * This class represents the digest tree for chrono-sync2013.
+ * Copyright (C) 2014 Regents of the University of California.
+ * @author: Zhehao Wang, based on Jeff T.'s implementation in ndn-cpp
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
+ */
+
+/**
+ * For now, the sequence of parameters in DigestTree.update is different from ndn-cpp;
+ * Should use the same sequence of either (seq, ses) or (ses, seq) for all functions 
+ * concerning them.
+ */
+var crypto = require("crypto");
+var DataUtils = require("../encoding/data-utils.js").DataUtils;
+
+var DigestTree = function DigestTree()
+{
+  this.root = "00";
+  this.digestnode = [];
+};
+
+exports.DigestTree = DigestTree;
+
+// What is the meaning of a session?
+// DigestTree.Node works with seqno_seq and seqno_session, without protobuf definition,
+DigestTree.Node = function DigestTreeNode(dataPrefix, seqno_seq, seqno_session)
+{
+  // In this context, this should mean DigestTree.Node instead
+  this.dataPrefix = dataPrefix;
+  this.seqno_seq = seqno_seq;
+  this.seqno_session = seqno_session;
+  
+  this.recomputeDigest();
+};
+
+DigestTree.Node.prototype.getDataPrefix = function()
+{
+  return this.dataPrefix;
+};
+
+DigestTree.Node.prototype.getSequenceNo = function()
+{
+  return this.seqno_seq;
+};
+
+DigestTree.Node.prototype.getSessionNo = function()
+{
+  return this.seqno_session;
+};
+
+DigestTree.Node.prototype.getDigest = function()
+{
+  return this.digest;
+};
+
+DigestTree.Node.prototype.setSequenceNo = function(sequenceNo)
+{
+  this.seqno_seq = sequenceNo;
+  this.recomputeDigest();
+};
+
+// Using Node.JS buffer, as documented here http://nodejs.org/api/buffer.html.
+DigestTree.Node.prototype.Int32ToBuffer = function(value) {
+  var result = new Buffer(4);
+  for (var i = 0; i < 4; i++) {
+	result[i] = value % 256;
+	value = Math.floor(value / 256);
+  }
+  return result;
+}
+
+DigestTree.Node.prototype.recomputeDigest = function()
+{
+  var seqHash = new crypto.createHash('sha256');
+  
+  seqHash.update(this.Int32ToBuffer(this.seqno_session));
+  seqHash.update(this.Int32ToBuffer(this.seqno_seq));
+  
+  var digest_seq = seqHash.digest();
+  
+  var nameHash = new crypto.createHash('sha256');
+  nameHash.update(this.dataPrefix);
+  var digest_name = nameHash.digest();
+  
+  var hash = new crypto.createHash('sha256');
+  hash.update(digest_name);
+  hash.update(digest_seq);
+
+  this.digest = hash.digest('hex');
+};
+
+// Do the work of string and then sequence number compare
+DigestTree.Node.Compare = function(node1, node2)
+{
+  var nameComparison = strcmp(node1.dataPrefix, node2.dataPrefix);
+  if (nameComparison != 0)
+    return (nameComparison < 0);
+  return (node1.seqno_session < node2.seqno_session);
+};
+
+/** 
+ * Update the digest tree and recompute the root digest. If the combination of dataPrefix
+ * and sessionNo already exists in the tree then update its sequenceNo (only if the given
+ * sequenceNo is newer), otherwise add a new node.
+ * @param {string} The name prefix.
+ * @param {int} The session number.
+ * @param {int} The sequence number.
+ * @return True if the digest tree is updated, false if not
+ */
+DigestTree.prototype.update = function(dataPrefix, sequenceNo, sessionNo)
+{
+  var n_index = this.find(dataPrefix, sessionNo);
+  if (n_index >= 0) {
+    if (this.digestnode[n_index].getSequenceNo() < sequenceNo)
+      this.digestnode[n_index].setSequenceNo(sequenceNo);
+    else
+      return false;
+  }
+  else {
+    var temp = new DigestTree.Node(dataPrefix, sequenceNo, sessionNo);
+    this.digestnode.push(temp);
+    this.digestnode.sort(this.sortNodes);
+  }
+  this.recomputeRoot();
+  return true;
+};
+
+// Need to confirm this sort works with the insertion in ndn-cpp.
+DigestTree.prototype.sortNodes = function()
+{
+  var temp;
+  for (var i = this.digestnode.length; i > 0; i--) {
+    for (var j = 0; j < i - 1; j++) {
+      if (this.digestnode[j].getDataPrefix() > this.digestnode[j + 1].getDataPrefix()) {
+        temp = this.digestnode[j];
+        this.digestnode[j] = this.digestnode[j + 1];
+        this.digestnode[j + 1] = temp;
+      }
+    }
+  }
+};
+
+DigestTree.prototype.sortNodes = function (node1, node2)
+{
+  if (node1.getDataPrefix() == node2.getDataPrefix() && 
+     node1.getSessionNo() == node2.getSessionNo())
+	return 0;
+  
+  if ((node1.getDataPrefix() > node2.getDataPrefix()) || 
+     ((node1.getDataPrefix() == node2.getDataPrefix()) && 
+     (node1.getSessionNo() >node2.getSessionNo())))
+    return 1;
+  else
+    return -1;
+}
+
+DigestTree.prototype.find = function(dataPrefix, sessionNo)
+{
+  for (var i = 0; i < this.digestnode.length; ++i) {
+    if (this.digestnode[i].getDataPrefix() == dataPrefix && 
+        this.digestnode[i].getSessionNo() == sessionNo)
+      return i;
+  }
+  return -1;
+};
+
+DigestTree.prototype.size = function()
+{
+  return this.digestnode.size();
+};
+
+// Not really used
+DigestTree.prototype.get = function(i)
+{
+  return this.digestnode[i];
+};
+
+DigestTree.prototype.getRoot = function()
+{
+  return this.root;
+};
+
+DigestTree.prototype.recomputeRoot = function()
+{
+  var md = new crypto.createHash('sha256');
+  // The result of updateHex is related with the sequence of participants,
+  // I don't think that should be the case.
+  for (var i = 0; i < this.digestnode.length; i++) {
+    md.update(new Buffer(this.digestnode[i].digest, 'hex'));
+  }
+  this.root = md.digest('hex');
+};
+
+function fromHexChar(c)
+{
+  if (c >= '0' && c <= '9')
+    return (c - '0');
+  else if (c >= 'a' && c <= 'f')
+    return (c - 'a' + 10);
+  else if (c >= 'A' && c<= 'F')
+    return (c - 'A' + 10);
+  else
+    return -1;
+};
+
+function strcmp(component1, component2)
+{
+  return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
+};
+}).call(this,require("buffer").Buffer)
+},{"../encoding/data-utils.js":48,"buffer":5,"crypto":11}],91:[function(require,module,exports){
+var ProtoBuf = require("protobufjs");
+
+var Sync = ProtoBuf.newBuilder().import({
+    "package": "Sync",
+    "messages": [
+        {
+            "name": "SyncState",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "name",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "ActionType",
+                    "name": "type",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "SeqNo",
+                    "name": "seqno",
+                    "id": 3,
+                    "options": {}
+                }
+            ],
+            "enums": [
+                {
+                    "name": "ActionType",
+                    "values": [
+                        {
+                            "name": "UPDATE",
+                            "id": 0
+                        },
+                        {
+                            "name": "DELETE",
+                            "id": 1
+                        },
+                        {
+                            "name": "OTHER",
+                            "id": 2
+                        }
+                    ],
+                    "options": {}
+                }
+            ],
+            "messages": [
+                {
+                    "name": "SeqNo",
+                    "fields": [
+                        {
+                            "rule": "required",
+                            "type": "uint32",
+                            "name": "seq",
+                            "id": 1,
+                            "options": {}
+                        },
+                        {
+                            "rule": "required",
+                            "type": "uint32",
+                            "name": "session",
+                            "id": 2,
+                            "options": {}
+                        }
+                    ],
+                    "enums": [],
+                    "messages": [],
+                    "options": {}
+                }
+            ],
+            "options": {}
+        },
+        {
+            "name": "SyncStateMsg",
+            "fields": [
+                {
+                    "rule": "repeated",
+                    "type": "SyncState",
+                    "name": "ss",
+                    "id": 1,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        }
+    ],
+    "enums": [],
+    "imports": [],
+    "options": {}
+}).build("Sync");
+
+exports.SyncStateMsg = Sync.SyncStateMsg;
+exports.SyncState = Sync.SyncState;
+},{"protobufjs":105}],92:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -20046,11 +21177,11 @@ exports.Signature = Signature;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -20069,7 +21200,8 @@ exports.Transport = Transport;
 Transport.ConnectionInfo = function TransportConnectionInfo()
 {
 };
-},{}],90:[function(require,module,exports){
+
+},{}],93:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2014 Regents of the University of California.
@@ -20083,11 +21215,11 @@ Transport.ConnectionInfo = function TransportConnectionInfo()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var ElementReader = require('../encoding/element-reader.js').ElementReader;
@@ -20237,7 +21369,7 @@ UnixTransport.prototype.close = function()
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../encoding/element-reader.js":50,"../log.js":68,"./transport.js":89,"buffer":5,"net":1}],91:[function(require,module,exports){
+},{"../encoding/element-reader.js":50,"../log.js":68,"./transport.js":92,"buffer":5,"net":1}],94:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -20251,11 +21383,11 @@ UnixTransport.prototype.close = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var ElementReader = require('../encoding/element-reader.js').ElementReader;
@@ -20452,8 +21584,9 @@ WebSocketTransport.prototype.close = function()
     delete this.ws;
 }
 
+
 }).call(this,require("buffer").Buffer)
-},{"../encoding/element-reader.js":50,"../log.js":68,"./transport.js":89,"buffer":5}],92:[function(require,module,exports){
+},{"../encoding/element-reader.js":50,"../log.js":68,"./transport.js":92,"buffer":5}],95:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013 Regents of the University of California.
@@ -20467,11 +21600,11 @@ WebSocketTransport.prototype.close = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -20592,8 +21725,9 @@ Blob.prototype.equals = function(other)
     return true;
   }
 };
+
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],93:[function(require,module,exports){
+},{"buffer":5}],96:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -20606,11 +21740,11 @@ Blob.prototype.equals = function(other)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var WireFormat = require('../encoding/wire-format.js').WireFormat;
@@ -20675,7 +21809,7 @@ CommandInterestGenerator.prototype.generate = function
   this.lastTimestamp = timestamp;
 };
 
-},{"../encoding/tlv/tlv-encoder.js":56,"../encoding/wire-format.js":59,"./blob.js":92,"crypto":11}],94:[function(require,module,exports){
+},{"../encoding/tlv/tlv-encoder.js":56,"../encoding/wire-format.js":59,"./blob.js":95,"crypto":11}],97:[function(require,module,exports){
 (function (Buffer){
 /**
  * Encapsulate a Buffer and support dynamic reallocation.
@@ -20690,11 +21824,11 @@ CommandInterestGenerator.prototype.generate = function
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 /**
@@ -20804,7 +21938,7 @@ DynamicBuffer.prototype.slice = function(begin, end)
 };
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5}],95:[function(require,module,exports){
+},{"buffer":5}],98:[function(require,module,exports){
 /**
  * Copyright (C) 2014 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -20817,11 +21951,11 @@ DynamicBuffer.prototype.slice = function(begin, end)
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Name = require('../name.js').Name;
@@ -20852,7 +21986,8 @@ var MemoryContentCache = function MemoryContentCache
   this.nextCleanupTime = new Date().getTime() + cleanupIntervalMilliseconds;
 
   this.onDataNotFoundForPrefix = {}; /**< The map key is the prefix.toUri().
- *                                        The value is an OnInterest function. */
+                                          The value is an OnInterest function. */
+  this.registeredPrefixIdList = []; /**< elements are number */
   this.noStaleTimeCache = []; /**< elements are MemoryContentCache.Content */
   this.staleTimeCache = [];   /**< elements are MemoryContentCache.StaleTimeContent */
   //StaleTimeContent::Compare contentCompare_;
@@ -20880,12 +22015,29 @@ MemoryContentCache.prototype.registerPrefix = function
   if (onDataNotFound)
     this.onDataNotFoundForPrefix[prefix.toUri()] = onDataNotFound;
   var thisMemoryContentCache = this;
-  this.face.registerPrefix
+  var registeredPrefixId = this.face.registerPrefix
     (prefix,
      function(prefix, interest, transport)
        { thisMemoryContentCache.onInterest(prefix, interest, transport); },
      onRegisterFailed, flags, wireFormat);
+  this.registeredPrefixIdList.push(registeredPrefixId);
 };
+
+/**
+ * Call Face.removeRegisteredPrefix for all the prefixes given to the
+ * registerPrefix method on this MemoryContentCache object so that it will not
+ * receive interests any more. You can call this if you want to "shut down"
+ * this MemoryContentCache while your application is still running.
+ */
+MemoryContentCache.prototype.unregisterAll = function()
+{
+  for (var i = 0; i < this.registeredPrefixIdList.length; ++i)
+    this.face.removeRegisteredPrefix(this.registeredPrefixIdList[i]);
+  this.registeredPrefixIdList = [];
+
+  // Also clear each onDataNotFoundForPrefix given to registerPrefix.
+  this.onDataNotFoundForPrefix = {};
+}
 
 /**
  * Add the Data packet to the cache so that it is available to use to answer
@@ -21067,14 +22219,14 @@ MemoryContentCache.StaleTimeContent.prototype.name = "StaleTimeContent";
  * Check if this content is stale.
  * @param {number} nowMilliseconds The current time in milliseconds from
  * new Date().getTime().
- * @returns {boolean} true if this interest is stale, otherwise false.
+ * @returns {boolean} True if this content is stale, otherwise false.
  */
 MemoryContentCache.StaleTimeContent.prototype.isStale = function(nowMilliseconds)
 {
   return this.staleTimeMilliseconds <= nowMilliseconds;
 };
 
-},{"../name.js":70}],96:[function(require,module,exports){
+},{"../name.js":70}],99:[function(require,module,exports){
 (function (Buffer){
 /**
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -21088,11 +22240,11 @@ MemoryContentCache.StaleTimeContent.prototype.isStale = function(nowMilliseconds
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var DataUtils = require('../encoding/data-utils.js').DataUtils;
@@ -21159,8 +22311,8 @@ NameEnumeration.prototype.processData = function(data)
         // Save the content and check if we are finished.
         this.contentParts.push(data.getContent().buf());
 
-        if (data.getMetaInfo() != null && data.getMetaInfo().getFinalBlockID().getValue().size() > 0) {
-          var finalSegmentNumber = data.getMetaInfo().getFinalBlockID().toSegment();
+        if (data.getMetaInfo() != null && data.getMetaInfo().getFinalBlockId().getValue().size() > 0) {
+          var finalSegmentNumber = data.getMetaInfo().getFinalBlockId().toSegment();
           if (segmentNumber == finalSegmentNumber) {
             // We are finished.  Parse and return the result.
             this.onComponents(NameEnumeration.parseComponents(Buffer.concat(this.contentParts)));
@@ -21229,7 +22381,7 @@ NameEnumeration.endsWithSegmentNumber = function(name) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../encoding/binary-xml-decoder.js":44,"../encoding/data-utils.js":48,"../name.js":70,"./ndn-protoco-id-tags.js":97,"buffer":5}],97:[function(require,module,exports){
+},{"../encoding/binary-xml-decoder.js":44,"../encoding/data-utils.js":48,"../name.js":70,"./ndn-protoco-id-tags.js":100,"buffer":5}],100:[function(require,module,exports){
 /**
  * This class contains all NDNx tags
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -21243,11 +22395,11 @@ NameEnumeration.endsWithSegmentNumber = function(name) {
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 
@@ -21400,7 +22552,7 @@ var NDNProtocolDTagsStrings = [
 
 exports.NDNProtocolDTagsStrings = NDNProtocolDTagsStrings;
 
-},{}],98:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 /**
  * This class represents NDNTime Objects
  * Copyright (C) 2013-2014 Regents of the University of California.
@@ -21414,11 +22566,11 @@ exports.NDNProtocolDTagsStrings = NDNProtocolDTagsStrings;
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var LOG = require('../log.js').Log.LOG;
@@ -21446,7 +22598,7 @@ NDNTime.prototype.getJavascriptDate = function()
   return d
 };
 
-},{"../log.js":68}],99:[function(require,module,exports){
+},{"../log.js":68}],102:[function(require,module,exports){
 /**
  * Copyright (C) 2013 Regents of the University of California.
  * @author: Jeff Thompson <jefft0@remap.ucla.edu>
@@ -21459,11 +22611,11 @@ NDNTime.prototype.getJavascriptDate = function()
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * A copy of the GNU General Public License is in the file COPYING.
+ * A copy of the GNU Lesser General Public License is in the file COPYING.
  */
 
 var Blob = require('./blob.js').Blob;
@@ -21556,7 +22708,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
   return this.signedPortionEndOffset;
 };
 
-},{"./blob.js":92}],100:[function(require,module,exports){
+},{"./blob.js":95}],103:[function(require,module,exports){
 (function(){
     
     // Copyright (c) 2005  Tom Wu
@@ -22783,7 +23935,7 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
     }
     
 }).call(this);
-},{}],101:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
 
@@ -26881,7 +28033,27 @@ SignedBlob.prototype.getSignedPortionEndOffset = function()
 
 })(this);
 
-},{"bytebuffer":102,"fs":1,"path":22}],102:[function(require,module,exports){
+},{"bytebuffer":106,"fs":1,"path":22}],105:[function(require,module,exports){
+/*
+ Copyright 2013 Daniel Wirtz <dcode@dcode.io>
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+var ProtoBuf = require("./dist/ProtoBuf.js");
+
+module.exports = ProtoBuf;
+
+},{"./dist/ProtoBuf.js":104}],106:[function(require,module,exports){
 /*
  ByteBuffer.js (c) 2013-2014 Daniel Wirtz <dcode@dcode.io>
  This version of ByteBuffer.js uses an ArrayBuffer (AB) as its backing buffer and is compatible with modern browsers.
@@ -26970,7 +28142,7 @@ k.a=function(a){var b=0;return function(){return b<a.length?a.charCodeAt(b++):nu
 a>>>=0;if("number"!==typeof b||0!==b%1)throw new TypeError("Illegal end: Not an integer");b>>>=0;if(0>a||a>b||b>this.buffer.byteLength)throw new RangeError("Illegal range: 0 <= "+a+" <= "+b+" <= "+this.buffer.byteLength);}var c=this,d;try{k.d(function(){return a<b?c.view.getUint8(a++):null},d=k.c())}catch(h){if(a!==b)throw new RangeError("Illegal range: Truncated data, "+a+" != "+b);}return d()};d.fromUTF8=function(a,b,c){if(!c&&"string"!==typeof a)throw new TypeError("Illegal str: Not a string");
 var e=new d(k.b(k.a(a),!0)[1],b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h++,a)});e.limit=h;return e};return d}"undefined"!==typeof module&&module.exports?module.exports=s(require("long")):"function"===typeof define&&define.amd?define("ByteBuffer",["Long"],function(l){return s(l)}):(r.dcodeIO=r.dcodeIO||{}).ByteBuffer=s(r.dcodeIO.Long)})(this);
 
-},{"long":104}],103:[function(require,module,exports){
+},{"long":108}],107:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
  Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -27918,7 +29090,7 @@ var e=new d(k.b(k.a(a),!0)[1],b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h+
 
 })(this);
 
-},{}],104:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 /*
  Copyright 2013 Daniel Wirtz <dcode@dcode.io>
  Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -27938,11 +29110,12 @@ var e=new d(k.b(k.a(a),!0)[1],b,c),h=0;k.e(k.a(a),function(a){e.view.setUint8(h+
 
 module.exports = require("./dist/Long.js");
 
-},{"./dist/Long.js":103}],105:[function(require,module,exports){
+},{"./dist/Long.js":107}],109:[function(require,module,exports){
 (function (Buffer){
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
-var debug = require("debug")("MessageChannelTransport");
+var debug = {}
+debug.debug = require("debug")("MessageChannelTransport");
 
 MessageChannelTransport.protocolKey = "messageChannel";
 
@@ -27952,7 +29125,7 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
-  debug("constructor")
+  debug.debug("constructor")
   Transport.call(this);
   this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
   return this;
@@ -27989,16 +29162,16 @@ MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  debug("connect");
+  debug.debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
-    debug("onmessage called")
+    debug.debug("onmessage called");
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
         self.elementReader.onReceivedData(new Buffer(ev.data));
       } catch (ex) {
-        debug(" onmessage exception: %s", ex);
+        debug.debug(" onmessage exception: %s", ex);
         return;
       }
     }
@@ -28012,18 +29185,18 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
  */
 MessageChannelTransport.prototype.send = function(element)
 {
-  debug("send")
+  debug.debug("send")
   this.connectionInfo.getPort().postMessage(element);
 };
 
 module.exports = MessageChannelTransport;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5,"debug":26,"ndn-lib/js/encoding/element-reader.js":50,"ndn-lib/js/transport/transport.js":89}],106:[function(require,module,exports){
+},{"buffer":5,"debug":26,"ndn-lib/js/encoding/element-reader.js":50,"ndn-lib/js/transport/transport.js":92}],110:[function(require,module,exports){
 (function (Buffer){
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
-var debug  = require("debug")("DataChannelTransport");
+var debug = {}; debug.debug = require("debug")("DataChannelTransport");
 
 
 /**Transport Class for HTML5 DataChannels
@@ -28032,7 +29205,7 @@ var debug  = require("debug")("DataChannelTransport");
  *@returns {DataChannelTransport}
  */
 function DataChannelTransport (channel) {
-  debug("constructor", channel)
+ debug.debug("constructor", channel)
   Transport.call(this);
   this.connectionInfo = new DataChannelTransport.ConnectionInfo(channel);
   return this;
@@ -28071,12 +29244,12 @@ DataChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 DataChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  debug("connect");
+ debug.debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
 
   connectionInfo.getChannel().onmessage = function(ev) {
-    debug('onmessage called', ev)
+   debug.debug('onmessage called', ev)
     if (ev.data instanceof ArrayBuffer) {
 
       var result = ev.data;
@@ -28094,19 +29267,19 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
 
 
   connectionInfo.getChannel().onopen = function(ev) {
-    debug('onopen: ReadyState: %s' ,this.readyState);
+   debug.debug('onopen: ReadyState: %s' ,this.readyState);
         // Face.registerPrefix will fetch the ndndid when needed.
 
     onopenCallback();
   }
 
   connectionInfo.getChannel().onerror = function(ev) {
-    debug('dc.onerror: ReadyState: ' + this.readyState);
-    debug('dc.onerror: WebRTC error: ' + ev.data);
+   debug.debug('dc.onerror: ReadyState: ' + this.readyState);
+   debug.debug('dc.onerror: WebRTC error: ' + ev.data);
   }
 
   connectionInfo.getChannel().onclose = function(ev) {
-    debug('dc.onclose: WebRTC connection closed.');
+   debug.debug('dc.onclose: WebRTC connection closed.');
     self.dc = null;
 
     // Close Face when WebSocket is closed
@@ -28116,7 +29289,7 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
   }
 
   if (connectionInfo.getChannel().readyState === "open"){
-    debug("connect called with channel open, firing callback")
+   debug.debug("connect called with channel open, firing callback")
     onopenCallback();
   }
 };
@@ -28126,11 +29299,11 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
  */
 DataChannelTransport.prototype.send = function(element)
 {
-  debug("attempting to send", element, this.connectionInfo.getChannel())
+ debug.debug("attempting to send", element, this.connectionInfo.getChannel())
   if(this.connectionInfo.getChannel().readyState === "open"){
     this.connectionInfo.getChannel().send(element.toArrayBuffer());
   } else {
-    debug("not trying to send, dataChannel not open")
+   debug.debug("not trying to send, dataChannel not open")
   }
 };
 
@@ -28158,7 +29331,7 @@ DataChannelTransport.defineListener = function(subject, namespace){
 module.exports = DataChannelTransport;
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":5,"debug":26,"ndn-lib/js/encoding/element-reader.js":50,"ndn-lib/js/transport/transport.js":89}],107:[function(require,module,exports){
+},{"buffer":5,"debug":26,"ndn-lib/js/encoding/element-reader.js":50,"ndn-lib/js/transport/transport.js":92}],111:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
   , Transport1, Transport2, face1, face2, inst
@@ -28189,7 +29362,7 @@ function msSpec (Transport){
 
 Abstract(Transport, msSpec);
 
-},{"../../../../src/Transports/browser/MessageChannel.js":105,"../../../node/Transports/Abstract.js":109,"ndn-lib":38}],108:[function(require,module,exports){
+},{"../../../../src/Transports/browser/MessageChannel.js":109,"../../../node/Transports/Abstract.js":113,"ndn-lib":38}],112:[function(require,module,exports){
 var ndn = require('ndn-lib')
   , Transport = require('../../../../src/Transports/browser/MessageChannel.js')
   , DTransport = require("../../../../src/Transports/browser/WebRTCDataChannel.js")
@@ -28371,7 +29544,7 @@ function dcSpec (Transport){
 Abstract(Transport, msSpec);
 Abstract(DTransport, dcSpec);
 
-},{"../../../../src/Transports/browser/MessageChannel.js":105,"../../../../src/Transports/browser/WebRTCDataChannel.js":106,"../../../node/Transports/Abstract.js":109,"ndn-lib":38}],109:[function(require,module,exports){
+},{"../../../../src/Transports/browser/MessageChannel.js":109,"../../../../src/Transports/browser/WebRTCDataChannel.js":110,"../../../node/Transports/Abstract.js":113,"ndn-lib":38}],113:[function(require,module,exports){
 var assert = require('assert')
 
 module.exports = function(Transport, moveOn){
@@ -28399,4 +29572,4 @@ var listener ;
 }
 
 
-},{"assert":2}]},{},[107,108]);
+},{"assert":2}]},{},[111,112]);

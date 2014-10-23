@@ -1,9 +1,10 @@
 var ndn
   , Face
-  ,debug = {}; debug.debug= require("debug")("Interfaces")
+  , debug = {}
   , ndn = require("ndn-lib")
   , TlvDecoder = require("ndn-lib/js/encoding/tlv/tlv-decoder.js").TlvDecoder
   , Tlv = require("ndn-lib/js/encoding/tlv/tlv.js").Tlv;
+debug.debug= require("debug")("Interfaces");
 
 /**Interface manager
  *@constructor

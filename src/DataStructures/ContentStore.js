@@ -1,6 +1,6 @@
 var debug = {}; debug.debug= require("debug")("ContentStore");
 var lru = require("lru-cache");
-var lruDebug = require("debug")("lru")
+var lruDebug = require("debug")("lru");
 
 var Cache;
 
@@ -72,16 +72,16 @@ csEntry.prototype.stale = function(node){
  */
 var ContentStore = function ContentStore(nameTree, entryClass, maxMem){
   entryClass = entryClass || csEntry;
-debug.debug("ContentStore constructed with %s entry class", entryClass.type);
+  debug.debug("ContentStore constructed with %s entry class", entryClass.type);
   if (entryClass.type === "csEntry"){
     Cache = lru({
       max: maxMem || 10000000
-      , length: function(n){console.log(n.element.length);return n.element.length;}
+      , length: function(n){return n.element.length;}
       , dispose: function(key, value){
-        lruDebug("evicting")
-        delete value.entry.nameTreeNode.csEntry
+        lruDebug("evicting");
+        delete value.entry.nameTreeNode.csEntry;
       }
-    })
+    });
   }
   this.nameTree = nameTree;
   this.EntryClass = entryClass;

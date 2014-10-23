@@ -6,7 +6,8 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
   , Transport = require("ndn-lib/js/transport/transport.js").Transport
   , net = require('net')
-  , var debug = {}, debug  = require("debug")("TCPServerTransport");
+  , debug = {};
+  debug.debug  = require("debug")("TCPServerTransport");
 
 
 var TCPServerTransport = function serverTcpTransport(socketOrAddress)

@@ -114,24 +114,18 @@ module.exports = function(grunt){
     },
     removelogging : {
       dist:{
-        src : 'src/**/*.js',
-        namespace: ["debug"]
+        src : 'dist/src/**/*.js',
+        options:{
+          namespace: ["debug", "debug.debug"],
+          methods: ["debug"]
+
+        }
       }
     },
     copy:{
-      toTmp:{
-        files:[
-          {expand: true, src: ['src/**'], dest: 'tmp/'},
-        ]
-      },
       toDist:{
         files:[
           {expand: true, src: ['src/**'], dest: 'dist/'}
-        ]
-      },
-      toSrc:{
-        files:[
-          {expand: true, src: ['tmp/**'], dest: 'src/'}
         ]
       }
     }
@@ -149,7 +143,7 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-copy');
   //grunt.loadNpmTasks('grunt-contrib-clean');
 
-  grunt.registerTask("stripDebug", ["copy:toTmp", "removelogging", "copy:toDist","copy:toSrc" ])
+  grunt.registerTask("stripDebug", ["copy:toDist","removelogging" ])
 
   grunt.registerTask("build", ["browserify:build", "uglify:build"])
   grunt.registerTask("suite", ["jshint", "browserify:testDataStructures", "browserify:testTransports", "mochaTest"])

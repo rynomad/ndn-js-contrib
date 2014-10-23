@@ -17,7 +17,8 @@
     "Networking"
   ],
   "browser": {
-    "./src/Transports/node/export.js": "./src/Transports/browser/export.js"
+    "./src/Transports/node/export.js": "./src/Transports/browser/export.js",
+    "./dist/src/Transports/node/export.js": "./dist/src/Transports/browser/export.js"
   },
   "author": "Ryan Bennett, Colorado State University",
   "license": "LGPLvTBD",
@@ -45,6 +46,7 @@
     "ndn-lib": "git+https://github.com/rynomad/ndn-js.git#ferossmerge",
     "ws": "*",
     "debug": "*",
-    "lru-cache": "*"
+    "lru-cache": "*",
+    "ndn-js": "^0.6.0"
   }
 }

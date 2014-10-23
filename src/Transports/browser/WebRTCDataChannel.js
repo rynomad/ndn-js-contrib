@@ -1,6 +1,6 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
-vardebug = {}; debug.debug = require("debug")("DataChannelTransport");
+var debug = {}; debug.debug = require("debug")("DataChannelTransport");
 
 
 /**Transport Class for HTML5 DataChannels

@@ -1,6 +1,7 @@
 var binarySearch = require("./../Utility/binarySearch.js")
   , ndn
-  , var debug = {}, debug = require("debug")("PIT");
+  , debug = {};
+debug.debug = require("debug")("PIT");
 
 
 function pubKeyMatch (ar1, ar2){

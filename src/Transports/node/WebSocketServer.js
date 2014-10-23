@@ -7,7 +7,8 @@ var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementRead
   , Transport = require("ndn-lib/js/transport/transport.js").Transport
   , wes = require('ws')
   , wss = wes.Server
-  , var debug = {}; debug.debug = require("debug")("WebSocketServerTransport");
+  , debug = {};
+ debug.debug = require("debug")("WebSocketServerTransport");
 
 /** ServerSide websocket transport,
  *@constructor

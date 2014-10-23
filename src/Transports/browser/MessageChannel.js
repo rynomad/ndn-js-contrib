@@ -1,6 +1,7 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
-var debug = require("debug")("MessageChannelTransport");
+var debug = {}
+debug.debug = require("debug")("MessageChannelTransport");
 
 MessageChannelTransport.protocolKey = "messageChannel";
 
@@ -51,7 +52,7 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
-    debug.debug("onmessage called")
+    debug.debug("onmessage called");
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
         self.elementReader.onReceivedData(new Buffer(ev.data));
