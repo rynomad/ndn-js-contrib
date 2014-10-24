@@ -42,15 +42,6 @@ module.exports = function(grunt){
         }
       }
     },
-    removelogging : {
-      main : {
-        src : 'src/**/*.js',
-        dest : 'build/**/*.js',
-        options : {
-          nodes : ['console.log', 'debug']
-        }
-      }
-    },
     jsdoc : {
       dist : {
         src: ['src/**/*.js'],
@@ -110,7 +101,7 @@ module.exports = function(grunt){
       FIB: ['src/DataStructures/FIB.js'],
       PIT: ['src/DataStructures/PIT.js'],
       Interfaces: ['src/DataStructures/Interfaces.js'],
-      Transports: ['src/Transports/*.js']
+      Transports: ['src/Transports/**/*.js']
     },
     removelogging : {
       dist:{

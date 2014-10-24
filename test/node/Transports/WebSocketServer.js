@@ -11,7 +11,7 @@ function WSSTest (Transport){
           done();
         }
       })
-      var c = new ws("ws://localhost:7575");
+      var c = new ws("ws://localhost:8585");
     })
   })
 }

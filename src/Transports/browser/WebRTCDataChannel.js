@@ -1,6 +1,7 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
-var debug = {}; debug.debug = require("debug")("DataChannelTransport");
+var debug = {};
+debug.debug = require("debug")("DataChannelTransport");
 
 
 /**Transport Class for HTML5 DataChannels
@@ -9,7 +10,7 @@ var debug = {}; debug.debug = require("debug")("DataChannelTransport");
  *@returns {DataChannelTransport}
  */
 function DataChannelTransport (channel) {
- debug.debug("constructor", channel)
+ debug.debug("constructor", channel);
   Transport.call(this);
   this.connectionInfo = new DataChannelTransport.ConnectionInfo(channel);
   return this;
@@ -53,7 +54,7 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
   var self = this;
 
   connectionInfo.getChannel().onmessage = function(ev) {
-   debug.debug('onmessage called', ev)
+   debug.debug('onmessage called', ev);
     if (ev.data instanceof ArrayBuffer) {
 
       var result = ev.data;
@@ -75,12 +76,12 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
         // Face.registerPrefix will fetch the ndndid when needed.
 
     onopenCallback();
-  }
+  };
 
   connectionInfo.getChannel().onerror = function(ev) {
    debug.debug('dc.onerror: ReadyState: ' + this.readyState);
    debug.debug('dc.onerror: WebRTC error: ' + ev.data);
-  }
+  };
 
   connectionInfo.getChannel().onclose = function(ev) {
    debug.debug('dc.onclose: WebRTC connection closed.');
@@ -90,10 +91,10 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
     self.face.readyStatus = 3;
     self.face.closeByTransport();
     onclosedCallback();
-  }
+  };
 
   if (connectionInfo.getChannel().readyState === "open"){
-   debug.debug("connect called with channel open, firing callback")
+    debug.debug("connect called with channel open, firing callback");
     onopenCallback();
   }
 };
@@ -103,11 +104,11 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
  */
 DataChannelTransport.prototype.send = function(element)
 {
- debug.debug("attempting to send", element, this.connectionInfo.getChannel())
+  debug.debug("attempting to send", element, this.connectionInfo.getChannel());
   if(this.connectionInfo.getChannel().readyState === "open"){
     this.connectionInfo.getChannel().send(element.toArrayBuffer());
   } else {
-   debug.debug("not trying to send, dataChannel not open")
+   debug.debug("not trying to send, dataChannel not open");
   }
 };
 

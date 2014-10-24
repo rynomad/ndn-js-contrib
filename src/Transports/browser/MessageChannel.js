@@ -1,9 +1,8 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
-var debug = {}
+var debug = {};
 debug.debug = require("debug")("MessageChannelTransport");
 
-MessageChannelTransport.protocolKey = "messageChannel";
 
 /**Transport Class for HTML5 MessageChannels
  *@constructor
@@ -11,7 +10,7 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
-  debug.debug("constructor")
+  debug.debug("constructor");
   Transport.call(this);
   this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
   return this;
@@ -71,7 +70,7 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
  */
 MessageChannelTransport.prototype.send = function(element)
 {
-  debug.debug("send")
+  debug.debug("send");
   this.connectionInfo.getPort().postMessage(element);
 };
 

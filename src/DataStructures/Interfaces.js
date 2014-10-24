@@ -1,9 +1,9 @@
 var ndn
   , Face
   , debug = {}
-  , ndn = require("ndn-lib")
+  , ndn = require("ndn-js")
   , TlvDecoder = require("ndn-lib/js/encoding/tlv/tlv-decoder.js").TlvDecoder
-  , Tlv = require("ndn-lib/js/encoding/tlv/tlv.js").Tlv;
+  , Tlv = require("ndn-js/js/encoding/tlv/tlv.js").Tlv;
 debug.debug= require("debug")("Interfaces");
 
 /**Interface manager
@@ -78,8 +78,10 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
      debug.debug("TOFIX: align better with ndn-js transport API");
       connectionInfo = new this.transports[protocol].ConnectionInfo(connectionParameters.host, connectionParameters.port);
     } else {
-      connectionInfo = newFace.connectionInfo;
+      connectionInfo = newFace.connectionInfo || Transport.connectionInfo ||new this.transports[protocol].ConnectionInfo(Transport.socket);
     }
+
+    debug.debug("%s face connectionInfo: %s", protocol, connectionInfo);
     if (onclose){
       newFace.onclose = onclose;
     }

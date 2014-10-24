@@ -3,8 +3,8 @@
  * @author: Wentao Shang
  * See COPYING for copyright and distribution information.
  */
-var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
-  , Transport = require("ndn-lib/js/transport/transport.js").Transport
+var ElementReader = require("ndn-js/js/encoding/element-reader.js").ElementReader
+  , Transport = require("ndn-js/js/transport/transport.js").Transport
   , wes = require('ws')
   , wss = wes.Server
   , debug = {};
@@ -20,13 +20,13 @@ var WebSocketServerTransport = function WebSocketServerTransport(ws)
   var Self = this;
   Transport.call(this);
   if (typeof ws === "string"){
-    debug.debug("constructor called with string %s", ws)
+    debug.debug("constructor called with string %s", ws);
     if (ws.split(":").length === 2){
-      ws = ws + ":7575";
+      ws = ws + ":8585";
     }
     this.ws = new wes(ws);
   } else{
-    debug.debug("constructor called with websocket")
+    debug.debug("constructor called with websocket");
     this.ws = ws;
   }
 
@@ -56,13 +56,14 @@ WebSocketServerTransport.ConnectionInfo.prototype.getSocket = function()
 
 WebSocketServerTransport.defineListener = function(Subject, port){
   var Self = this;
-  port = port || 7575;
-  debug.debug("begin listening on port %s", port)
+  port = port || 8585;
+  debug.debug("begin listening on port %s", port);
 
   this.Listener = function(interfaces){
     Self.server = new wss({port: port});
+    debug.debug("begin listening on port %s", port);
     Self.server.on('connection', function(ws){
-      debug.debug("got incoming connection, constructing face")
+      debug.debug("got incoming connection, constructing face");
       interfaces.newFace("WebSocketServerTransport", ws);
     });
   };
@@ -78,7 +79,7 @@ WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onope
 
   this.ws.on('message', function(data) {
     if (typeof data === 'object') {
-      debug.debug("got message")
+      debug.debug("got message");
       // Make a copy of data (maybe a customBuf or a String)
       var buf = new Buffer(data);
       try {
@@ -105,7 +106,7 @@ WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onope
     face.closeByTransport();
     onClose();
   });
-  this.onClose = onClose || function(){}
+  this.onClose = onClose || function(){};
   this.connectedHost = 111;
   this.connectedPort = 111;
   onopenCallback();
@@ -118,7 +119,7 @@ WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onope
 WebSocketServerTransport.prototype.send = function(/*Buffer*/ data)
 {
   try{
-    debug.debug("sending data", data)
+    debug.debug("sending data", data);
     this.ws.send(data, {binary: true});
   }catch (er){
     debug.debug('connection is not established.', er);
@@ -133,6 +134,7 @@ WebSocketServerTransport.prototype.close = function()
   try {
     this.ws.end();
   } catch (er){
+    debug.debug("error closing wsServer transport");
   }
 
   this.onClose();

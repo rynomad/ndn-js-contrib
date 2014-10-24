@@ -11,7 +11,7 @@ function TCPTest (Transport){
           done();
         }
       })
-      var c = net.connect({port: 7474}, function(){
+      var c = net.connect({port: 8484}, function(){
         assert(c)
       })
     })

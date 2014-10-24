@@ -180,12 +180,10 @@ FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
   while (iterator.hasNext){
     var entry = iterator.next()
       , nextHops = entry.getNextHops(excludingFaceID);
-    //console.log("nextHops", nextHops)
     for (var i =0; i < nextHops.length; i ++){
       faceFlag = faceFlag | (1 << nextHops[i].faceID);
     }
   }
-  //console.log("faceFlag")
   return faceFlag;
 };
 

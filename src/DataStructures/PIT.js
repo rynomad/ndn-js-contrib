@@ -66,13 +66,14 @@ PitEntry.prototype.matches = function(data){
 /**Consume the PitEntry (assuming it is attached to a the nameTree)
  *@returns {PitEntry} in case you want to do anything with it afterward
  */
-PitEntry.prototype.consume = function() {
+PitEntry.prototype.consume = function(callbackCalled) {
   debug.debug("consuming entry %s", this.uri);
   if (this.nameTreeNode){
     var i = binarySearch(this.nameTreeNode.pitEntries, this, "nonce");
     if (i >= 0){
       var removed = this.nameTreeNode.pitEntries.splice(~i, 1)[0];
-      if (removed.callback){
+      if (removed.callback && !callbackCalled){
+        debug.debug("executing PITEntry Callback %s", removed.callback.toString());
         removed.callback(null, removed.interest);
       }
     }
@@ -118,7 +119,7 @@ PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
   var pitEntry = new PIT.Entry(element, interest, faceIDorCallback);
   debug.debug("inserting pit entry %s with lifetime milliseconds %s",pitEntry.interest.toUri(), pitEntry.interest.getInterestLifetimeMilliseconds() );
   setTimeout(function(){
-    debug.debug("entry %s expired", pitEntry.uri);
+    debug.debug("entry %s expired after %s ms", pitEntry.uri, pitEntry.interest.getInterestLifetimeMilliseconds());
     pitEntry.consume();
   }, pitEntry.interest.getInterestLifetimeMilliseconds() || 10);
   var node = this.nameTree.lookup(pitEntry.interest.name);

@@ -3,8 +3,8 @@
  * @author: Wentao Shang, forked and adapted by Ryan Bennett.
  * See COPYING for copyright and distribution information.
  */
-var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
-  , Transport = require("ndn-lib/js/transport/transport.js").Transport
+var ElementReader = require("ndn-js/js/encoding/element-reader.js").ElementReader
+  , Transport = require("ndn-js/js/transport/transport.js").Transport
   , net = require('net')
   , debug = {};
   debug.debug  = require("debug")("TCPServerTransport");
@@ -16,17 +16,17 @@ var TCPServerTransport = function serverTcpTransport(socketOrAddress)
   if (typeof socketOrAddress === "string"){
 
     debug.debug("constructed with string: %s", socketOrAddress);
-    this.socket = net.connect(socketOrAddress.split(":")[2] || 7474, socketOrAddress.split("://")[1].split(":")[0] || 'localhost', function(sock){
-      self.socket = sock;
-      debug.debug("made socket")
+    this.socket = net.connect(socketOrAddress.split(":")[2] || 8484, socketOrAddress.split("://")[1].split(":")[0] || 'localhost', function(sock){
+      debug.debug("got callback from net.connect %s", socketOrAddress);
+      debug.debug("made socket");
       self.connectedHost = socketOrAddress.split("://")[1] || 'localhost'; // Read by Face.
-      self.connectedPort = socketOrAddress.split(":")[2] || 7474;
+      self.connectedPort = socketOrAddress.split(":")[2] || 8484;
 
       self.sock_ready = true;
     });
   } else {
     debug.debug("constructed with existing socket");
-    this.socket = socketOrHostAndPort;
+    this.socket = socketOrAddress;
     this.connectedHost = null; // Read by Face.
     this.connectedPort = null; // Read by Face.
   }
@@ -51,21 +51,26 @@ TCPServerTransport.ConnectionInfo.prototype.getSocket = function()
 };
 
 /**Define a connection listener for the {@link Interfaces} module. This Class method must be called before installing the class into Interfaces (if you want a Listener)
- *@param {Number=} - port the port for the listener to listen on, default 7575
+ *@param {Number=} - port the port for the listener to listen on, default 8585
  */
 TCPServerTransport.defineListener = function(Subject, port){
-  port = port || 7474;
+  port = port || 8484;
 
 
   debug.debug("defining listener on port: %s", port);
 
   this.Listener = function (interfaces) {
     this.server = net.createServer(function(socket){
-      debug.debug("server got new client socket")
+      debug.debug("server got new client socket on port %s", port);
       socket.on('end', function() {
         debug.debug('socket disconnected');
       });
-      interfaces.newFace("tcpServerTransport", socket);
+      interfaces.newFace("TCPServerTransport", socket, function(id){
+        debug.debug("got newface callback from interfaces with face ID: %s", id);
+        interfaces.Faces[id].transport.connect({}, interfaces.Faces[id], function(){}, function(){});
+      }, function(){
+
+      });
     });
     this.server.listen(port, function(){
       debug.debug('server awaiting connections');
@@ -76,7 +81,7 @@ TCPServerTransport.defineListener = function(Subject, port){
 TCPServerTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
   this.elementReader = new ElementReader(elementListener);
-
+  debug.debug("got connect call");
   // Connect to local ndnd via TCP
   var self = this;
   elementListener.readyStatus = 2;
@@ -113,6 +118,7 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
     debug.debug('new connection, calling onOpenCallback');
     onopenCallback();
   });
+  onopenCallback();
 
   this.connectedHost = 111;
   this.connectedPort = 111;
@@ -121,12 +127,10 @@ TCPServerTransport.prototype.connect = function(connectionInfo, elementListener,
 
 TCPServerTransport.prototype.send = function(/*Buffer*/ data)
 {
-  if (this.sock_ready)
-  {
-    debug.debug("writing data to socket");
+  try {
     this.socket.write(data);
-  }else{
-    debug.debug('TCP connection is not established.');
+  }catch (e){
+    debug.debug('TCP send error: %s', e.message);
   }
 };
 

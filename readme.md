@@ -22,9 +22,9 @@ NDN-Contrib - Expanded Class Library on top of NDN-js
 
 Usage
 -----
-simply require("ndn-contrib") in your project (use browserify for browser projects)
+simply require("ndn-js-contrib") in your project (use browserify for browser projects)
 
-    var ndn = require("ndn-contrib");
+    var ndn = require("ndn-js-contrib");
 
 all the classes are now attached to the ndn object (including ndn-js @ ndn.ndn), and are ready to go...
 
@@ -36,7 +36,7 @@ now you have a websocket server accepting incoming connections and handing inter
 
 You can also include just part of the library by doing something like
 
-    var ndn = require("ndn-lib");
+    var ndn = require("ndn-js");
     var Interfaces = require("ndn-contrib/src/DataStructures/Interfaces.js");
     Interfaces.installNDN(ndn); /** This is done for you if you require("ndn-contrib"),
                                  * it's a safety measure to avoid 'instanceof' bugs.
