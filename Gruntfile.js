@@ -130,12 +130,9 @@ module.exports = function(grunt){
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-plato");
   grunt.loadNpmTasks('grunt-remove-logging');
-
   grunt.loadNpmTasks('grunt-contrib-copy');
-  //grunt.loadNpmTasks('grunt-contrib-clean');
 
   grunt.registerTask("stripDebug", ["copy:toDist","removelogging" ])
-
   grunt.registerTask("build", ["browserify:build", "uglify:build"])
   grunt.registerTask("suite", ["jshint", "browserify:testDataStructures", "browserify:testTransports", "mochaTest"])
 };
