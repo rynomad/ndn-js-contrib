@@ -1,5 +1,5 @@
 var binarySearch = require("./../Utility/binarySearch.js")
-  , ndn
+  , ndn;
 
 /**NameTreeNode constructor, NOTE: (typeof URI == "string") && (Name instanceof <a href="https://github.com/named-data/ndn-js/blob/master/js/name.js">ndn.Name</a> )
  *@constructor
