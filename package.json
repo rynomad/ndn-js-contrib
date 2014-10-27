@@ -1,6 +1,6 @@
 {
   "name": "ndn-js-contrib",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "./dist/src/Transports/node/export.js": "./dist/src/Transports/browser/export.js"
   },
   "author": "Ryan Bennett, Colorado State University",
-  "license": "LGPLvTBD",
+  "license": "LGPLv3",
   "bugs": {
     "url": "https://github.com/rynomad/ndn-contrib/issues"
   },
@@ -40,14 +40,12 @@
     "grunt-contrib-uglify": "^0.5.1",
     "grunt-plato": "^1.3.0",
     "grunt-strip": "^0.2.1",
-    "grunt-contrib-copy": "^0.7.0"
+    "grunt-contrib-copy": "^0.7.0",
+    "grunt-remove-logging": "^0.2.0"
   },
   "dependencies": {
-    "ndn-js":"*",
-    "ndn-lib": "git+https://github.com/rynomad/ndn-js.git#ferossmerge",
+    "ndn-js": "^0.6.0",
     "ws": "*",
-    "debug": "*",
-    "lru-cache": "*",
-    "ndn-js": "^0.6.0"
+    "lru-cache": "*"
   }
 }
