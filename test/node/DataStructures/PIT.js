@@ -79,7 +79,7 @@ describe("PIT", function(){
     it("should get all matches and return a faceFlag", function(done){
       var inst = new ndn.Interest(new ndn.Name("a/b/c"))
       inst.setInterestLifetimeMilliseconds(50);
-      var enc = inst.wireEncode()
+      var enc = inst.wireEncode().buffer
       inst = new ndn.Interest()
       inst.wireDecode(enc)
       var entry = new PIT.Entry(enc, inst, 1)
@@ -96,7 +96,7 @@ describe("PIT", function(){
   describe("PIT.checkDuplicate", function(){
     it("should return true for duplicate", function(){
       var inst = new ndn.Interest(new ndn.Name("test/duplicate"))
-      var a = inst.wireEncode()
+      var a = inst.wireEncode().buffer
       var b = new ndn.Interest()
       b.wireDecode(a)
       assert(!pit.checkDuplicate(b))
