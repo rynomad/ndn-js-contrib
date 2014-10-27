@@ -123,7 +123,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line70">line 70</a>
+        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line101">line 101</a>
     </li></ul></dd>
     
     
@@ -258,7 +258,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line78">line 78</a>
+        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line109">line 109</a>
     </li></ul></dd>
     
     
@@ -286,7 +286,7 @@
         
             
 <dt>
-    <h4 class="name" id="addEntry"><span class="type-signature"></span>addEntry<span class="signature">(prefix)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="addEntry"><span class="type-signature"></span>addEntry<span class="signature">(prefix, nextHops)</span><span class="type-signature"> &rarr; {this}</span></h4>
     
     
 </dt>
@@ -334,7 +334,7 @@
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">String</span>
 
 
             
@@ -344,7 +344,39 @@
             
             
             
-            <td class="description last"></td>
+            <td class="description last">the nameSpace for the fibEntry</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>nextHops</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+|
+
+<span class="param-type">Number_Array</span>
+|
+
+<span class="param-type">nextHop</span>
+|
+
+<span class="param-type">nextHop_Array</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the nextHop info for the fibEntry</td>
         </tr>
 	
 	
@@ -375,7 +407,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line154">line 154</a>
+        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line196">line 196</a>
     </li></ul></dd>
     
     
@@ -396,6 +428,28 @@
     
     
     
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    FIB for chaining
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">this</span>
+
+
+	</dd>
+</dl>
+
+        
     
     
 </dd>
@@ -492,7 +546,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line104">line 104</a>
+        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line138">line 138</a>
     </li></ul></dd>
     
     
@@ -677,7 +731,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line134">line 134</a>
+        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line175">line 175</a>
     </li></ul></dd>
     
     
@@ -816,7 +870,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line87">line 87</a>
+        <a href="FIB.js.html">DataStructures/FIB.js</a>, <a href="FIB.js.html#line118">line 118</a>
     </li></ul></dd>
     
     
@@ -875,13 +929,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="ContentStore.html">ContentStore</a></li><li><a href="ContentStore_insert.html">insert</a></li><li><a href="csEntry.html">csEntry</a></li><li><a href="FIB.html">FIB</a></li><li><a href="FibEntry.html">FibEntry</a></li><li><a href="Interfaces.html">Interfaces</a></li><li><a href="MessageChannelTransport.html">MessageChannelTransport</a></li><li><a href="NameTree.html">NameTree</a></li><li><a href="NameTreeNode.html">NameTreeNode</a></li><li><a href="PIT.html">PIT</a></li><li><a href="PitEntry.html">PitEntry</a></li><li><a href="Transport.html">Transport</a></li><li><a href="WebSocketServerTransport.html">WebSocketServerTransport</a></li></ul><h3>Global</h3><ul><li><a href="global.html#debug">debug</a></li><li><a href="global.html#ElementReader">ElementReader</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="ContentStore.html">ContentStore</a></li><li><a href="ContentStore_insert.html">insert</a></li><li><a href="csEntry.html">csEntry</a></li><li><a href="DataChannelTransport.html">DataChannelTransport</a></li><li><a href="FIB.html">FIB</a></li><li><a href="FibEntry.html">FibEntry</a></li><li><a href="Interfaces.html">Interfaces</a></li><li><a href="MessageChannelTransport.html">MessageChannelTransport</a></li><li><a href="NameTree.html">NameTree</a></li><li><a href="NameTreeNode.html">NameTreeNode</a></li><li><a href="PIT.html">PIT</a></li><li><a href="PitEntry.html">PitEntry</a></li><li><a href="Transport.html">Transport</a></li><li><a href="WebSocketServerTransport.html">WebSocketServerTransport</a></li></ul><h3>Global</h3><ul><li><a href="global.html#compareArrays">compareArrays</a></li><li><a href="global.html#ElementReader">ElementReader</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Mon Oct 27 2014 00:22:53 GMT-0600 (MDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on Mon Oct 27 2014 00:28:02 GMT-0600 (MDT)
 </footer>
 
 <script> prettyPrint(); </script>
