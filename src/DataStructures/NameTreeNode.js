@@ -1,6 +1,5 @@
 var binarySearch = require("./../Utility/binarySearch.js")
   , ndn
-  , debug = require("./../Utility/debug.js");
 
 /**NameTreeNode constructor, NOTE: (typeof URI == "string") && (Name instanceof <a href="https://github.com/named-data/ndn-js/blob/master/js/name.js">ndn.Name</a> )
  *@constructor
@@ -8,7 +7,7 @@ var binarySearch = require("./../Utility/binarySearch.js")
  *@param {Name|URI} prefix of the node
  *@returns {NameTreeNode}
  */
-function NameTreeNode (prefix) {
+var NameTreeNode = function NameTreeNode (prefix) {
   this.prefix     = (typeof prefix === "string") ? new ndn.Name(prefix) : (prefix || null);
   this.parent     = null;
   this.children   = [];
@@ -17,7 +16,7 @@ function NameTreeNode (prefix) {
   this.measurements  = null;
   this.strategy = null;
   return this;
-}
+};
 
 /**Install ndn-lib. Only necessary if you're using require("ndn-Classes/src/DataStructures/NameTreeNode.js"), done for you if require("ndn-Classes").NameTree.Node
  *@private
@@ -39,9 +38,6 @@ NameTreeNode.prototype.addChild = function addChild(child){
 
   child = (child.prefix) ? child : new NameTreeNode(new ndn.Name(self.prefix).append(child));
   if ( index < 0){
-    if (debug.NameTree) {
-      console.log("adding child " + child.prefix.toUri()+ " to "+ self.prefix.toUri() + " at index " +~index);
-    }
     this.children.splice(~index, 0, child);
   }
   return this;

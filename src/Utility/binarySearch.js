@@ -10,7 +10,6 @@
  * @return {Number} The index of the element which defaults to -1 when not found.
  */
 
-var debug = require("./debug.js").binaryIndexOf
 
 function compareArrays(query, comparator, i){
   if (!(i >= 0))

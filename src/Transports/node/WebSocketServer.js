@@ -3,9 +3,12 @@
  * @author: Wentao Shang
  * See COPYING for copyright and distribution information.
  */
-var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader
-  , Transport = require("ndn-lib/js/transport/transport.js").Transport
-  , wss = require('ws').Server;
+var ElementReader = require("ndn-js/js/encoding/element-reader.js").ElementReader
+  , Transport = require("ndn-js/js/transport/transport.js").Transport
+  , wes = require('ws')
+  , wss = wes.Server
+  , debug = {};
+ debug.debug = require("debug")("WebSocketServerTransport");
 
 /** ServerSide websocket transport,
  *@constructor
@@ -14,8 +17,19 @@ var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementRead
  */
 var WebSocketServerTransport = function WebSocketServerTransport(ws)
 {
+  var Self = this;
   Transport.call(this);
-  this.ws = ws;
+  if (typeof ws === "string"){
+    debug.debug("constructor called with string %s", ws);
+    if (ws.split(":").length === 2){
+      ws = ws + ":8585";
+    }
+    this.ws = new wes(ws);
+  } else{
+    debug.debug("constructor called with websocket");
+    this.ws = ws;
+  }
+
   return this;
 };
 
@@ -23,10 +37,9 @@ var WebSocketServerTransport = function WebSocketServerTransport(ws)
  *@property {String} protocolKey "wsServer"
  */
 
-WebSocketServerTransport.prototype.name = "WebSocketServerTransport";
 
 WebSocketServerTransport.prototype = new Transport();
-WebSocketServerTransport.prototype.name = "messageChannelTransport";
+WebSocketServerTransport.prototype.name = "WebSocketServerTransport";
 
 WebSocketServerTransport.ConnectionInfo = function WebSocketServerTransportConnectionInfo(socket){
   Transport.ConnectionInfo.call(this);
@@ -41,52 +54,58 @@ WebSocketServerTransport.ConnectionInfo.prototype.getSocket = function()
   return this.socket;
 };
 
-WebSocketServerTransport.defineListener = function(port){
-  port = port || 7575;
+WebSocketServerTransport.defineListener = function(Subject, port){
+  var Self = this;
+  port = port || 8585;
+  debug.debug("begin listening on port %s", port);
 
-  this.Listener = function(newFace){
-    this.server = new wss({port: port});
-    this.server.on('connection', function(ws){
-      newFace("wsServer", ws);
+  this.Listener = function(interfaces){
+    Self.server = new wss({port: port});
+    Self.server.on('connection', function(ws){
+      debug.debug("got incoming connection, constructing face");
+      interfaces.newFace("WebSocketServerTransport", ws);
     });
   };
 };
 
-WebSocketServerTransport.prototype.connect = function(face, onopenCallback, third)
+WebSocketServerTransport.prototype.connect = function(connectionInfo,face, onopenCallback, onClose)
 {
   this.elementReader = new ElementReader(face);
 
   // Connect to local ndnd via TCP
   var self = this;
+  face.readyStatus = 2;
 
   this.ws.on('message', function(data) {
     if (typeof data === 'object') {
+      debug.debug("got message");
       // Make a copy of data (maybe a customBuf or a String)
       var buf = new Buffer(data);
       try {
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(buf);
       } catch (ex) {
-        console.log("NDN.TcpTransport.ondata exception: " + ex);
+        debug.debug("NDN.WebSocketServerTransport.ondata exception: " + ex);
         return;
       }
     }
   });
 
 
-  this.ws.on('error', function() {
-    console.log('socket.onerror: TCP socket error');
+  this.ws.on('error', function(er) {
+    debug.debug('ws.onerror: ws socket error', er);
   });
 
   this.ws.on('close', function() {
-    console.log('socket.onclose: TCP connection closed.');
+    debug.debug('ws.onclose: ws connection closed.');
 
-    self.wst = null;
+    self.ws = null;
 
     // Close Face when TCP Socket is closed
     face.closeByTransport();
+    onClose();
   });
-
+  this.onClose = onClose || function(){};
   this.connectedHost = 111;
   this.connectedPort = 111;
   onopenCallback();
@@ -99,9 +118,10 @@ WebSocketServerTransport.prototype.connect = function(face, onopenCallback, thir
 WebSocketServerTransport.prototype.send = function(/*Buffer*/ data)
 {
   try{
+    debug.debug("sending data", data);
     this.ws.send(data, {binary: true});
   }catch (er){
-    console.log('WS connection is not established.', er);
+    debug.debug('connection is not established.', er);
   }
 };
 
@@ -113,7 +133,10 @@ WebSocketServerTransport.prototype.close = function()
   try {
     this.ws.end();
   } catch (er){
+    debug.debug("error closing wsServer transport");
   }
+
+  this.onClose();
   console.log('WS connection closed.');
 };
 

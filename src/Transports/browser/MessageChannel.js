@@ -1,7 +1,8 @@
 var ElementReader = require("ndn-lib/js/encoding/element-reader.js").ElementReader;
 var Transport = require("ndn-lib/js/transport/transport.js").Transport;
+var debug = {};
+debug.debug = require("debug")("MessageChannelTransport");
 
-MessageChannelTransport.protocolKey = "messageChannel";
 
 /**Transport Class for HTML5 MessageChannels
  *@constructor
@@ -9,6 +10,7 @@ MessageChannelTransport.protocolKey = "messageChannel";
  *@returns {MessageChannelTransport}
  */
 function MessageChannelTransport (port) {
+  debug.debug("constructor");
   Transport.call(this);
   this.connectionInfo = new MessageChannelTransport.ConnectionInfo(port);
   return this;
@@ -16,10 +18,9 @@ function MessageChannelTransport (port) {
 
 
 MessageChannelTransport.prototype = new Transport();
-MessageChannelTransport.prototype.name = "messageChannelTransport";
+MessageChannelTransport.prototype.name = "MessageChannelTransport";
 
 MessageChannelTransport.ConnectionInfo = function MessageChannelTransportConnectionInfo(port){
-  console.log(Transport);
   Transport.ConnectionInfo.call(this);
   this.port = port;
 };
@@ -46,15 +47,16 @@ MessageChannelTransport.ConnectionInfo.prototype.equals = function(other)
  */
 MessageChannelTransport.prototype.connect = function(connectionInfo, elementListener, onopenCallback, onclosedCallback)
 {
-  console.log("messageChannel connect");
+  debug.debug("connect");
   this.elementReader = new ElementReader(elementListener);
   var self = this;
   connectionInfo.getPort().onmessage = function(ev) {
+    debug.debug("onmessage called");
     if (ev.data.buffer instanceof ArrayBuffer) {
       try {
         self.elementReader.onReceivedData(new Buffer(ev.data));
       } catch (ex) {
-        console.log("NDN.ws.onmessage exception: ", ex);
+        debug.debug(" onmessage exception: %s", ex);
         return;
       }
     }
@@ -68,6 +70,7 @@ MessageChannelTransport.prototype.connect = function(connectionInfo, elementList
  */
 MessageChannelTransport.prototype.send = function(element)
 {
+  debug.debug("send");
   this.connectionInfo.getPort().postMessage(element);
 };
 

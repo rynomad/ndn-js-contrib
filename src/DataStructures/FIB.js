@@ -1,5 +1,6 @@
 var binarySearch = require("./../Utility/binarySearch.js")
-  , ndn;
+  , ndn
+  ,debug = {}; debug.debug= require("debug")("FIB");
 
 /**A Forwarding Entry
  *@constructor
@@ -14,7 +15,15 @@ function FibEntry(prefix, nextHops){
     var hops = [];
     function recurse(){
       if (nextHops && nextHops.length > 0){
-        var hop = (nextHops[0].faceID) ? nextHops.shift() : {faceID: nextHops.shift()};
+        var hop;
+        if (typeof nextHops[0].faceID !== "undefined" ){
+          hop = nextHops.shift();
+        } else {
+          hop = {
+            faceID: nextHops.shift()
+          };
+        }
+
         var i = binarySearch(hops, hop, "faceID");
         if (i < 0){
           hops.splice(~i, 0, hop);
@@ -29,21 +38,43 @@ function FibEntry(prefix, nextHops){
   return this;
 }
 
+FibEntry.type = "FibEntry";
+
 /**get all nextHops, excluding a given faceID
  *@param {Number=} excludingFaceID the faceID to exclude
  *@returns {Array} an array of nextHops
  */
 FibEntry.prototype.getNextHops = function(excludingFaceID){
+ debug.debug("Entry getting next hops excluding: %s", excludingFaceID);
+  var returns;
   if(excludingFaceID !== undefined){
     var q = {faceID: excludingFaceID }
       , i = binarySearch(this.nextHops, q, "faceID");
     if (i >= 0){
-      return this.nextHops.slice(0,i).concat(this.nextHops.slice(i + 1));
+      returns = this.nextHops.slice(0,i).concat(this.nextHops.slice(i + 1));
     } else {
-      return this.nextHops;
+      returns = this.nextHops;
     }
   } else {
-    return this.nextHops;
+
+    returns = this.nextHops;
+  }
+ debug.debug("returning array of %s nextHops", returns.length);
+  return returns;
+};
+
+/**Remove a nextHop (will do nothing if a nextHop with the given faceID does not exist)
+ *@param {Object} nextHop an object with faceID Number property
+ *@returns {FIBEntry} for chaining
+ */
+FibEntry.prototype.removeNextHop = function(nextHop){
+  var i = binarySearch(this.nextHops, nextHop, "faceID");
+
+  if (i < 0){
+    return this;
+  } else{
+    this.nextHops.splice(i,1);
+    return this;
   }
 };
 
@@ -86,14 +117,17 @@ FIB.installNDN = function(NDN){
  */
 FIB.prototype.lookup = function(prefix){
   prefix = (typeof prefix === "string") ? new ndn.Name(prefix) : prefix;
-
+ debug.debug("lookup %s", prefix.toUri());
   var ent = this.nameTree.lookup(prefix)
     , entry = ent.fibEntry;
 
+
   if (entry){
+   debug.debug("found existing fib Entry with ", ent.fibEntry.nextHops.length, " next hops");
     return entry;
   }else{
-    return (ent.fibEntry = new FIB.FibEntry({prefix: prefix, nextHops: []}));
+   debug.debug("no entry found at that node, creating empty");
+    return (ent.fibEntry = new FibEntry({prefix: prefix, nextHops: []}));
   }
 };
 
@@ -102,7 +136,7 @@ FIB.prototype.lookup = function(prefix){
  *@returns {Object} Iterator object with .next() and .hasNext = Boolean
  */
 FIB.prototype.findAllFibEntries = function(prefix){
-
+ debug.debug("findAllFibEntries: constructing iterator for entries matching ", prefix.toUri());
   var inner =  this.nameTree.findAllMatches(prefix, function(match){
     if (match.fibEntry && (match.fibEntry.nextHops.length > 0)){
       return true;
@@ -113,16 +147,23 @@ FIB.prototype.findAllFibEntries = function(prefix){
   , iterouter = {
     hasNext : inner.hasNext
     , next : function(){
-      var next = inner.next();
-
       if (inner.hasNext){
-        this.hasNext = true;
+        var next = inner.next();
+       debug.debug("returning fibEntry at prefix %s", next.prefix.toUri());
+        if (inner.hasNext){
+         debug.debug("more fib entries exist for %s", prefix.toUri());
+          this.hasNext = true;
+        } else {
+         debug.debug("no more fib entries exist for %s", prefix.toUri());
+          this.hasNext = false;
+        }
+        return next.fibEntry;
       } else {
-        this.hasNext = false;
+        return null;
       }
-      return next.fibEntry;
     }
   };
+
   return iterouter;
 };
 
@@ -147,13 +188,25 @@ FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
 };
 
 /**Add a FIBEntry
- *@param {Object} -
- *
+ *@param {String} prefix the nameSpace for the fibEntry
+ *@param {Number| Number_Array | nextHop | nextHop_Array} nextHops the nextHop info for the fibEntry
+ *@returns {this} FIB for chaining
  */
 
 FIB.prototype.addEntry = function(prefix, nextHops){
-  var fibEntry = new FibEntry(prefix, nextHops);
+  var fibEntry;
 
+  if (
+    (typeof nextHops === "number")
+    || (
+      (typeof nextHops === "object")
+      && (nextHops.faceID)
+    )
+  ) {
+    fibEntry = new FibEntry(prefix, [nextHops]);
+  } else {
+    fibEntry = new FibEntry(prefix, nextHops);
+  }
   var node = this.nameTree.lookup(fibEntry.prefix);
   if (!node.fibEntry){
     node.fibEntry = fibEntry;

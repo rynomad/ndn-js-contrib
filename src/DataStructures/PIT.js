@@ -1,5 +1,7 @@
 var binarySearch = require("./../Utility/binarySearch.js")
-  , ndn;
+  , ndn
+  , debug = {};
+debug.debug = require("debug")("PIT");
 
 
 function pubKeyMatch (ar1, ar2){
@@ -31,6 +33,7 @@ function PitEntry (element, interest, faceIDorCallback){
   if (!interest.nonce){
     interest.wireDecode(element);
   }
+  debug.debug("constructing entry for %s", interest.toUri());
   this.nonce = interest.nonce;
   this.uri = interest.name.toUri();
   this.interest = interest;
@@ -48,11 +51,14 @@ function PitEntry (element, interest, faceIDorCallback){
  *@returns {Boolean}
  */
 PitEntry.prototype.matches = function(data){
+  debug.debug("checking if %s matches %s", this.interest.name.toUri(), data.name.toUri());
   if (this.interest.matchesName(data.name)
      && pubKeyMatch(this.interest.publisherPublicKeyDigest, data.signedInfo.publisher.publisherPublicKeyDigest)
      ){
+    debug.debug("entry matches");
     return true;
   } else {
+    debug.debug("entry does not match");
     return false;
   }
 };
@@ -60,12 +66,14 @@ PitEntry.prototype.matches = function(data){
 /**Consume the PitEntry (assuming it is attached to a the nameTree)
  *@returns {PitEntry} in case you want to do anything with it afterward
  */
-PitEntry.prototype.consume = function() {
+PitEntry.prototype.consume = function(callbackCalled) {
+  debug.debug("consuming entry %s", this.uri);
   if (this.nameTreeNode){
     var i = binarySearch(this.nameTreeNode.pitEntries, this, "nonce");
     if (i >= 0){
       var removed = this.nameTreeNode.pitEntries.splice(~i, 1)[0];
-      if (removed.callback){
+      if (removed.callback && !callbackCalled){
+        debug.debug("executing PITEntry Callback %s", removed.callback.toString());
         removed.callback(null, removed.interest);
       }
     }
@@ -81,7 +89,7 @@ PitEntry.prototype.consume = function() {
  *@param {NameTree} nameTree the nameTree to build the table on top of
  *@returns {PIT} a new PIT
  */
-PIT = function(nameTree){
+var PIT = function PIT(nameTree){
   this.nameTree = nameTree;
   return this;
 };
@@ -91,6 +99,7 @@ PIT = function(nameTree){
  */
 PIT.installNDN = function(NDN){
   ndn = NDN;
+  return this;
 };
 
 PIT.Entry = PitEntry;
@@ -108,8 +117,9 @@ PIT.prototype.useNameTree = function(nameTree){
  */
 PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
   var pitEntry = new PIT.Entry(element, interest, faceIDorCallback);
-
+  debug.debug("inserting pit entry %s with lifetime milliseconds %s",pitEntry.interest.toUri(), pitEntry.interest.getInterestLifetimeMilliseconds() );
   setTimeout(function(){
+    debug.debug("entry %s expired after %s ms", pitEntry.uri, pitEntry.interest.getInterestLifetimeMilliseconds());
     pitEntry.consume();
   }, pitEntry.interest.getInterestLifetimeMilliseconds() || 10);
   var node = this.nameTree.lookup(pitEntry.interest.name);
@@ -122,6 +132,22 @@ PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
   return this;
 };
 
+PIT.prototype.checkDuplicate = function(interest){
+  debug.debug("checking interest %s for duplicate", interest.toUri());
+  var node = this.nameTree.lookup(interest.name);
+
+  var i = binarySearch(node.pitEntries, interest, "nonce");
+
+  if (i < 0){
+    debug.debug("%s is not duplicate", interest.toUri());
+    return false;
+  } else {
+    debug.debug("%s is duplicate", interest.toUri());
+    return true;
+  }
+
+};
+
 /**Lookup the PIT for Entries matching a given data object
  *@param {Object} data The ndn.Data object
  *@returns {Object} results: an object with two properties, pitEntries and faces, which are
@@ -132,13 +158,17 @@ PIT.prototype.lookup = function(data, name, matches, faceFlag){
   name = name || data.name;
   matches = matches || [];
   faceFlag = faceFlag || 0;
+  debug.debug("lookup entries for %s", name.toUri());
 
   var pitEntries = this.nameTree.lookup(name).pitEntries;
 
   for (var i = 0; i < pitEntries.length; i++){
     if (pitEntries[i].matches(data)){
+      debug.debug("found match %s", pitEntries[i].uri);
       matches.push(pitEntries[i]);
-      faceFlag = faceFlag | (1 << pitEntries[i].faceID);
+      if (pitEntries[i].faceID){
+        faceFlag = faceFlag | (1 << pitEntries[i].faceID);
+      }
     }
   }
 

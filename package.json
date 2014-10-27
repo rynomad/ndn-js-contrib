@@ -1,10 +1,10 @@
 {
-  "name": "ndn-classes",
-  "version": "0.1.0",
+  "name": "ndn-js-contrib",
+  "version": "0.0.1",
   "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt"
   },
   "repository": {
     "type": "git",
@@ -17,10 +17,11 @@
     "Networking"
   ],
   "browser": {
-    "./src/Transports/node/export.js": "./src/Transports/browser/export.js"
+    "./src/Transports/node/export.js": "./src/Transports/browser/export.js",
+    "./dist/src/Transports/node/export.js": "./dist/src/Transports/browser/export.js"
   },
   "author": "Ryan Bennett, Colorado State University",
-  "license": "LGPLvTBD",
+  "license": "LGPLv3",
   "bugs": {
     "url": "https://github.com/rynomad/ndn-contrib/issues"
   },
@@ -35,10 +36,16 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-browserify": "^2.1.3",
     "browserify": "^4.2.1",
-    "mocha": "^1.21.3"
+    "mocha": "^1.21.3",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-plato": "^1.3.0",
+    "grunt-strip": "^0.2.1",
+    "grunt-contrib-copy": "^0.7.0",
+    "grunt-remove-logging": "^0.2.0"
   },
   "dependencies": {
-    "ndn-lib": "git+https://github.com/rynomad/ndn-js.git#feross",
-    "ws": "^0.4.31"
+    "ndn-js": "^0.6.0",
+    "ws": "*",
+    "lru-cache": "*"
   }
 }

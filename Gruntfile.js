@@ -1,6 +1,28 @@
 module.exports = function(grunt){
 
   grunt.initConfig({
+    uglify: {
+      build: {
+        files: {
+          'build/ndn-contrib.min.js' : ["build/ndn-contrib.js"]
+        }
+      }
+    },
+    plato: {
+      options:{
+        jshint: {
+          curly: true,
+          eqeqeq: true,
+          laxcomma: true,
+          laxbreak: true
+        }
+      },
+      shadows: {
+        files: {
+          'plato': ['src/**/*.js']
+        }
+      }
+    },
     browserify: {
       testDataStructures: {
         src: "test/node/DataStructures/*.js"
@@ -9,6 +31,15 @@ module.exports = function(grunt){
       testTransports: {
         src: "test/browser/Transports/src/*.js"
         , dest: "test/browser/Transports/suite.js"
+      },
+      build: {
+        src: "index.js",
+        dest: "build/ndn-contrib.js",
+        options: {
+          bundleOptions: {
+            standalone: 'NDN'
+          }
+        }
       }
     },
     jsdoc : {
@@ -70,7 +101,24 @@ module.exports = function(grunt){
       FIB: ['src/DataStructures/FIB.js'],
       PIT: ['src/DataStructures/PIT.js'],
       Interfaces: ['src/DataStructures/Interfaces.js'],
-      Transports: ['src/Transports/*.js']
+      Transports: ['src/Transports/**/*.js']
+    },
+    removelogging : {
+      dist:{
+        src : 'dist/src/**/*.js',
+        options:{
+          namespace: ["debug", "debug.debug"],
+          methods: ["debug"]
+
+        }
+      }
+    },
+    copy:{
+      toDist:{
+        files:[
+          {expand: true, src: ['src/**'], dest: 'dist/'}
+        ]
+      }
     }
   })
 
@@ -79,9 +127,12 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-plato");
+  grunt.loadNpmTasks('grunt-remove-logging');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.registerTask("brow", ["browserify"])
-  grunt.registerTask("test", "mochaTest");
-  grunt.registerTask("hint", "jshint")
-  grunt.registerTask("suite", ["hint", "brow", "test"])
+  grunt.registerTask("stripDebug", ["copy:toDist","removelogging" ])
+  grunt.registerTask("build", ["browserify:build", "uglify:build"])
+  grunt.registerTask("suite", ["jshint", "browserify:testDataStructures", "browserify:testTransports", "mochaTest"])
 };

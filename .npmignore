@@ -1,0 +1,8 @@
+src/
+plato/
+test/
+doc/
+build/
+
+Gruntfile.js
+debug.js

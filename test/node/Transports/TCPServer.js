@@ -6,12 +6,12 @@ var net = require("net")
 function TCPTest (Transport){
   describe("Listener", function(){
     it("should listen on default port", function(done){
-      Transport.Listener(function(protocolKey, socket){
-        assert(protocolKey == "tcpServer")
-        assert(socket.readable && socket.writable)
-        done()
+      Transport.Listener({
+        newFace: function(){
+          done();
+        }
       })
-      var c = net.connect({port: 7474}, function(){
+      var c = net.connect({port: 8484}, function(){
         assert(c)
       })
     })

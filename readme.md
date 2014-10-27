@@ -3,28 +3,28 @@ NDN-Contrib - Expanded Class Library on top of NDN-js
 
 [NDN-js](https://github.com/named-data/ndn-js) offers the common client Named Data Networking library in pure javascript. This is an expansion upon that work, offering a modular set of javascript 'classes' for building NDN enabled apps in Node.js, the browser, and even exciting runtimes like breach and atom-shell.
 
-* DataStructures 
-  * [NameTree](http://rynomad.github.io/ndn-javascript-data-structures/doc/NameTree.html) 
-  * [ContentStore](http://rynomad.github.io/ndn-javascript-data-structures/doc/ContentStore.html) with modular entries for caching, database indexing, etc.
-  * [PIT](http://rynomad.github.io/ndn-javascript-data-structures/doc/PIT.html) - Pending Interest Table with modular entry options (callbacks or integer IDs)
-  * [FIB](http://rynomad.github.io/ndn-javascript-data-structures/doc/FIB.html) - Forwarding Interest Base
-  * [Interfaces](http://rynomad.github.io/ndn-javascript-data-structures/doc/Interfaces.html) - Interface manager accepting any combination of transports
+* DataStructures
+  * [NameTree](http://rynomad.github.io/ndn-js-contrib/doc/NameTree.html)
+  * [ContentStore](http://rynomad.github.io/ndn-js-contrib/doc/ContentStore.html) with modular entries for caching, database indexing, etc.
+  * [PIT](http://rynomad.github.io/ndn-js-contrib/doc/PIT.html) - Pending Interest Table with modular entry options (callbacks or integer IDs)
+  * [FIB](http://rynomad.github.io/ndn-js-contrib/doc/FIB.html) - Forwarding Interest Base
+  * [Interfaces](http://rynomad.github.io/ndn-js-contrib/doc/Interfaces.html) - Interface manager accepting any combination of transports
 
-* Transports - 
+* Transports -
   * Node
-    * [TCP Server](http://rynomad.github.io/ndn-javascript-data-structures/doc/TCPServerTransport.html)
-    * [WebSocket Server](http://rynomad.github.io/ndn-javascript-data-structures/doc/WebSocketServerTransport.html)   
+    * [TCP Server](http://rynomad.github.io/ndn-js-contrib/doc/TCPServerTransport.html)
+    * [WebSocket Server](http://rynomad.github.io/ndn-js-contrib/doc/WebSocketServerTransport.html)
   * Browser
-    * [HTML5 MessageChannel](http://rynomad.github.io/ndn-javascript-data-structures/doc/MessageChannelTransport.html)
+    * [HTML5 MessageChannel](http://rynomad.github.io/ndn-js-contrib/doc/MessageChannelTransport.html)
     * WebRTC - prototyped, coming soon
   * Other
-    * Telehash, atom-shell IPC, and more coming soon... 
+    * Telehash, atom-shell IPC, and more coming soon...
 
 Usage
 -----
-simply require("ndn-contrib") in your project (use browserify for browser projects)
+simply require("ndn-js-contrib") in your project (use browserify for browser projects)
 
-    var ndn = require("ndn-contrib");
+    var ndn = require("ndn-js-contrib");
 
 all the classes are now attached to the ndn object (including ndn-js @ ndn.ndn), and are ready to go...
 
@@ -32,11 +32,11 @@ all the classes are now attached to the ndn object (including ndn-js @ ndn.ndn),
     ndn.WebSocketServer.defineListener();
     myInterface.installProtocol(ndn.WebSocketServer);
 
-now you have a websocket server accepting incoming connections and handing interest and data packets to your subject! For more, detail see the full [documentation](http://rynomad.github.io/ndn-javascript-data-structures/doc/index.html).
+now you have a websocket server accepting incoming connections and handing interest and data packets to your subject! For more, detail see the full [documentation](http://rynomad.github.io/ndn-js-contrib/doc/index.html).
 
 You can also include just part of the library by doing something like
 
-    var ndn = require("ndn-lib");
+    var ndn = require("ndn-js");
     var Interfaces = require("ndn-contrib/src/DataStructures/Interfaces.js");
     Interfaces.installNDN(ndn); /** This is done for you if you require("ndn-contrib"),
                                  * it's a safety measure to avoid 'instanceof' bugs.

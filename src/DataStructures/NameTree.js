@@ -1,15 +1,14 @@
 var NameTreeNode = require("./NameTreeNode.js")
   , binaryIndexOf = require("./../Utility/binarySearch.js")
-  , ndn
-  , debug = require("./../Utility/debug.js").NameTree;
+  , ndn;
 
 /**Creates an empty NameTree.
  *@constructor
  */
-function NameTree (){
+var NameTree = function NameTree (){
   this.addNode('/');
   return this;
-}
+};
 
 NameTree.Node = NameTreeNode;
 
@@ -166,7 +165,8 @@ NameTree.prototype.findAllMatches = function(prefix, selector){
   } else if (prefix.size() > 0){
     return this.findAllMatches(prefix.getPrefix(-1), selector);
   } else{
-    return null;
+    iterator.hasNext = false;
+    return iterator;
   }
 };
 
