@@ -3,3 +3,4 @@ test/browser/DataStructures/suite.js
 doc/
 plato/
 dist/
+node_modules/
