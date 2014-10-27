@@ -61,7 +61,6 @@ WebSocketServerTransport.defineListener = function(Subject, port){
 
   this.Listener = function(interfaces){
     Self.server = new wss({port: port});
-    debug.debug("begin listening on port %s", port);
     Self.server.on('connection', function(ws){
       debug.debug("got incoming connection, constructing face");
       interfaces.newFace("WebSocketServerTransport", ws);
