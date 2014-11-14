@@ -1,6 +1,6 @@
 {
   "name": "ndn-js-contrib",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rynomad/ndn-contrib"
+    "url": "https://github.com/rynomad/ndn-js-contrib"
   },
   "keywords": [
     "NDN",
@@ -18,6 +18,7 @@
   ],
   "browser": {
     "./src/Transports/node/export.js": "./src/Transports/browser/export.js",
+    "leveldown": "level-js",
     "./dist/src/Transports/node/export.js": "./dist/src/Transports/browser/export.js"
   },
   "author": "Ryan Bennett, Colorado State University",
@@ -45,6 +46,9 @@
   },
   "dependencies": {
     "ndn-js": "^0.6.0",
+    "leveldown":"*",
+    "level-js":"*",
+    "levelup":"*",
     "ws": "*",
     "lru-cache": "*"
   }

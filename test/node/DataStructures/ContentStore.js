@@ -25,6 +25,8 @@ NameTree.installNDN(ndn);
 var cache = new ContentStore(new NameTree())
 
 var entry, d;
+
+
 describe("csEntry",function(){
   it("should set to node", function(){
     d = new ndn.Data(new ndn.Name("a/b/c/d"),new ndn.SignedInfo(),"testContent")
