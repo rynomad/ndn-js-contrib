@@ -6,8 +6,8 @@ NDN-Contrib - Expanded Class Library on top of NDN-js
 * DataStructures
   * [NameTree](http://rynomad.github.io/ndn-js-contrib/doc/NameTree.html) - NDN nametree with lookups.
   * [ContentStore](http://rynomad.github.io/ndn-js-contrib/doc/ContentStore.html) ContentStore accepting cache or repository entries (ephemeral and persistent)
-    *[csEntry](http://rynomad.github.io/ndn-js-contrib/doc/repoEntry.html) - in-Memory packet cache
-    *[repoEntry](http://rynomad.github.io/ndn-js-contrib/doc/repoEntry.html) - persistent packet storage (based on levelUp, so suitable for browser and node.js)
+    * [csEntry](http://rynomad.github.io/ndn-js-contrib/doc/csEntry.html) - in-Memory packet cache
+    * [Repository](http://rynomad.github.io/ndn-js-contrib/doc/Repository.html) - persistent packet storage (based on levelUp, so suitable for browser and node.js)
   * [PIT](http://rynomad.github.io/ndn-js-contrib/doc/PIT.html) - Pending Interest Table with modular entry options (callbacks or integer IDs)
   * [FIB](http://rynomad.github.io/ndn-js-contrib/doc/FIB.html) - Forwarding Interest Base
   * [Interfaces](http://rynomad.github.io/ndn-js-contrib/doc/Interfaces.html) - Interface manager accepting any combination of transports
