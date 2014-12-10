@@ -56,7 +56,6 @@ FibEntry.prototype.getNextHops = function(excludingFaceID){
       returns = this.nextHops;
     }
   } else {
-
     returns = this.nextHops;
   }
  debug.debug("returning array of %s nextHops", returns.length);
