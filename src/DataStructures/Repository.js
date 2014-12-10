@@ -18,6 +18,7 @@ var debug = true;
  *@returns {Repository}
  */
 function Repository (index, policy, onopen){
+  Repository
   var self = this;
   this.index = index;
   this.nameTree = index.nameTree;
@@ -27,6 +28,7 @@ function Repository (index, policy, onopen){
                                          }, function(){
     self.populateNameTree(onopen);
   });
+
   return this;
 }
 
@@ -45,7 +47,8 @@ Repository.installNDN = function(NDN){
  */
 Repository.prototype.getElement = function(repoEntry, callback){
   this.db.get(repoEntry.uri, function(err, data){
-   if (!Buffer.isBuffer(data)){
+   if (!err && !Buffer.isBuffer(data)){
+     console.log("got element", data, err)
      data = new Buffer(data);
    }
    callback(err, data);
