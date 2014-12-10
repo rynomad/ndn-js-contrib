@@ -2,7 +2,7 @@ var ndn
   , Face
   , debug = {}
   , ndn = require("ndn-js")
-  , TlvDecoder = require("ndn-lib/js/encoding/tlv/tlv-decoder.js").TlvDecoder
+  , TlvDecoder = require("ndn-js/js/encoding/tlv/tlv-decoder.js").TlvDecoder
   , Tlv = require("ndn-js/js/encoding/tlv/tlv.js").Tlv;
 debug.debug= require("debug")("Interfaces");
 
@@ -16,7 +16,7 @@ var Interfaces = function Interfaces(Subject){
   this.subject = Subject;
   this.transports = {};
   Face = ndn.Face;
-  this.Faces = [];
+  this.Faces = new Interfaces.List();
 
   return this;
 };
@@ -32,6 +32,73 @@ Interfaces.installNDN = function(NDN){
 
 Interfaces.prototype.transports = {};
 
+Interfaces.List = function(){
+  this.head = null;
+  this.size = 0;
+  this.index = 0
+  return this;
+};
+
+Interfaces.ListNode = function (face, next){
+  this.next = next;
+  this.face = face;
+  return this;
+}
+
+Interfaces.List.prototype.addFace = function (face){
+  face.id = this.index;
+
+  if (this.size){
+    var curr = this.head;
+    while (curr.next){
+      curr = curr.next;
+    }
+    curr.next = new Interfaces.ListNode(face, null);
+  } else {
+    this.head = new Interfaces.ListNode(face, null);
+  }
+
+  this.size++;
+  this.index++;
+
+  return face.id;
+}
+
+Interfaces.List.prototype.removeFace = function(id){
+  var curr = this.head;
+  while (curr && curr.next && (curr.next.face.id > id)){
+    curr = curr.next;
+  }
+  if (curr.next.id === id){
+    curr.next = curr.next.next;
+    this.size--;
+  }
+}
+
+Interfaces.List.prototype.dispatchByIds = function (idArray, buffer){
+  var id, curr = this.head;
+  while (idArray.length){
+    id = idArray.pop();
+    while (curr && curr.face.id < id){
+      curr = curr.next;
+    }
+    if (curr.face.id === id){
+      curr.face.send(buffer);
+    }
+  }
+};
+
+Interfaces.List.prototype.get = function(id){
+  var curr = this.head;
+  while(curr && curr.face && curr.face.id < id){
+    curr = curr.next;
+  }
+  if (curr && curr.face && curr.face.id === id){
+    return curr.face;
+  } else {
+    return null;
+  }
+}
 
 /**Install a transport Class to the Interfaces manager. If the Class has a Listener function, the Listener will be invoked
  *@param {Transport} Transport a Transport Class matching the Abstract Transport API
@@ -41,7 +108,7 @@ Interfaces.prototype.installTransport = function(Transport){
   this.transports[Transport.prototype.name] = Transport;
  debug.debug("installing %s", Transport.prototype.name);
   if (Transport.Listener){
-   debug.debug("calling listener method");
+    debug.debug("calling listener method");
     Transport.Listener(this);
   }
 
@@ -70,8 +137,7 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
 
    debug.debug("transport and face constructed");
 
-    this.Faces.push(newFace);
-    newFace.faceID = this.Faces.length - 1;
+    this.Faces.addFace(newFace);
     var connectionInfo;
 
     if (protocol === "WebSocketTransport"){
@@ -87,19 +153,19 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
     }
 
     newFace.transport.connect(connectionInfo, newFace, function(){
-     debug.debug("TOFIX: calling connect manually, onopen triggered for face %s over transport %s", newFace.faceID, protocol);
+     debug.debug("TOFIX: calling connect manually, onopen triggered for face %s over transport %s", newFace.id, protocol);
 
       newFace.onReceivedElement = function(element){
-       debug.debug("onReceivedElement called on face %s", newFace.faceID);
+       debug.debug("onReceivedElement called on face %s", newFace.id);
 
         var decoder = new TlvDecoder(element);
         if (decoder.peekType(Tlv.Interest, element.length)) {
          debug.debug("detected Interest");
-          Self.subject.handleInterest(element, this.faceID);
+          Self.subject.handleInterest(element, this.id);
         }
         else if (decoder.peekType(Tlv.Data, element.length)) {
          debug.debug("detected Data");
-          Self.subject.handleData(element, this.faceID);
+          Self.subject.handleData(element, this.id);
         }
       };
 
@@ -109,17 +175,17 @@ Interfaces.prototype.newFace = function(protocol, connectionParameters, onopen, 
       };
 
       if (onopen) {
-       debug.debug("calling onopen for face %s", newFace.faceID);
-        onopen(newFace.faceID);
+       debug.debug("calling onopen for face %s", newFace.id);
+        onopen(newFace.id);
       }
     }, function(){
       //onclose event TODO
       if (onclose) {
-       debug.debug("calling onclose for face %s", newFace.faceID);
-        onclose(newFace.faceID);
+       debug.debug("calling onclose for face %s", newFace.id);
+        onclose(newFace.id);
       }
     });
-    return newFace.faceID;
+    return newFace.id;
   }
 };
 
@@ -131,21 +197,10 @@ Interfaces.prototype.closeFace = function(){};
  *@param {Function} callback called per face sent, used for testing
  *@returns {Interfaces} for chaining
  */
-Interfaces.prototype.dispatch = function(element, faceFlag, callback){
- debug.debug("dispatch to flag: %s", faceFlag);
-  if (faceFlag){
-    for (var i = 0; i < faceFlag.toString(2).length; i++){
-      if (faceFlag & (1<<i) ){
-        if (this.Faces[i]){
-         debug.debug("send on face %s", i);
-          this.Faces[i].transport.send(element);
-        }
-        if (callback){
-          callback(i);
-        }
-      }
-    }
-  }
+Interfaces.prototype.dispatch = function(element, faceIDs, callback){
+ debug.debug("dispatch to flag: %s", faceIDs);
+  this.Faces.dispatchByIds(faceIDs, element);
+
   return this;
 };
 

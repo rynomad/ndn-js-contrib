@@ -45,7 +45,7 @@ FibEntry.type = "FibEntry";
  *@returns {Array} an array of nextHops
  */
 FibEntry.prototype.getNextHops = function(excludingFaceID){
- debug.debug("Entry getting next hops excluding: %s", excludingFaceID);
+  debug.debug("Entry getting next hops excluding: %s", excludingFaceID);
   var returns;
   if(excludingFaceID !== undefined){
     var q = {faceID: excludingFaceID }
@@ -58,7 +58,7 @@ FibEntry.prototype.getNextHops = function(excludingFaceID){
   } else {
     returns = this.nextHops;
   }
- debug.debug("returning array of %s nextHops", returns.length);
+  debug.debug("returning array of %s nextHops", returns.length);
   return returns;
 };
 
@@ -173,17 +173,29 @@ FIB.prototype.findAllFibEntries = function(prefix){
  */
 FIB.prototype.findAllNextHops = function(prefix, excludingFaceID){
   prefix = (typeof prefix === "string") ? new ndn.Name(prefix) : prefix;
-  var faceFlag = 0
+  var faceIDs = []
     , iterator = this.findAllFibEntries(prefix);
 
   while (iterator.hasNext){
     var entry = iterator.next()
       , nextHops = entry.getNextHops(excludingFaceID);
-    for (var i =0; i < nextHops.length; i ++){
-      faceFlag = faceFlag | (1 << nextHops[i].faceID);
+    for (var i =0; i < nextHops.length; i++){
+      if ((faceIDs.length === 0) || (faceIDs[faceIDs.length - 1] > nextHops[i].faceID)){
+        faceIDs.push(nextHops[i].faceID);
+      } else {
+        for (var j = 0; j < faceIDs.length; j++){
+
+          if (nextHops[i].faceID === faceIDs[j]){
+            break;
+          } else if (nextHops[i].faceID > faceIDs[j]){
+            faceIDs.splice(j,0, nextHops[i].faceID);
+            break;
+          }
+        }
+      }
     }
   }
-  return faceFlag;
+  return faceIDs;
 };
 
 /**Add a FIBEntry

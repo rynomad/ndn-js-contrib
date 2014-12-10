@@ -1,6 +1,6 @@
 {
   "name": "ndn-js-contrib",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Reusable 'Classes' for Named Data Networking: NameTree, PIT, FIB, ContentStore, Interfaces, and Transports",
   "main": "index.js",
   "scripts": {
@@ -42,13 +42,15 @@
     "grunt-plato": "^1.3.0",
     "grunt-strip": "^0.2.1",
     "grunt-contrib-copy": "^0.7.0",
-    "grunt-remove-logging": "^0.2.0"
+    "grunt-remove-logging": "^0.2.0",
+    "workerify": "^0.3.0"
   },
   "dependencies": {
     "ndn-js": "^0.6.0",
-    "leveldown":"*",
-    "level-js":"*",
-    "levelup":"*",
+    "leveldown": "*",
+    "level-js": "*",
+    "levelup": "*",
+    "debug":"*",
     "ws": "*",
     "lru-cache": "*"
   }

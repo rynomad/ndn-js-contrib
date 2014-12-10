@@ -6,4 +6,7 @@ exports.ContentStore = require("./src/DataStructures/ContentStore.js");
 exports.Interfaces = require("./src/DataStructures/Interfaces.js").installNDN(exports.ndn);
 exports.Transports = require("./src/Transports/node/export.js");
 
+exports.Repository = require("./src/DataStructures/Repository.js").installNDN(exports.ndn);
+exports.Repository.RepoEntry = require("./src/DataStructures/repoEntry.js");
+
 module.exports = exports;

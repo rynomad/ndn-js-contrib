@@ -117,6 +117,8 @@ PIT.prototype.useNameTree = function(nameTree){
  */
 PIT.prototype.insertPitEntry = function(element, interest, faceIDorCallback){
   var pitEntry = new PIT.Entry(element, interest, faceIDorCallback);
+
+  //console.log(new Error("pitConstructStackCheck").stack)
   debug.debug("inserting pit entry %s with lifetime milliseconds %s",pitEntry.interest.toUri(), pitEntry.interest.getInterestLifetimeMilliseconds() );
   setTimeout(function(){
     debug.debug("entry %s expired after %s ms", pitEntry.uri, pitEntry.interest.getInterestLifetimeMilliseconds());
@@ -152,12 +154,12 @@ PIT.prototype.checkDuplicate = function(interest){
  *@param {Object} data The ndn.Data object
  *@returns {Object} results: an object with two properties, pitEntries and faces, which are
  * an array of matching {@link PITEntry}s and
- * an integer faceFlag for use with {@link Interfaces.dispatch}, respectively.
+ * an sorted array of faceIDs for use with {@link Interfaces.dispatch}, respectively.
  */
-PIT.prototype.lookup = function(data, name, matches, faceFlag){
+PIT.prototype.lookup = function(data, name, matches, faceIDs){
   name = name || data.name;
   matches = matches || [];
-  faceFlag = faceFlag || 0;
+  faceIDs = faceIDs || [];
   debug.debug("lookup entries for %s", name.toUri());
 
   var pitEntries = this.nameTree.lookup(name).pitEntries;
@@ -166,16 +168,26 @@ PIT.prototype.lookup = function(data, name, matches, faceFlag){
     if (pitEntries[i].matches(data)){
       debug.debug("found match %s", pitEntries[i].uri);
       matches.push(pitEntries[i]);
-      if (pitEntries[i].faceID){
-        faceFlag = faceFlag | (1 << pitEntries[i].faceID);
+      if (pitEntries[i].faceID !== (null || undefined)){
+        if ((faceIDs.length === 0) || (faceIDs[faceIDs.length - 1] > pitEntries[i].faceID)){
+          faceIDs.push(pitEntries[i].faceID);
+        } else {
+          for (var j = faceIDs.length - 1; j >= 0; j--){
+            if (faceIDs[j] > pitEntries[i].faceID){
+              faceIDs.splice(j+1,0, pitEntries[i].faceID);
+            } else if (faceIDs[j] === pitEntries[i].faceID){
+              break;
+            }
+          }
+        }
       }
     }
   }
 
   if (name.size() > 0){
-    return this.lookup(data, name.getPrefix(-1), matches, faceFlag);
+    return this.lookup(data, name.getPrefix(-1), matches, faceIDs);
   } else{
-    return {pitEntries : matches, faces : faceFlag};
+    return {pitEntries : matches, faces : faceIDs};
   }
 };
 
