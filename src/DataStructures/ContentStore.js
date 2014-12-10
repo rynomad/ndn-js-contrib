@@ -57,7 +57,7 @@ csEntry.prototype.getElement = function(callback){
  *@returns {csEntry} entry the csEntry in case you want to do something other than throw it away
  */
 csEntry.prototype.stale = function(node){
-  delete node.csEntry;
+  node.csEntry = null;
   if (Cache.has(this.uri)){
     Cache.del(this.uri);
   }
@@ -75,7 +75,7 @@ var ContentStore = function ContentStore(nameTree, entryClass, maxMem){
   debug.debug("ContentStore constructed with %s entry class", entryClass.type);
   if (entryClass.type === "csEntry"){
     Cache = lru({
-      max: maxMem || 10000000
+      max: maxMem || 100000000
       , length: function(n){return n.element.length;}
       , dispose: function(key, value){
         lruDebug("evicting");
