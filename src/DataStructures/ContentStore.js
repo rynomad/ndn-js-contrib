@@ -79,7 +79,7 @@ var ContentStore = function ContentStore(nameTree, entryClass, maxMem){
       , length: function(n){return n.element.length;}
       , dispose: function(key, value){
         lruDebug("evicting");
-        delete value.entry.nameTreeNode.csEntry;
+        value.entry.nameTreeNode.csEntry = null;
       }
     });
   }
@@ -220,10 +220,11 @@ debug.debug("inserting %s", data.name.toUri());
   node[Entry.type] = entry;
   node[Entry.type].nameTreeNode = node;
 debug.debug("inserting %s with freshness value of %s", data.name.toUri(), freshness);
-  setTimeout(function(){
-    if (node[Entry.type]) {node[Entry.type].stale(node);}
-  }, freshness || 20 );
-
+  if (fresheness){
+    setTimeout(function(){
+      if (node[Entry.type]) {node[Entry.type].stale(node);}
+    }, freshness );
+  }
   return this;
 };
 
