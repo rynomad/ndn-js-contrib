@@ -54,10 +54,23 @@ WebSocketServerTransport.ConnectionInfo.prototype.getSocket = function()
   return this.socket;
 };
 
-WebSocketServerTransport.defineListener = function(Subject, port){
+WebSocketServerTransport.defineListener = function(opts, port){
   var Self = this;
   port = port || 8585;
   debug.debug("begin listening on port %s", port);
+
+  if (opts.ssl){
+    var fs = require("fs")
+    var https = require("https")
+    var sslServ = https.createServer({
+
+            // providing server with  SSL key/cert
+            key: fs.readFileSync( opts.ssl.key ),
+            cert: fs.readFileSync( opts.ssl.cert )
+
+        }, function(req){console.log(req)} ).listen( port + 1 );
+  }
+
 
   this.Listener = function(interfaces){
     Self.server = new wss({port: port});
@@ -65,6 +78,13 @@ WebSocketServerTransport.defineListener = function(Subject, port){
       debug.debug("got incoming connection, constructing face");
       interfaces.newFace("WebSocketServerTransport", ws);
     });
+    if (opts.ssl){
+      Self.sslServer = new wss({server: sslServ})
+      Self.sslServer.on('connection', function(ws){
+        debug.debug("got incoming ssl websocket, constructing face");
+        interfaces.newFace("WebSocketServerTransport", ws);
+      });
+    }
   };
 };
 
