@@ -220,7 +220,7 @@ debug.debug("inserting %s", data.name.toUri());
   node[Entry.type] = entry;
   node[Entry.type].nameTreeNode = node;
 debug.debug("inserting %s with freshness value of %s", data.name.toUri(), freshness);
-  if (fresheness){
+  if (freshness){
     setTimeout(function(){
       if (node[Entry.type]) {node[Entry.type].stale(node);}
     }, freshness );

@@ -64,7 +64,7 @@ DataChannelTransport.prototype.connect = function(connectionInfo, elementListene
         // Find the end of the binary XML element and call face.onReceivedElement.
         self.elementReader.onReceivedData(bytearray);
       } catch (ex) {
-        cdebug("onmessage exception: ",   ex);
+        debug("onmessage exception: ",   ex);
         return;
       }
     }
