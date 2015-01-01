@@ -211,12 +211,12 @@ debug.debug("checker at node %s" , node.prefix.toUri());
  *@param {ndn.Data} data the ndn.Data object
  *@returns {ContentStore} - for chaining
  */
-ContentStore.prototype.insert = function(element, data){
+ContentStore.prototype.insert = function(element, data, db){
 debug.debug("inserting %s", data.name.toUri());
   var Entry = this.EntryClass;
   var freshness = data.getMetaInfo().getFreshnessPeriod();
   var node = this.nameTree.lookup(data.name)
-  , entry = new Entry(element, data);
+  , entry = new Entry(element, data, db);
   node[Entry.type] = entry;
   node[Entry.type].nameTreeNode = node;
 debug.debug("inserting %s with freshness value of %s", data.name.toUri(), freshness);

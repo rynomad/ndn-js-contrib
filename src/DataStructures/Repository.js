@@ -51,7 +51,7 @@ Repository.prototype.getElement = function(repoEntry, callback){
      console.log("got element", data, err)
      data = new Buffer(data);
    }
-   callback(err, data);
+   callback(data);
   });
   return this;
 };
@@ -74,7 +74,7 @@ Repository.prototype.insert = function(element, data, callback){
   }
 
   db.put(data.name.toUri(), element, function(err){
-    self.index.insert(element,data);
+    self.index.insert(element,data, self);
     callback(err);
   });
 
