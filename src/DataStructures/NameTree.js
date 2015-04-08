@@ -197,7 +197,6 @@ NameTree.prototype.skip  = function NameTree_skip(skip){
   };
 };
 
-
 NameTree.prototype._skipper = function NameTree__skipper(){
   return function skip(){
     return false;
