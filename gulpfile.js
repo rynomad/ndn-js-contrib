@@ -30,7 +30,7 @@ gulp.task('browserify-tests',['mocha'], function () {
 
   gulp.src('./test/browser/index.html')
     .pipe(connect.reload());
-    
+
   return stream;
 });
 
@@ -53,11 +53,20 @@ gulp.task('live', function () {
     .pipe(connect.reload());
 });
 
+gulp.task('dev-auto-commit', ['browserify-tests','mocha'], function(){
+  git.checkout(git_branch + "_dev", function (err) {
+    if (err) throw err;
+    gulp.src('./src/**')
+    .pipe(git.commit())
+    
+  });
+})
+
 
 gulp.task('watch', function() {
     connect.server({
       root: 'test',
       livereload: true
     });
-    gulp.watch(['src/**', "test/*.js"], ['browserify-tests', 'mocha'])
+    gulp.watch(['src/**', "test/*.js"], ['browserify-tests'])
 })
