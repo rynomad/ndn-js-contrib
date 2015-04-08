@@ -100,7 +100,7 @@ NameTree.prototype.remove = function NameTree_remove(prefix){
  * @returns {NameTreeNode} the resulting node.
  */
 NameTree.prototype.get = function NameTree_get(prefix) {
-  var node;
+  var node = new NameTree.Node(prefix);
 
   var curr = this.root;
 
