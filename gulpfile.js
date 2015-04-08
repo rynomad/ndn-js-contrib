@@ -54,12 +54,9 @@ gulp.task('live', function () {
 });
 
 gulp.task('dev-auto-commit', ['browserify-tests','mocha'], function(){
-  git.checkout(git_branch + "_dev", function (err) {
-    if (err) throw err;
-    gulp.src('./src/**')
-    .pipe(git.commit())
-    
-  });
+  return gulp.src('./src/DataStructures/*.js')
+  .pipe(git.commit("auto commit: " + new Date()))
+
 })
 
 
@@ -68,5 +65,5 @@ gulp.task('watch', function() {
       root: 'test',
       livereload: true
     });
-    gulp.watch(['src/**', "test/*.js"], ['browserify-tests'])
+    gulp.watch(['src/**', "test/*.js"], ['dev-auto-commit'])
 })
