@@ -138,7 +138,7 @@ Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
   return {
     value  : next
     , done : !next
-  }
+  };
 
 };
 
