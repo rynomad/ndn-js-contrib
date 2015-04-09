@@ -160,7 +160,6 @@ function Suffix_Iterator(nameTree, prefix, _reverse, skip){
                nameTree.get(prefix)._reverse()[Symbol.iterator]()
              : nameTree.get(prefix)[Symbol.iterator]();
 
-  this._node.skip(skip);
   this._stack.push(this._node)
 
   console.log("0",this._node)
