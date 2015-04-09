@@ -365,8 +365,28 @@ describe('NameTree', function(){
       }
     })
 
-    it('should iterate through every ', function(){
+    describe('up(prefix)',function(){
+      it('should iterate up', function(){
+        name = new ndn.Name("1/1/1/1")
+        tree.up(name.getPrefix(-1));
+        var i = 0;
+        for(var node of tree)
+          assert(node.prefix.equals(name.getPrefix(--i)), node.prefix.toUri() + " " + name.getPrefix(i).toUri())
+      })
+    })
+
+    describe('left(prefix)',function(){
 
     })
+
+    describe('right(prefix)',function(){
+
+    })
+
+    describe('skip(function)',function(){
+
+    })
+
+
   });
 })
