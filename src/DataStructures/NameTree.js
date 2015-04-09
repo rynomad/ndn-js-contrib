@@ -169,7 +169,9 @@ Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
   var node = this._node.next();
 
   if (this._stack.length || !node.done){
+    console.log("1")
     if (!node.done){
+      console.log("2", node)
       this._stack.push(this._node);
       this._node = (this._reverse) ?
                    node.value._reverse()[Symbol.iterator]()
@@ -179,6 +181,7 @@ Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
         this._node = this._stack.pop();
         node = this._node.next();
       }
+      console.log("3",node)
     }
   }
 
