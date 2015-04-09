@@ -437,6 +437,34 @@ describe('NameTree', function(){
         assert(i === 3)
 
       })
+
+      it('should skip entire branch down based on name', function(){
+        tree.left()
+
+        function skip(node){
+          if (node.prefix.getPrefix(1).equals(new ndn.Name("0")))
+            return true
+        }
+
+        tree.skip(skip)
+        var i = 0;
+        for(var node of tree){
+          console.log(node.prefix.toUri())
+          if (i === 0)
+            assert(node.prefix.equals(new ndn.Name("")))
+          if (i === 1)
+            assert(node.prefix.equals(new ndn.Name("1")))
+          if (i === 2)
+            assert(node.prefix.equals(new ndn.Name("1/0")))
+          if (i === 3)
+            assert(node.prefix.equals(new ndn.Name("1/0/0")))
+          if (i === 4)
+            assert(node.prefix.equals(new ndn.Name("1/0/1")))
+          i++;
+        }
+        assert(i === 1000, 'if this is first err' + i)
+
+      })
     })
 
 

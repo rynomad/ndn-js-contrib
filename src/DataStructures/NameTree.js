@@ -166,9 +166,13 @@ Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
   if (this.first.length){
     return {value:this.first.pop(),done:false};
   }
-  var iter = this._stack.pop()
+  var iter = this._stack.pop();
   while (iter){
-    var next = iter.next()
+    do{
+      var next = iter.next()
+      if (next.done)
+        break;
+    } while (this.skip(next.value))
     if (!next.done){
       this._stack.push(iter)
       this._stack.push((this._reverse) ?
