@@ -168,7 +168,7 @@ function Suffix_Iterator(nameTree, prefix, _reverse, skip){
 
 Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
   var node = this._node.next();
-  console.log(node)
+  console.log(node, this._node)
   if (this._stack.length || !node.done){
     console.log("1", node.value, this._node)
     if (!node.done){
