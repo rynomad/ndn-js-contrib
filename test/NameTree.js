@@ -381,7 +381,8 @@ describe('NameTree', function(){
         tree.left(name);
         var i = 0;
         for(var node of tree)
-          console.log(node.prefix.toUri())
+          assert(false)
+          //console.log(node.prefix.toUri())
       })
     })
 
