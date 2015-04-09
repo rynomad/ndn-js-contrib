@@ -479,7 +479,7 @@ describe('NameTree', function(){
         tree.skip(skip)
         var i = 0;
         for(var node of tree){
-          console.log(node.prefix.toUri(), i)
+          //console.log(node.prefix.toUri(), i)
           if (i === 0)
             assert(node.prefix.equals(new ndn.Name("")))
           if (i === 1)
@@ -495,6 +495,38 @@ describe('NameTree', function(){
           i++;
         }
         assert(i === 1001, 'if this is first err' + i)
+
+      })
+
+      it('should skip entire branch down based on depth', function(){
+        tree.left()
+
+        function skip(node){
+          if (node.depth < 5)
+            return true
+          else
+            return false;
+        }
+
+        tree.skip(skip)
+        var i = 0;
+        for(var node of tree){
+          console.log(node.prefix.toUri(), i)
+          if (i === 0)
+            assert(node.prefix.equals(new ndn.Name("")))
+          if (i === 1)
+            assert(node.prefix.equals(new ndn.Name("0")))
+          if (i === 2)
+            assert(node.prefix.equals(new ndn.Name("0/1")))
+          if (i === 3)
+            assert(node.prefix.equals(new ndn.Name("0/1/0")))
+          if (i === 4)
+            assert(node.prefix.equals(new ndn.Name("0/1/1")))
+          if (i === 20)
+            assert(!node.prefix.get(1).equals(new ndn.Name.Component("0")))
+          i++;
+        }
+        assert(i === 0, 'if this is first err' + i)
 
       })
     })
