@@ -428,8 +428,14 @@ describe('NameTree', function(){
             return false;
         }
         tree.skip(skip);
-        for(var node of tree)
+
+        var i = 0
+        for(var node of tree){
+          i++;
+          console.log(node.prefix.toUri());
           assert(!node.prefix.equals(new ndn.Name("1/2")))
+        }
+        assert(i === 3)
         console.log('wooo')
 
       })

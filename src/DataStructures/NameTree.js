@@ -112,34 +112,34 @@ NameTree.prototype.get = function NameTree_get(prefix) {
   return node;
 };
 
-function Iterator_Node (node, next){
-  this.node = node;
-  this.next = next || null;
-}
-
 
 function Prefix_Iterator(nameTree, prefix, skip){
   var node = new NameTree.Node(prefix);
   var curr = nameTree.root;
+  this._stack = [];
 
-  this.head = new Iterator_Node(curr);
+
   while (!curr.equals(node)){
-    var next = curr.insert(node);
-    this.head = (!skip(next)) ? new Iterator_Node(next, this.head) : this.head;
+    if (!skip(curr))
+      this._stack.push(curr)
 
-    curr = next;
+    curr = curr.insert(node);
   }
+
+  if (!skip(curr))
+    this._stack.push(curr)
 
 
 }
 
 Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
-  var next = this.head.node;
-  this.head = this.head.next;
+  var next = this._stack.pop();
+
   return {
-    done: !this.head
-    , value: next
-  };
+    value  : next
+    , done : !next
+  }
+
 };
 
 
@@ -189,7 +189,7 @@ Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
  */
 NameTree.prototype.skip  = function NameTree_skip(skip){
   var self = this;
-  this._skipper = function skip(){
+  this._skipper = function _skipper(){
     self._skipper = NameTree.prototype._skipper;
     return skip;
   };
