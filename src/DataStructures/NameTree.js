@@ -163,7 +163,7 @@ function Suffix_Iterator(nameTree, prefix, _reverse, skip){
   this._node.skip(skip);
   this._stack.push(this._node)
 
-  //console.log("0",this._node)
+  console.log("0",this._node)
   return this;
 }
 
@@ -179,6 +179,7 @@ Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
                    node.value._reverse()[Symbol.iterator]()
                  : node.value[Symbol.iterator]();
     } else {
+      console.log(node)
       while (this._stack.length && node.done){
         console.log("4")
         this._node = this._stack.pop();
