@@ -353,6 +353,8 @@ describe('NameTree', function(){
             for(var k = 0; k < 10;k++)
               tree.insert(new NameTree.Node(new ndn.Name([""+i,''+j,""+k])));
 
+
+
     })
 
     it('should throw an error if not configured', function(done){
@@ -500,9 +502,11 @@ describe('NameTree', function(){
 
       it('should skip entire branch down based on depth', function(){
         tree.left()
+        for(var i= 0; i < 10;i++)
+          tree.insert(new NameTree.Node(new ndn.Name([""+i,'5','5','super','long','prefix','mmmk','word','can','i','narrow','it'])))
 
         function skip(node){
-          if (node.depth < 5)
+          if (node.depth + node.prefix.size() < 13)
             return true
           else
             return false;
@@ -512,18 +516,6 @@ describe('NameTree', function(){
         var i = 0;
         for(var node of tree){
           console.log(node.prefix.toUri(), i)
-          if (i === 0)
-            assert(node.prefix.equals(new ndn.Name("")))
-          if (i === 1)
-            assert(node.prefix.equals(new ndn.Name("0")))
-          if (i === 2)
-            assert(node.prefix.equals(new ndn.Name("0/1")))
-          if (i === 3)
-            assert(node.prefix.equals(new ndn.Name("0/1/0")))
-          if (i === 4)
-            assert(node.prefix.equals(new ndn.Name("0/1/1")))
-          if (i === 20)
-            assert(!node.prefix.get(1).equals(new ndn.Name.Component("0")))
           i++;
         }
         assert(i === 0, 'if this is first err' + i)
