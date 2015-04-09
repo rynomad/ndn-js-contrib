@@ -506,7 +506,7 @@ describe('NameTree', function(){
           tree.insert(new NameTree.Node(new ndn.Name([""+i,'5','5','super','long','prefix','mmmk','word','can','i','narrow','it'])))
 
         function skip(node){
-          if (node.depth + node.prefix.size() < 12)
+          if (node.depth + node.prefix.size() < 1000)
             return true
           else
             return false;
@@ -518,7 +518,7 @@ describe('NameTree', function(){
           console.log(node.prefix.toUri(), i)
           i++;
         }
-        assert(i === 121, 'if this is first err' + i)
+        assert(i === 0, 'if this is first err' + i)
 
       })
     })
