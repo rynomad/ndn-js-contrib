@@ -24,8 +24,8 @@ var NameTree = function NameTree (){
       iter = new Suffix_Iterator(self, self._traversal_prefix, self._traversal_direction, this._skipper());
     }
 
-    //self._traversal_direction = -1;
-    //self._traversal_prefix = null;
+    self._traversal_direction = -1;
+    self._traversal_prefix = null;
 
     console.log(iter)
 
@@ -164,8 +164,7 @@ function Suffix_Iterator(nameTree, prefix, _reverse, skip){
 
   this._stack.push(this._node)
 
-  console.log("!!!!!!!",this._node)
-  return this;
+  console.log("!!!!!!!",this._node);
 }
 
 Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
