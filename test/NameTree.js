@@ -379,8 +379,19 @@ describe('NameTree', function(){
       it('should iterate left(down)', function(){
         tree.left();
         var i = 0;
-        for(var node of tree)
+        for(var node of tree){
+          if (i === 0)
+            assert(node.prefix.equals(new ndn.Name("")))
+          if (i === 1)
+            assert(node.prefix.equals(new ndn.Name("0")))
+          if (i === 2)
+            assert(node.prefix.equals(new ndn.Name("0/0")))
+          if (i === 3)
+            assert(node.prefix.equals(new ndn.Name("0/0/0")))
+          if (i === 4)
+            assert(node.prefix.equals(new ndn.Name("0/0/1")))
           i++;
+        }
         assert(i === 1111, 'if this is first err' + i)
       })
     })
