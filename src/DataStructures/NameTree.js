@@ -225,6 +225,7 @@ NameTree.prototype.left  = function NameTree_left(prefix){
   this._traversal_prefix    = prefix || this.root;
 };
 
+
 /**
  * configure the *next* constructed iterator to traverse right(down), starting from a given node resolving at the
  * LEFTmost child. the skip parameter allows you to skip ENTIRE BRANCHES of the tree. if you want to just hop over
