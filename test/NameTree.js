@@ -419,7 +419,19 @@ describe('NameTree', function(){
     })
 
     describe('skip(function)',function(){
+      it('should skip over upwards iteration',function(){
+        tree.up(new ndn.Name("1/2/3"))
+        function skip(node){
+          if (node.prefix.equals(new ndn.Name("1/2")))
+            return true;
+          else
+            return false;
+        }
+        tree.skip(skip);
+        for(var node of tree)
+          assert(!node.prefix.equals(new ndn.Name("1/2")))
 
+      })
     })
 
 
