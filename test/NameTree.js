@@ -430,6 +430,7 @@ describe('NameTree', function(){
         tree.skip(skip);
         for(var node of tree)
           assert(!node.prefix.equals(new ndn.Name("1/2")))
+        console.log('wooo')
 
       })
     })
