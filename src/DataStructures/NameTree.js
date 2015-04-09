@@ -152,6 +152,7 @@ Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
 
 
 function Suffix_Iterator(nameTree, prefix, _reverse, skip){
+  console.log("reverse?", _reverse)
   this._stack = [  (_reverse) ?
                      nameTree.get(prefix)._reverse()[Symbol.iterator]()
                    : nameTree.get(prefix)[Symbol.iterator]()  ];
@@ -231,7 +232,7 @@ NameTree.prototype.left  = function NameTree_left(prefix){
  * @param {Name} prefix - the prefix of the node to begin iterating at.
  */
 NameTree.prototype.right = function NameTree_right(prefix){
-  this._traversal_direction = NameTree.TRAVERSE_Right;
+  this._traversal_direction = NameTree.TRAVERSE_RIGHT;
   this._traversal_prefix    = prefix || this.root.prefix;
 };
 
@@ -353,6 +354,7 @@ NameTree.Node.prototype.remove = function NameTree_Node_remove (suffix){
 
 NameTree.Node.prototype._reverse = function NameTree_Node__reverse(){
   this._traversal_direction = NameTree.TRAVERSE_RIGHT;
+  return this;
 };
 
 NameTree.Node.prototype.isEmpty = function NameTree_Node_isEmpty (){
