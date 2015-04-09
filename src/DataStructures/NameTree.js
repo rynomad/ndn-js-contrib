@@ -252,11 +252,12 @@ NameTree.Node = function NameTree_Node(prefix, item) {
   this.children = [];
   this.prefix = prefix;
   this.depth = 0;
+  var self = this;
 
   this[Symbol.iterator] = function NameTree_Node_Iterator(){
-    var iter = new Child_Iterator(this, this._traversal_direction, this._skipper);
+    var iter = new Child_Iterator(self, self._traversal_direction, self._skipper);
 
-    this._traversal_direction = NameTree.TRAVERSE_LEFT;
+    self._traversal_direction = NameTree.TRAVERSE_LEFT;
     return iter;
   };
 
