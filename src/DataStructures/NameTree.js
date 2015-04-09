@@ -171,7 +171,7 @@ Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
   var node = this._node.next();
 
   if (this._stack.length || !node.done){
-    console.log("1", node.value)
+    console.log("1", node.value, this._node)
     if (!node.done){
       console.log("2", node)
       this._stack.push(this._node);
