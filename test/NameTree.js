@@ -16,6 +16,7 @@ describe('NameTree', function(){
         node.insert(last)
       }
     })
+
     describe('equals(node)',function(){
       it('should return true if the prefix is the same', function(){
         assert(node.equals(new NameTree.Node(new ndn.Name(""))));
@@ -327,9 +328,45 @@ describe('NameTree', function(){
 
   describe('get(prefix)',function(){
 
+    var tree = new NameTree()
+    it('should always return a matching node',function(){
+      for(var i = 0; i < 20;i++)
+        for(var j = 0; j < 20;j++)
+          for(var k = 0; k < 20;k++)
+            assert(tree.get(new ndn.Name([""+i,''+j,""+k])))
+    })
+
+    it('should return a node with an item', function(){
+      tree.insert(new NameTree.Node(new ndn.Name("1/2/7/someRandom/stuff"), {$item:true}),"error!");
+
+      assert(tree.get(new ndn.Name("1/2/7/someRandom/stuff")).item.$item)
+    })
+
   });
 
   describe('Symbol.iterator',function(){
+    var tree, nodes;
+    before(function(){
+      tree = new NameTree();
+        for(var i = 0; i < 10;i++)
+          for(var j = 0; j < 10;j++)
+            for(var k = 0; k < 10;k++)
+              tree.insert(new NameTree.Node(new ndn.Name([""+i,''+j,""+k])));
 
+    })
+
+    it('should throw an error if not configured', function(done){
+      try{
+        for (var node of tree)
+          console.log('ERR!!!')
+      }catch(e){
+        assert(e);
+        done();
+      }
+    })
+
+    it('should iterate through every ', function(){
+
+    })
   });
 })
