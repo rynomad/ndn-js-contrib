@@ -380,7 +380,7 @@ describe('NameTree', function(){
         tree.left();
         var i = 0;
         for(var node of tree)
-          assert(false)
+          assert(null == 0)
           //console.log(node.prefix.toUri())
       })
     })
