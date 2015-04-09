@@ -24,8 +24,10 @@ var NameTree = function NameTree (){
       iter = new Suffix_Iterator(self, self._traversal_prefix, self._traversal_direction, this._skipper());
     }
 
-    self._traversal_direction = -1;
-    self._traversal_prefix = null;
+    //self._traversal_direction = -1;
+    //self._traversal_prefix = null;
+
+    console.log(iter)
 
     return iter;
   };
