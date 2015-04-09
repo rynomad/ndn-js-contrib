@@ -379,7 +379,7 @@ describe('NameTree', function(){
       it('should iterate left(down)', function(){
         tree.left();
         var i = 0;
-        for(var node of tree)
+        for(var na of tree)
           assert(null == 0)
           //console.log(node.prefix.toUri())
       })
