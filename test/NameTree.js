@@ -511,6 +511,7 @@ describe('NameTree', function(){
           else
             return false;
         }
+        
 
         tree.skip(skip)
         var i = 0;
