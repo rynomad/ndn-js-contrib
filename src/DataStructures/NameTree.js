@@ -152,7 +152,6 @@ Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
 
 
 function Suffix_Iterator(nameTree, prefix, _reverse, skip){
-  console.log("reverse?", _reverse)
   this._stack = [  (_reverse) ?
                      nameTree.get(prefix)._reverse()[Symbol.iterator]()
                    : nameTree.get(prefix)[Symbol.iterator]()  ];
