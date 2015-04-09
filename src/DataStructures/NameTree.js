@@ -20,7 +20,7 @@ var NameTree = function NameTree (){
     } else if (self._traversal_direction === NameTree.TRAVERSE_UP){
       iter = new Prefix_Iterator(self, self._traversal_prefix, self._skipper());
     } else {
-      console.log("suffiter")
+      console.log("suffiter",self, self._traversal_prefix, self._traversal_direction, this._skipper)
       iter = new Suffix_Iterator(self, self._traversal_prefix, self._traversal_direction, this._skipper());
     }
 
