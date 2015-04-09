@@ -368,6 +368,7 @@ describe('NameTree', function(){
     describe('up(prefix)',function(){
       it('should iterate up', function(){
         var name = new ndn.Name("1/1/1/1")
+        console.log(name)
         tree.up(name.getPrefix(-1));
         var i = 0;
         for(var node of tree)
