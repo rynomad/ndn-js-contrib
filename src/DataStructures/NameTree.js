@@ -229,7 +229,7 @@ NameTree.prototype.up    = function NameTree_up(prefix, skip){
  */
 NameTree.prototype.left  = function NameTree_left(prefix){
   this._traversal_direction = NameTree.TRAVERSE_LEFT;
-  this._traversal_prefix    = prefix || this.root;
+  this._traversal_prefix    = prefix || this.root.prefix;
 };
 
 
@@ -241,7 +241,7 @@ NameTree.prototype.left  = function NameTree_left(prefix){
  */
 NameTree.prototype.right = function NameTree_right(prefix){
   this._traversal_direction = NameTree.TRAVERSE_Right;
-  this._traversal_prefix    = prefix || this.root;
+  this._traversal_prefix    = prefix || this.root.prefix;
 };
 
 NameTree.prototype._traversal_direction = -1;

@@ -377,8 +377,7 @@ describe('NameTree', function(){
 
     describe('left(prefix)',function(){
       it('should iterate left(down)', function(){
-        name = new ndn.Name("")
-        tree.left(name);
+        tree.left();
         var i = 0;
         for(var node of tree)
           assert(false)
