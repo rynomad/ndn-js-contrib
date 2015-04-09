@@ -158,24 +158,24 @@ describe('NameTree', function(){
         var i = 0
         for (var child of node){
 
-          assert(child.value.equals(node.children[i]),"not iterating correctly" )
+          assert(child.equals(node.children[i]),"not iterating correctly" )
           i++;
         }
       })
 
-      it('should iterate left to right ONCE after _reverse()', function(){
+      it('should iterate right to ONCE after _reverse()', function(){
         node._reverse()
         var i = node.children.length - 1
         for (var child of node){
 
-          assert(child.value.equals(node.children[i]),"not iterating right to left correctly" )
+          assert(child.equals(node.children[i]),"not iterating right to left correctly" )
           i--;
         }
 
         for (var child of node){
-
-          assert(child.value.equals(node.children[i]),"not reseting iterator correctly" )
           i++;
+          assert(child.equals(node.children[i]),"not reseting iterator correctly" )
+
         }
       })
     });
@@ -379,9 +379,9 @@ describe('NameTree', function(){
       it('should iterate left(down)', function(){
         tree.left();
         var i = 0;
-        for(var na of tree)
-          assert(null == 0)
-          //console.log(node.prefix.toUri())
+        for(var node of tree)
+          i++;
+        assert(i === 1111, 'if this is first err' + i)
       })
     })
 

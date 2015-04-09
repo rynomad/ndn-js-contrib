@@ -20,14 +20,11 @@ var NameTree = function NameTree (){
     } else if (self._traversal_direction === NameTree.TRAVERSE_UP){
       iter = new Prefix_Iterator(self, self._traversal_prefix, self._skipper());
     } else {
-      console.log("suffiter",self, self._traversal_prefix, self._traversal_direction, this._skipper)
       iter = new Suffix_Iterator(self, self._traversal_prefix, self._traversal_direction, this._skipper());
     }
 
     self._traversal_direction = -1;
     self._traversal_prefix = null;
-
-    console.log(iter)
 
     return iter;
   };
@@ -155,42 +152,34 @@ Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
 
 
 function Suffix_Iterator(nameTree, prefix, _reverse, skip){
-  this._stack = [];
+  this._stack = [  (_reverse) ?
+                     nameTree.get(prefix)._reverse()[Symbol.iterator]()
+                   : nameTree.get(prefix)[Symbol.iterator]()  ];
+
   this._reverse = _reverse;
-
-  this._node = (_reverse) ?
-               nameTree.get(prefix)._reverse()[Symbol.iterator]()
-             : nameTree.get(prefix)[Symbol.iterator]();
-
-  this._stack.push(this._node)
-
-  console.log("!!!!!!!",this._node);
+  this.skip = skip;
+  this.first = [nameTree.get(prefix)];
+  return this;
 }
 
 Suffix_Iterator.prototype.next = function Suffix_Iterator_next(){
-  console.log("###")
-  var node = this._node.next();
-  console.log("?????????", this._node)
-  if (this._stack.length || !node.done){
-    console.log("1", node.value, this._node)
-    if (!node.done){
-      console.log("2", node)
-      this._stack.push(this._node);
-      this._node = (this._reverse) ?
-                   node.value._reverse()[Symbol.iterator]()
-                 : node.value[Symbol.iterator]();
+  if (this.first.length){
+    return this.first.pop();
+  }
+  var iter = this._stack.pop()
+  while (iter){
+    var next = iter.next()
+    if (!next.done){
+      this._stack.push(iter)
+      this._stack.push((this._reverse) ?
+                   next.value._reverse()[Symbol.iterator]()
+                 : next.value[Symbol.iterator]())
+      return next;
     } else {
-      console.log(node)
-      while (this._stack.length && node.done){
-        console.log("4")
-        this._node = this._stack.pop();
-        node = this._node.next();
-      }
-      console.log("3",node)
+      iter = this._stack.pop();
     }
   }
-
-  return node;
+  return {value:null,done:true};
 };
 
 
@@ -257,7 +246,7 @@ NameTree.Node = function NameTree_Node(prefix, item) {
   var self = this;
 
   this[Symbol.iterator] = function NameTree_Node_Iterator(){
-    var iter = new Child_Iterator(self, self._traversal_direction, self._skipper);
+    var iter = new Child_Iterator(self, self._traversal_direction, self._skipper());
 
     self._traversal_direction = NameTree.TRAVERSE_LEFT;
     return iter;
