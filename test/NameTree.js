@@ -470,27 +470,31 @@ describe('NameTree', function(){
         tree.left()
 
         function skip(node){
-          if (node.prefix.getPrefix(1).equals(new ndn.Name("0")))
+          if (node.prefix.size() >= 2 && node.prefix.get(1).equals(new ndn.Name.Component("0")))
             return true
+          else
+            return false;
         }
 
         tree.skip(skip)
         var i = 0;
         for(var node of tree){
-          //console.log(node.prefix.toUri())
+          console.log(node.prefix.toUri(), i)
           if (i === 0)
             assert(node.prefix.equals(new ndn.Name("")))
           if (i === 1)
-            assert(node.prefix.equals(new ndn.Name("1")))
+            assert(node.prefix.equals(new ndn.Name("0")))
           if (i === 2)
-            assert(node.prefix.equals(new ndn.Name("1/0")))
+            assert(node.prefix.equals(new ndn.Name("0/1")))
           if (i === 3)
-            assert(node.prefix.equals(new ndn.Name("1/0/0")))
+            assert(node.prefix.equals(new ndn.Name("0/1/0")))
           if (i === 4)
-            assert(node.prefix.equals(new ndn.Name("1/0/1")))
+            assert(node.prefix.equals(new ndn.Name("0/1/1")))
+          if (i === 20)
+            assert(!node.prefix.get(1).equals(new ndn.Name.Component("0")))
           i++;
         }
-        assert(i === 1000, 'if this is first err' + i)
+        assert(i === 1001, 'if this is first err' + i)
 
       })
     })
