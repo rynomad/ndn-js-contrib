@@ -516,7 +516,6 @@ describe('NameTree', function(){
         tree.skip(skip)
         var i = 0;
         for(var node of tree){
-          console.log(node.prefix.toUri(), i)
           i++;
         }
         assert(i === 121, 'if this is first err' + i)
