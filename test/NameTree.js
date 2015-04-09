@@ -402,7 +402,6 @@ describe('NameTree', function(){
         var i = 0;
 
         for(var node of tree){
-          console.log(node.prefix.toUri())
           if (i === 0)
             assert(node.prefix.equals(new ndn.Name("")))
           if (i === 1)
