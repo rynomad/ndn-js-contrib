@@ -162,7 +162,7 @@ function Suffix_Iterator(nameTree, prefix, _reverse, skip){
 
   this._stack.push(this._node)
 
-  console.log("0",this._node)
+  console.log("0",_reverse,this._node)
   return this;
 }
 
