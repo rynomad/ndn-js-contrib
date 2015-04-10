@@ -6,8 +6,12 @@ var ndn = require('ndn-js');
 
 describe("ContentStore", function(){
   //console.log(cache.__proto__)
-  describe("setMaxData(int)",function(){
-
+  describe("setMaxPackets(int)",function(){
+    it('should be returned by .getMaxPackets()',function(){
+      var cs = new ContentStore()
+      cs.setMaxPackets(100)
+      assert(cs.getMaxPackets() === 100)
+    })
   })
 
   describe("insert(node)",function(){
