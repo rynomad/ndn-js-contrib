@@ -94,13 +94,13 @@ ContentStore.prototype.insert = function(data){
   var self = this;
   return new Promise(function ContentStore_insert (resolve, reject){
       self.createNode(data)
-          .then(function(node){
+          .then(function ContentStore_nameTree_insert(node){
             return self._nameTree.insert(node);
           })
-          .then(function(returns){
+          .then(function ContentStore_insert_resolve(returns){
             resolve(++self._packetCount)
           })
-          .catch(function(err){
+          .catch(function ContentStore_insert_reject(err){
             reject(err);
           });
   });
