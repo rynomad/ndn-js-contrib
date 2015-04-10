@@ -15,8 +15,9 @@ describe("ContentStore", function(){
   })
 
   describe("insert(node)",function(){
+    var cs = new ContentStore();
     it("should return a promise",function(){
-
+      
     })
 
     it("should fail if data fails to verify",function(){
