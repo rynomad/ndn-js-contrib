@@ -1,6 +1,8 @@
 var debug = {}; debug.debug= require("debug")("ContentStore");
 var lruDebug = require("debug")("lru");
 var NameTree = require("./NameTree.js")
+var crypto = require("ndn-js/js/crypto.js")
+var Name = require("ndn-js/js/name.js").Name;
 
 /**A ContentStore constructor for building cache's and database indexes
  *@constructor
@@ -10,6 +12,8 @@ var NameTree = require("./NameTree.js")
  */
 var ContentStore = function ContentStore(){
   this._nameTree = new NameTree();
+  this._maxPackets = Infinity;
+  this._packetCount = 0;
 };
 
 ContentStore.Node = function ContentStore_Node(data){
@@ -19,6 +23,14 @@ ContentStore.Node = function ContentStore_Node(data){
 ContentStore.Node.prototype.getData = function ContentStore_Node_getData(){
   return this._data;
 };
+
+ContentStore.prototype.setMaxPackets = function ContentStore_setMaxPackets(int){
+  this._maxPackets = int;
+}
+
+ContentStore.prototype.getMaxPackets = function ContentStore_getMaxPackets(){
+  return this._maxPackets;
+}
 
 
 /** Default EntryClass for ContentStore
@@ -75,12 +87,25 @@ csEntry.prototype.stale = function(node){
  *@returns {Buffer | null}
  */
 ContentStore.prototype.lookup = function(interest){
-  
+
 };
 
 ContentStore.prototype._insert = function ContentStore__insert (resolve, reject){
   var node = this._toInsert;
+  if (!node)
+    reject(new Error("Invalid State: ContentStore._toInsert is not present"))
+  this._toInsert = null;
+  var prefix = new Name(node.getData().name)
 
+  prefix.append("sha256digest=" + crypto.createHash('sha256')
+                                        .update(node.getData()
+                                                    .wireEncode()
+                                                    .buffer)
+                                        .digest())
+
+  this._nameTree.get(prefix).setItem(node)
+  this._packetCount++;
+  resolve(this._packetCount)
 
 
 }
