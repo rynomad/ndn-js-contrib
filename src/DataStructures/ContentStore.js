@@ -14,14 +14,36 @@ var ContentStore = function ContentStore(){
   this._nameTree = new NameTree();
   this._maxPackets = Infinity;
   this._packetCount = 0;
+  this._stales = [];
 };
 
-ContentStore.Node = function ContentStore_Node(data){
+ContentStore.Node = function ContentStore_Node(data, cs){
   this._data = data;
+  this._stale = false;
+  setTimeout( this.makeStale, data.getMetaInfo().getFreshnessPeriod(), cs );
 };
+
+ContentStore.Node.prototype.getNameWithDigest = function ContentStore_Node_getNameWithDigest(){
+  var name;
+  if (!this._nameWithDigest)
+  this._nameWithDigest = new Name(node.getData().name)
+
+  this._nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
+                                                      .update(node.getData()
+                                                                  .wireEncode()
+                                                                  .buffer)
+                                                      .digest());
+
+
+}
 
 ContentStore.Node.prototype.getData = function ContentStore_Node_getData(){
   return this._data;
+};
+
+
+ContentStore.Node.prototype.makeStale = function ContentStore_Node_makeStale(cs){
+  this.stale = true;
 };
 
 ContentStore.prototype.setMaxPackets = function ContentStore_setMaxPackets(int){
@@ -33,52 +55,6 @@ ContentStore.prototype.getMaxPackets = function ContentStore_getMaxPackets(){
 }
 
 
-/** Default EntryClass for ContentStore
- *@constructor
- *@private
- *@param {Buffer} element the raw data packet.
- *@param {Data} data the ndn.Data object
- */
-function csEntry (element, data){
-  var freshnessPeriod = data.getMetaInfo().getFreshnessPeriod();
-  this.name = data.name;
-  this.freshnessPeriod = freshnessPeriod;
-  this.uri = data.name.toUri();
-  this.publisherPublicKeyDigest = data.signedInfo.publisher.publisherPublicKeyDigest;
-  Cache.set(data.name.toUri(), {
-    entry: this,
-    element: element
-  });
-  return this;
-}
-
-/**
- *@property {String} type a type string describing the type of entry
- */
-csEntry.type = "csEntry";
-
-/** sync/async getter for the element
- *@private
- *@param {function} callback Recieves element as only argument
- *@returns {Buffer} element the raw data packet
- */
-csEntry.prototype.getElement = function(callback){
-  callback = callback || function(e){return e;};
-  return callback(Cache.get(this.uri).element);
-};
-
-/**
- *@private
- *@param {NameTreeNode} node the node to remove this entry from
- *@returns {csEntry} entry the csEntry in case you want to do something other than throw it away
- */
-csEntry.prototype.stale = function(node){
-  node.csEntry = null;
-  if (Cache.has(this.uri)){
-    Cache.del(this.uri);
-  }
-  return this;
-};
 
 
 /**check the ContentStore for data matching a given interest (including min/max suffix, exclude, publisherKey)
@@ -95,15 +71,8 @@ ContentStore.prototype._insert = function ContentStore__insert (resolve, reject)
   if (!node)
     reject(new Error("Invalid State: ContentStore._toInsert is not present"))
   this._toInsert = null;
-  var prefix = new Name(node.getData().name)
 
-  prefix.append("sha256digest=" + crypto.createHash('sha256')
-                                        .update(node.getData()
-                                                    .wireEncode()
-                                                    .buffer)
-                                        .digest())
-
-  this._nameTree.get(prefix).setItem(node)
+  this._nameTree.get(node.getNameWithDigest()).setItem(node)
   this._packetCount++;
   resolve(this._packetCount)
 
@@ -128,5 +97,11 @@ ContentStore.prototype.insert = function(node){
 
   return promise;
 };
+
+ContentStore.prototype.remove = function(node){
+  //this.nameTree.remove(node)
+}
+
+ContentStore.prototype.clean
 
 module.exports = ContentStore;
