@@ -16,8 +16,14 @@ describe("ContentStore", function(){
 
   describe("insert(node)",function(){
     var cs = new ContentStore();
-    it("should return a promise",function(){
-      
+    it("should return a promise",function(done){
+      cs.insert(new ContentStore.Node(new ndn.Data(new ndn.Name("a/b/c"), "hello world")))
+        .then(function(){
+          done()
+        }).catch(function(){
+          done()
+        })
+
     })
 
     it("should fail if data fails to verify",function(){
