@@ -31,7 +31,12 @@ describe("ContentStore", function(){
     })
 
     it("should insert", function(){
-
+      cs.insert(new ContentStore.Node(new ndn.Data(new ndn.Name("a/b/c"), "hello world")))
+        .then(function(){
+          done()
+        }).catch(function(){
+          assert(false)
+        })
     })
 
     it("should mark stale",function(){
