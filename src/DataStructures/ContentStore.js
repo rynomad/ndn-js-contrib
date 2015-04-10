@@ -99,9 +99,9 @@ ContentStore.prototype.insert = function(node){
 };
 
 ContentStore.prototype.remove = function(node){
-  //this.nameTree.remove(node)
+  this.nameTree.get(node.getNameWithDigest()).setItem(null);
+  this.nameTree.remove(node.getNameWithDigest());
 }
 
-ContentStore.prototype.clean
 
 module.exports = ContentStore;
