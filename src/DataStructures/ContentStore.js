@@ -24,18 +24,18 @@ ContentStore.Node = function ContentStore_Node(data, cs){
 };
 
 ContentStore.Node.prototype.getNameWithDigest = function ContentStore_Node_getNameWithDigest(){
-  var name;
-  if (!this._nameWithDigest)
-  this._nameWithDigest = new Name(node.getData().name)
+  if (!this._nameWithDigest){
+    this._nameWithDigest = new Name(node.getData().name)
 
-  this._nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
-                                                      .update(node.getData()
-                                                                  .wireEncode()
-                                                                  .buffer)
-                                                      .digest());
+    this._nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
+                                                        .update(node.getData()
+                                                                    .wireEncode()
+                                                                    .buffer)
+                                                        .digest());
+  }
 
-
-}
+  return this._nameWithDigest;
+};
 
 ContentStore.Node.prototype.getData = function ContentStore_Node_getData(){
   return this._data;
