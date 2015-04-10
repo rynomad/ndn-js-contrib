@@ -307,7 +307,7 @@ NameTree.Node.prototype.indexOf  = function NameTree_Node_indexOf (suffix){
 NameTree.Node.prototype.insert  = function NameTree_Node_insert (node){
   if (this.equals(node)){
     if (this.item && node.item)
-      throw new Exception("NameTree.Node.insert: Already have that node with an Item");
+      throw new Error("NameTree.Node.insert: Already have that node with an Item");
     else if (!this.item && node.item){
       this.setItem(node.item)
     }

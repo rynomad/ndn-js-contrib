@@ -14,10 +14,10 @@ describe("ContentStore", function(){
     })
   })
 
-  describe("insert(node)",function(){
+  describe("insert(data)",function(){
     var cs = new ContentStore();
     it("should return a promise",function(done){
-      cs.insert(new ContentStore.Node(new ndn.Data(new ndn.Name("a/b/c"), "hello world")))
+      cs.insert(new ndn.Data(new ndn.Name("a/b/c"), "hello world"))
         .then(function(){
           done()
         }).catch(function(){
@@ -26,17 +26,33 @@ describe("ContentStore", function(){
 
     })
 
-    it("should fail if data fails to verify",function(){
+    it("should reject if data fails to verify",function(){
 
     })
 
-    it("should insert", function(){
-      cs.insert(new ContentStore.Node(new ndn.Data(new ndn.Name("a/b/c"), "hello world")))
+    it("should reject if data is duplicate", function(done){
+      cs.insert(new ndn.Data(new ndn.Name("a/b/d"), "hello world"))
         .then(function(){
+          assert(false);
+        }).catch(function(er){
           done()
-        }).catch(function(){
-          assert(false)
         })
+    })
+
+    it("should insert in loop (sync)", function(done){
+      var proms = []
+      for(var i = 0; i < 20; i++)
+        proms.push(
+          cs.insert(new ndn.Data(new ndn.Name("a/b/d/" + i), "hello world"))
+        )
+      Promise.all(proms)
+            .then(function(){
+              done();
+            })
+            .catch(function(){
+              assert(false);
+            })
+
     })
 
     it("should mark stale",function(){

@@ -15,23 +15,30 @@ var ContentStore = function ContentStore(){
   this._maxPackets = Infinity;
   this._packetCount = 0;
   this._stales = [];
+  this._nodeClass = ContentStore.Node;
 };
 
 ContentStore.Node = function ContentStore_Node(data, cs){
   this._data = data;
   this._stale = false;
+  var self = this;
   setTimeout( this.makeStale, data.getMetaInfo().getFreshnessPeriod(), cs );
+  return new Promise(function(resolve,reject){
+    resolve(new NameTree.Node(self.getNameWithDigest(),self));
+  });
 };
+
+
 
 ContentStore.Node.prototype.getNameWithDigest = function ContentStore_Node_getNameWithDigest(){
   if (!this._nameWithDigest){
-    this._nameWithDigest = new Name(node.getData().name)
-
+    this._nameWithDigest = new Name(this.getData().name)
     this._nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
-                                                        .update(node.getData()
-                                                                    .wireEncode()
-                                                                    .buffer)
-                                                        .digest());
+                                                        .update(this.getData()
+                                                                  .wireEncode()
+                                                                  .buffer)
+                                                        .digest()
+                                                        .toString('hex'));
   }
 
   return this._nameWithDigest;
@@ -57,7 +64,7 @@ ContentStore.prototype.getMaxPackets = function ContentStore_getMaxPackets(){
 
 
 ContentStore.prototype._lookup = function(resolve, reject){
-  
+
 }
 /**check the ContentStore for data matching a given interest (including min/max suffix, exclude, publisherKey)
  *@param {ndn.Interest} interest the interest to match against
@@ -68,18 +75,14 @@ ContentStore.prototype.lookup = function(interest){
 
 };
 
-ContentStore.prototype._insert = function ContentStore__insert (resolve, reject){
-  var node = this._toInsert;
-  if (!node)
-    reject(new Error("Invalid State: ContentStore._toInsert is not present"))
-  this._toInsert = null;
-
-  this._nameTree.get(node.getNameWithDigest()).setItem(node)
-  this._packetCount++;
-  resolve(this._packetCount)
-
-
+ContentStore.prototype.setNodeClass = function(clas){
+  this._nodeClass = clas;
 }
+
+ContentStore.prototype.createNode = function ContentStore_createNode(data){
+  return new this._nodeClass(data, this);
+}
+
 
 /**Insert a new entry into the contentStore
  *@constructor
@@ -87,17 +90,20 @@ ContentStore.prototype._insert = function ContentStore__insert (resolve, reject)
  *@param {ndn.Data} data the ndn.Data object
  *@returns {ContentStore} - for chaining
  */
-ContentStore.prototype.insert = function(node){
-  var promise;
-
-  if (this._toInsert)
-    promise = new Promise(function(resolve,reject){reject(new Error("Invalid State: ContentStore._toInsert not null, aborting"))})
-  else {
-    this._toInsert = node;
-    promise = new Promise(this._insert);
-  }
-
-  return promise;
+ContentStore.prototype.insert = function(data){
+  var self = this;
+  return new Promise(function ContentStore_insert (resolve, reject){
+      self.createNode(data)
+          .then(function(node){
+            return self._nameTree.insert(node);
+          })
+          .then(function(returns){
+            resolve(++self._packetCount)
+          })
+          .catch(function(err){
+            reject(err);
+          });
+  });
 };
 
 ContentStore.prototype.remove = function(node){
