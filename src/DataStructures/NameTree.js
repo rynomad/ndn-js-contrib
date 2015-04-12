@@ -128,8 +128,6 @@ function Prefix_Iterator(nameTree, prefix, skip){
 
   if (!skip(curr))
     this._stack.push(curr)
-
-  console.log(curr.prefix.toUri());
 }
 
 Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
