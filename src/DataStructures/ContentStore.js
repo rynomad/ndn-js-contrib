@@ -26,7 +26,9 @@ ContentStore.prototype.getKeyChain = function ContentStore_getKeyChain(){
   return this._keyChain || null;
 };
 
+ContentStore.prototype.onMaxPackets = function ContentStore_onMaxPackets(){
 
+};
 
 ContentStore.Node = function ContentStore_Node(data, cs){
   this._data = data;
@@ -139,13 +141,15 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
                 return self._nameTree.insert(node);
               })
               .then(function ContentStore_insert_resolve(returns){
+                if (self._packetCount + 1 === self.getMaxPackets())
+                  self.onMaxPackets();
                 resolve(++self._packetCount)
               })
               .catch(function ContentStore_insert_reject(err){
                 reject(err);
               });
         }, function keyChain_onVerifyFailed(er){
-          console.log("veify failed")
+          console.log("verify failed")
           reject(er)
         })
       } else {
@@ -154,6 +158,8 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
               return self._nameTree.insert(node);
             })
             .then(function ContentStore_insert_resolve(returns){
+              if (self._packetCount + 1 === self.getMaxPackets())
+                self.onMaxPackets();
               resolve(++self._packetCount)
             })
             .catch(function ContentStore_insert_reject(err){
