@@ -33,7 +33,9 @@ describe("ContentStore", function(){
     it("should reject if data is duplicate", function(done){
       cs.insert(new ndn.Data(new ndn.Name("a/b/d"), "hello world"))
         .then(function(){
-          assert(false);
+          return cs.insert(new ndn.Data(new ndn.Name("a/b/d"), "hello world"))
+        }).then(function(){
+          assert(false)
         }).catch(function(er){
           done()
         })
