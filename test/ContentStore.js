@@ -198,7 +198,7 @@ describe("ContentStore", function(){
         })
     })
 
-    it("should reject for excluded match", function(){
+    it("should reject for excluded match", function(done){
       var exSucc = new ndn.Data(new ndn.Name("test/interest/lookup/exclude/this"), "ExSUCCESS");
       cs.insert(exSucc)
         .then(function(){
@@ -215,7 +215,7 @@ describe("ContentStore", function(){
         })
     })
 
-    it("should reject for no match", function(){
+    it("should reject for no match", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/no/data"));
       interest.setMustBeFresh(false)
       cs.lookup(interest)
@@ -226,7 +226,7 @@ describe("ContentStore", function(){
       })
     })
 
-    it("should reject for minSuffix > tree height", function(){
+    it("should reject for minSuffix > tree height", function(done){
       var interest = new ndn.Interest(new ndn.Name(""));
       interest.setMinSuffixComponents(100)
       interest.setMustBeFresh(false)
@@ -238,7 +238,7 @@ describe("ContentStore", function(){
       })
     })
 
-    it("should reject for maxSuffix < shortest data", function(){
+    it("should reject for maxSuffix < shortest data", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
       interest.setMaxSuffixComponents(0)
       interest.setMustBeFresh(false)
@@ -250,7 +250,7 @@ describe("ContentStore", function(){
       })
     })
 
-    it("should reject for mustBeFresh and stale content",function(){
+    it("should reject for mustBeFresh and stale content",function(done){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
       interest.setMustBeFresh(false)
       cs.lookup(interest)
