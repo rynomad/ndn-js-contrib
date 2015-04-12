@@ -2,6 +2,7 @@
 
 var NameTree = require("./NameTree.js");
 var crypto = require("ndn-js/js/crypto.js");
+
 function PIT(){
   this._nameTree = new NameTree()
 }
@@ -91,69 +92,6 @@ PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
   return true;
 }
 
-/**PIT Entry
- *@constructor
- *@param {Buffer} element The raw interest data packet
- *@param {Object=} interest the ndn.Interest Object
- *@param {number|function} faceIDorCallback Either the faceID of the face this interest was received on, or a callback function to receive any matching data
- *@returns {PitEntry} - the entry
- */
-function PitEntry (element, interest, faceIDorCallback){
-  if (typeof interest !== "object"){
-    faceIDorCallback = interest;
-    interest = new ndn.Interest();
-    interest.wireDecode(element);
-  }
-  if (!interest.nonce){
-    interest.wireDecode(element);
-  }
-  debug.debug("constructing entry for %s", interest.toUri());
-  this.nonce = interest.nonce;
-  this.uri = interest.name.toUri();
-  this.interest = interest;
-  this.element = element;
-  if (typeof faceIDorCallback === "function" ){
-    this.callback = faceIDorCallback;
-  } else {
-    this.faceID = faceIDorCallback;
-  }
-  return this;
-}
-
-/**Test whether the PitEntry is fulfilled by a data object
- *@param {Object} data the ndn.Data object
- *@returns {Boolean}
- */
-PitEntry.prototype.matches = function(data){
-  debug.debug("checking if %s matches %s", this.interest.name.toUri(), data.name.toUri());
-  if (this.interest.matchesName(data.name)
-     && pubKeyMatch(this.interest.publisherPublicKeyDigest, data.signedInfo.publisher.publisherPublicKeyDigest)
-     ){
-    debug.debug("entry matches");
-    return true;
-  } else {
-    debug.debug("entry does not match");
-    return false;
-  }
-};
-
-/**Consume the PitEntry (assuming it is attached to a the nameTree)
- *@returns {PitEntry} in case you want to do anything with it afterward
- */
-PitEntry.prototype.consume = function(callbackCalled) {
-  debug.debug("consuming entry %s", this.uri);
-  if (this.nameTreeNode){
-    var i = binarySearch(this.nameTreeNode.pitEntries, this, "nonce");
-    if (i >= 0){
-      var removed = this.nameTreeNode.pitEntries.splice(~i, 1)[0];
-      if (removed.callback && !callbackCalled){
-        debug.debug("executing PITEntry Callback %s", removed.callback.toString());
-        removed.callback(null, removed.interest);
-      }
-    }
-  }
-  return this;
-};
 
 
 
@@ -164,14 +102,6 @@ PitEntry.prototype.consume = function(callbackCalled) {
  *@returns {PIT} a new PIT
  */
 
-
-/**Import ndn-lib into the PIT scope
- *@param {Object} NDN the NDN-js library in object form
- */
-PIT.installNDN = function(NDN){
-  ndn = NDN;
-  return this;
-};
 
 
 module.exports = PIT;
