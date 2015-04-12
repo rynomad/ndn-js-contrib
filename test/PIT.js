@@ -25,7 +25,6 @@ describe("PIT", function(){
     it("should resolve with interest", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
       interest.setInterestLifetimeMilliseconds(1000);
-      console.log(pit)
       pit.insert(interest)
          .then(function(intd){
            assert(interest.name.equals(intd.name))
@@ -37,7 +36,20 @@ describe("PIT", function(){
     })
 
     it("should reject if duplicate", function(done){
-      done()
+      var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
+      interest.setNonce([1,2,3,4])
+      interest.setInterestLifetimeMilliseconds(1000);
+      pit.insert(interest)
+         .then(function(intd){
+           assert(interest.name.equals(intd.name))
+           return pit.insert(interest)
+         })
+         .then(function(interest){
+           assert(false, "this should have rejected")
+         })
+         .catch(function(er){
+           done();
+         })
     })
 
     it("should reject if no lifetime", function(done){
