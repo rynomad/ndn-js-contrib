@@ -17,7 +17,7 @@ describe("ContentStore", function(){
   describe("insert(data)",function(){
     var cs = new ContentStore();
     before(function(){
-      cs.setKeyChain(new ndn.KeyChain( new ndn.IdentityManager(),new ndn.SelfVerifyPolicyManager()))
+      cs.setKeyChain(new ndn.KeyChain( new ndn.IdentityManager(new ndn.MemoryIdentityStorage(), new ndn.MemoryIdentityStorage()),new ndn.SelfVerifyPolicyManager()))
     })
 
     it("should return a promise",function(done){
