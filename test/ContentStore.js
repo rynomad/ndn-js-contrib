@@ -104,7 +104,6 @@ describe("ContentStore", function(){
 
     })
     it('should remove the packet',function(done){
-      this.timeout(10000)
       cs.insert(data)
         .then(function(){
           return cs.createNode(data, cs)
