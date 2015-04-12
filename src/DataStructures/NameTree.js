@@ -66,9 +66,7 @@ NameTree.prototype.remove = function NameTree_remove(prefix){
     , item  = null
     , removeSuffix;
 
-  console.log("start iter loop")
   for (var node of this){
-    console.log("nodeinloop", node.prefix.toUri())
     if (first){
       item = node.getItem();
       node.setItem(null);
@@ -88,7 +86,6 @@ NameTree.prototype.remove = function NameTree_remove(prefix){
       node.updateDepth(~(prefix.size() - node.prefix.size()));
     }
   }
-  console.log("end iter lopp")
 
   if (removeSuffix)
     this.root.remove(removeSuffix);
