@@ -197,7 +197,13 @@ describe("ContentStore", function(){
     })
 
     it("should reject for no match", function(){
-
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/no/data"));
+      cs.lookup(interest)
+      .then(function(data){
+        assert(false, "returned false match" + data.name.toUri())
+      }).catch(function(er){
+        done()
+      })
     })
 
     it("should reject for minSuffix > tree height", function(){
