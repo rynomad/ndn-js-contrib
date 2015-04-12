@@ -136,5 +136,19 @@ describe("PIT", function(){
           done()
         })
     })
+
+    it("should clear timeouts on matched entries", function(done){
+      var name = new ndn.Name("test/clear/timeout")
+      var interest = new ndn.Interest(name)
+      global.clearTimeout = function(){
+        done()
+      }
+      var data = new ndn.Data(name, "test")
+      interest.setInterestLifetimeMilliseconds(10000)
+      pit.insert(interest, function(){})
+         .then(function(){
+           pit.lookup(data)
+         })
+    })
   })
 })

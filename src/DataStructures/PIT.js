@@ -48,7 +48,7 @@ PIT.prototype.lookup = function PIT_lookup(data){
 
           var ent = pitNode._entries.splice(entry, 1)[0];
           clearTimeout(ent.timeID);
-          
+
           var inface = ent.onData(data);
 
           if (inface){
