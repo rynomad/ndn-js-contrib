@@ -95,7 +95,7 @@ ContentStore.prototype.lookup = function(interest){
       self._nameTree.right(interest.name);
     else
       self._nameTree.left(interest.name);
-    
+
     for (var node of self._nameTree){
       var item = node.getItem();
       if (item !== undefined){
@@ -117,7 +117,6 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data){
   return new this._nodeClass(data, this);
 }
 
-
 /**Insert a new entry into the contentStore
  *@constructor
  *@param {Buffer} element the raw data packet
@@ -128,26 +127,8 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
   var self = this;
   return new Promise(function ContentStore_insert_Promise (resolve, reject){
     var keyChain = self.getKeyChain()
-    console.log(keyChain)
-      if (keyChain !== null){
-        keyChain.verifyData(data, function keyChain_onVerify(){
-          self.createNode(data)
-              .then(function ContentStore_nameTree_insert(node){
-                return self._nameTree.insert(node);
-              })
-              .then(function ContentStore_insert_resolve(returns){
-                if (self._packetCount + 1 === self.getMaxPackets())
-                  self.onMaxPackets();
-                resolve(++self._packetCount)
-              })
-              .catch(function ContentStore_insert_reject(err){
-                reject(err);
-              });
-        }, function keyChain_onVerifyFailed(er){
-          console.log("verify failed")
-          reject(er)
-        })
-      } else {
+    if (keyChain !== null){
+      keyChain.verifyData(data, function keyChain_onVerify(){
         self.createNode(data)
             .then(function ContentStore_nameTree_insert(node){
               return self._nameTree.insert(node);
@@ -160,7 +141,24 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
             .catch(function ContentStore_insert_reject(err){
               reject(err);
             });
-      }
+      }, function keyChain_onVerifyFailed(er){
+        console.log("verify failed")
+        reject(er)
+      })
+    } else {
+      self.createNode(data)
+          .then(function ContentStore_nameTree_insert(node){
+            return self._nameTree.insert(node);
+          })
+          .then(function ContentStore_insert_resolve(returns){
+            if (self._packetCount + 1 === self.getMaxPackets())
+              self.onMaxPackets();
+            resolve(++self._packetCount)
+          })
+          .catch(function ContentStore_insert_reject(err){
+            reject(err);
+          });
+    }
   });
 };
 
