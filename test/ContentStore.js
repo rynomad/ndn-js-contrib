@@ -112,26 +112,24 @@ describe("ContentStore", function(){
     })
 
     it("should resolve rightMost", function(done){
-      var right = new ndn.Data(new ndn.Name("test/interest/lookup/9"), "SUCCESS")
-      var left = new ndn.Data(new ndn.Name("test/interest/lookup/1"), "FAIL")
+      var right = new ndn.Data(new ndn.Name("test/interest/lookup/9"), "SUCCESS");
+      var left = new ndn.Data(new ndn.Name("test/interest/lookup/1"), "FAIL");
       cs.insert(right)
         .then(function(){
-          return cs.insert(left)
+          return cs.insert(left);
         })
         .then(function(){
-          var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
+          var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
           interest.setChildSelector(1);
           interest.setMustBeFresh(false);
-          console.log("here?")
-          return cs.lookup(interest)
+          return cs.lookup(interest);
         })
         .then(function(data){
           if (data.content.toString() == "SUCCESS")
             done()
           else
-            assert(false, "did not return the right data")
+            assert(false, "did not return the right data");
         }).catch(function(er){
-          console.log("failed?", er, er.stack)
           assert(false, er + er.stack)
         })
 
