@@ -158,7 +158,25 @@ describe("ContentStore", function(){
     })
 
     it("should resolve rightMost with minSuffix", function(){
-
+      var suffSucc = new ndn.Data(new ndn.Name("test/interest/lookup/8/long/suffix/comp"), "SuffSUCCESS");
+      cs.insert(suffSucc)
+        .then(function(){
+          var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
+          interest.setChildSelector(1);
+          interest.setMinSuffixComponents(5);
+          interest.setMustBeFresh(false);
+          interest.setExclude(new ndn.Exclude([new ndn.Name.Component('9')]))
+          return cs.lookup(interest);
+        })
+        .then(function(data){
+          if (data.content.toString() == "SuffSUCCESS")
+            done()
+          else
+            assert(false, "did not exclude properly" + data.name.toUri())
+        }).catch(function(er){
+          console.log(er, er.stack)
+          assert(false);
+        })
     })
 
     it("should reject for excluded match", function(){
