@@ -180,7 +180,7 @@ describe("ContentStore", function(){
         })
     })
 
-    it("should resolve for fresh data", function(){
+    it("should resolve for fresh data", function(done){
       var data = new ndn.Data(new ndn.Name("test/interest/lookup/fresh"), "freshSUCCESS")
       data.getMetaInfo().setFreshnessPeriod(5000);
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
@@ -191,6 +191,7 @@ describe("ContentStore", function(){
         })
         .then(function(dat){
           assert(dat.name.equals(data.name), "return not fresh data")
+          done()
         }).catch(function(er){
           console.log(er, er.stack)
           assert(false);
