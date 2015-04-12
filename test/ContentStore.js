@@ -207,7 +207,14 @@ describe("ContentStore", function(){
     })
 
     it("should reject for minSuffix > tree height", function(){
-
+      var interest = new ndn.Interest(new ndn.Name(""));
+      interest.setMinSuffixComponents(100)
+      cs.lookup(interest)
+      .then(function(data){
+        assert(false, "returned false match" + data.name.toUri())
+      }).catch(function(er){
+        done()
+      })
     })
 
     it("should reject for maxSuffix < shortest data", function(){
