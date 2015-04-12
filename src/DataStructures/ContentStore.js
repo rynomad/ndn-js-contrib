@@ -88,7 +88,27 @@ ContentStore.prototype._lookup = function(resolve, reject){
 ContentStore.prototype.lookup = function(interest){
   var self = this;
   return new Promise(function ContentStore_lookup_Promise(resolve, reject){
-    reject()
+    if( interest.getChildSelector())
+      self._nameTree.right(interest.name)
+    else
+      self._nameTree.left(interest.name)
+
+    for (node of self._nameTree){
+      var item = node.getItem()
+      if (item){
+        var data = item.getData()
+        if (interest.matchesName(data))
+          if(interest.getMustBeFresh()){
+            if(!item.stale)
+              resolve(data)
+          } else {
+            resolve(data)
+          }
+
+      }
+    }
+
+    reject(interest)
   })
 };
 
