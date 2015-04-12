@@ -198,6 +198,7 @@ describe("ContentStore", function(){
 
     it("should reject for no match", function(){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/no/data"));
+      interest.setMustBeFresh(false)
       cs.lookup(interest)
       .then(function(data){
         assert(false, "returned false match" + data.name.toUri())
@@ -209,6 +210,7 @@ describe("ContentStore", function(){
     it("should reject for minSuffix > tree height", function(){
       var interest = new ndn.Interest(new ndn.Name(""));
       interest.setMinSuffixComponents(100)
+      interest.setMustBeFresh(false)
       cs.lookup(interest)
       .then(function(data){
         assert(false, "returned false match" + data.name.toUri())
@@ -220,6 +222,7 @@ describe("ContentStore", function(){
     it("should reject for maxSuffix < shortest data", function(){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
       interest.setMaxSuffixComponents(0)
+      interest.setMustBeFresh(false)
       cs.lookup(interest)
       .then(function(data){
         assert(false, "returned false match" + data.name.toUri())
