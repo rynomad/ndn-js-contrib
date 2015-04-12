@@ -55,14 +55,16 @@ describe("ContentStore", function(){
 
     it("should resolve for signed data", function(done){
         var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
-        keyChain.sign(dat, certificateName);
-        cs.insert(dat).then(function(){
-            done();
-          })
-          .catch(function(er){
-            console.log(er.stack)
-            assert(false);
-          })
+        keyChain.sign(dat, certificateName, function (){
+          cs.insert(dat).then(function(){
+              done();
+            })
+            .catch(function(er){
+              console.log(er.stack)
+              assert(false);
+            })
+        } );
+
 
     })
 
