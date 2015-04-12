@@ -80,9 +80,25 @@ describe("PIT", function(){
            done();
          })
     })
-    it("should resove with all matching   entries", function(done){
-      done()
-    })
+    it("should resolve with all matching   entries", function(done){
+      var name = new ndn.Name("")
+      proms = [];
+      for (var i = 0; i < 5; i++)
+        proms.push(pit.insert(new ndn.Interest(name.append("comp")), function(){ return Math.random()}))
+      Promise.all(proms)
+        .then(function(res){
+          var data = new ndn.Data(name, "test")
+          return pit.lookup(data)
+        })
+        .then(function(res){
+          assert(res.length === 5)
+          done()
+        })
+        .catch(function(er){
+          console.log(er)
+          assert(false)
+        })
+      })
 
     it("should reject if no matching entries", function(done){
       done()
