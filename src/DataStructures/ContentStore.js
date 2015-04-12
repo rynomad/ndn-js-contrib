@@ -93,7 +93,16 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data){
   return new this._nodeClass(data, this);
 }
 
+/*
+keyChain.sign(freshData, certificateName);
+console.log();
+console.log("Freshly-signed Data:");
+dumpData(freshData);
 
+keyChain.verifyData
+  (freshData,
+   function() { console.log("signature verification: VERIFIED"); },
+   function() { console.log("signature verification: FAILED"); });
 /**Insert a new entry into the contentStore
  *@constructor
  *@param {Buffer} element the raw data packet
@@ -105,6 +114,7 @@ ContentStore.prototype.insert = function(data){
   return new Promise(function ContentStore_insert (resolve, reject){
     var keyChain = self.getKeyChain()
       if (keyChain){
+        console.log(keyChain)
         keyChain.verifyData(data, function keyChain_onVerify(){
           self.createNode(data)
               .then(function ContentStore_nameTree_insert(node){

@@ -1,7 +1,8 @@
 var ContentStore = require("../src/DataStructures/ContentStore.js")
 var assert = require("assert");
 ndn = require('ndn-js');
-var keyChain = require("./setup/key-chain.js")
+var keyChain = require("./setup/key-chain.js").keyChain
+var certificateName = require("./setup/key-chain.js").certificateName
 
 
 
@@ -46,21 +47,17 @@ describe("ContentStore", function(){
         })
     })
 
-    it("should insert in loop (sync)", function(done){
-      var proms = []
-      for(var i = 0; i < 20; i++)
-        proms.push(
-          cs.insert(new ndn.Data(new ndn.Name("a/b/d/" + i), "hello world"))
-        )
-      Promise.all(proms)
-            .then(function(){
-              done();
-            })
-            .catch(function(er){
-              console.log(er)
-              assert(false);
-            })
-            done()
+    it("should resolve for signed data", function(done){
+        var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
+        keyChain.sign(dat, certificateName);
+        console.log(dat);
+        cs.insert(dat).then(function(){
+            done();
+          })
+          .catch(function(er){
+            console.log(er.stack)
+            assert(false);
+          })
 
     })
 
