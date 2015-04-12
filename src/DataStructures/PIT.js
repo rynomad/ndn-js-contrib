@@ -1,7 +1,7 @@
 
 
 var NameTree = require("./NameTree.js")
-
+var crypto = require("ndn-js/js/crypto.js")
 function PIT(){
   this._nameTree = new NameTree()
 }
@@ -9,11 +9,11 @@ function PIT(){
 PIT.prototype.insert = function PIT_insert(interest, onData){
   var self = this;
   return new Promise(function PIT_insert_Promise(resolve,reject){
-    var node = self._nameTree.get(interest.name)
-    if (!node.getItem())
-      node.setItem(new PIT.Node())
+    var nameTreeNode = self._nameTree.get(interest.name)
+    if (!nameTreeNode.getItem())
+      nameTreeNode.setItem(new PIT.Node())
 
-    var pitNode = node.getItem();
+    var pitNode = nameTreeNode.getItem();
     if (pitNode.addEntry(interest, onData ))
       resolve(interest)
     else
@@ -23,9 +23,17 @@ PIT.prototype.insert = function PIT_insert(interest, onData){
 };
 
 PIT.prototype.lookup = function PIT_lookup(data){
+  var self = this;
   return new Promise(function PIT_lookup_Promise(resolve,reject){
+    var nameWithDigest = new Name(this.getData().name)
+    nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
+                                                        .update(this.getData()
+                                                                  .wireEncode()
+                                                                  .buffer)
+                                                        .digest()
+                                                        .toString('hex'));
     reject(data);
-  })
+  });
 };
 
 PIT.Node = function PIT_Node(){
