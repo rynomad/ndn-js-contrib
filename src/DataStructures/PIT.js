@@ -27,13 +27,12 @@ PIT.prototype.lookup = function PIT_lookup(data){
   return new Promise(function PIT_lookup_Promise(resolve,reject){
     var nameWithDigest = data.name.getPrefix(data.name.size())
 
-    try{
 
-      nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
-                                                    .update(data.wireEncode()
-                                                                .buffer)
-                                                    .digest()
-                                                    .toString('hex'));
+    nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
+                                                  .update(data.wireEncode()
+                                                              .buffer)
+                                                  .digest()
+                                                  .toString('hex'));
 
     self._nameTree.up(nameWithDigest)
     self._nameTree.skip(function(node){
@@ -45,7 +44,6 @@ PIT.prototype.lookup = function PIT_lookup(data){
     for(var ntnode of self._nameTree){
       var pitNode = ntnode.getItem()
       for(var entry in pitNode._entries){
-        console.log(pitNode._entries[entry])
         var inface = pitNode._entries[entry].onData(data)
         if (inface){
           var dup = false;
@@ -65,10 +63,6 @@ PIT.prototype.lookup = function PIT_lookup(data){
       resolve(results);
     else
       reject(new Error("PIT.lookup(data): no outbound pitentries for that data"));
-    } catch(e){
-      console.log(e, e.stack)
-    }
-
   });
 };
 
