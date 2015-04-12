@@ -71,7 +71,7 @@ PIT.Node = function PIT_Node(){
 
 PIT.Node.prototype.timeout = function PIT_Node_timeout(interest){
   for (var index in this._entries)
-    if (this._entries[index].getNonce().equals(interest.getNonce()))
+    if (this._entries[index].interest.getNonce().equals(interest.getNonce()))
       return this._entries.splice(index, 1);
 }
 

@@ -13,7 +13,6 @@ describe("PIT", function(){
     var pit = new PIT()
     it("should return a Promise", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/promise"));
-      console.log(pit)
       pit.insert(interest)
          .then(function(){
            done()
@@ -25,13 +24,15 @@ describe("PIT", function(){
 
     it("should resolve with interest", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
+      interest.setInterestLifetimeMilliseconds(1000);
       console.log(pit)
       pit.insert(interest)
-         .then(function(){
+         .then(function(intd){
+           assert(interest.name.equals(intd.name))
            done()
          })
         .catch(function(){
-          done()
+          assert(false, "rejected for some reason")
         })
     })
 
