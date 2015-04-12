@@ -113,7 +113,28 @@ describe("PIT", function(){
     })
 
     it("should consume matched entries", function(done){
-      done()
+      var name = new ndn.Name("")
+      var proms = [];
+      for (var i = 0; i < 5; i++){
+        var int = new ndn.Interest(name.append("co"))
+        int.setInterestLifetimeMilliseconds(10000)
+        proms.push(pit.insert(int, function(){return Math.random()}))
+      }
+
+      Promise.all(proms)
+        .then(function(){
+          return pit.lookup(new ndn.Data(name, "test"))
+        })
+        .then(function(res){
+          assert(res.length === 5)
+          return pit.lookup(new ndn.Data(name, "fail"))
+        })
+        .then(function(){
+          assert(false, "pit entries are not getting consumed")
+        })
+        .catch(function(){
+          done()
+        })
     })
   })
 })
