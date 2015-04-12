@@ -116,7 +116,6 @@ describe("ContentStore", function(){
       var left = new ndn.Data(new ndn.Name("test/interest/lookup/1"), "FAIL")
       cs.insert(right)
         .then(function(){
-          console.log(left.content, right.content)
           return cs.insert(left)
         })
         .then(function(){
@@ -127,7 +126,6 @@ describe("ContentStore", function(){
           return cs.lookup(interest)
         })
         .then(function(data){
-          console.log(data.name.toUri())
           if (data.content.toString() == "SUCCESS")
             done()
           else
