@@ -47,7 +47,7 @@ describe("ContentStore", function(){
     })
 
     it("should insert in loop (sync)", function(done){
-      /*var proms = []
+      var proms = []
       for(var i = 0; i < 20; i++)
         proms.push(
           cs.insert(new ndn.Data(new ndn.Name("a/b/d/" + i), "hello world"))
@@ -59,7 +59,7 @@ describe("ContentStore", function(){
             .catch(function(er){
               console.log(er)
               assert(false);
-            })*/
+            })
             done()
 
     })
