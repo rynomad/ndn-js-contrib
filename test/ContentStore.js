@@ -158,7 +158,7 @@ describe("ContentStore", function(){
         })
     })
 
-    it("should resolve rightMost with minSuffix", function(){
+    it("should resolve rightMost with minSuffix", function(done){
       var suffSucc = new ndn.Data(new ndn.Name("test/interest/lookup/8/long/suffix/comp"), "SuffSUCCESS");
       cs.insert(suffSucc)
         .then(function(){
