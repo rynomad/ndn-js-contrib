@@ -46,7 +46,11 @@ PIT.prototype.lookup = function PIT_lookup(data){
       for(var entry in pitNode._entries){
         if (pitNode._entries[entry].interest.matchesName(data.name)){
 
-          var inface = pitNode._entries.splice(entry, 1)[0].onData(data);
+          var ent = pitNode._entries.splice(entry, 1)[0];
+          clearTimeout(ent.timeID);
+          
+          var inface = ent.onData(data);
+
           if (inface){
             var dup = false;
             for (var face in results){
