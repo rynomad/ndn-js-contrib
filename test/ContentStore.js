@@ -7,7 +7,6 @@ var certificateName = require("./setup/key-chain.js").certificateName
 
 
 describe("ContentStore", function(){
-  //console.log(cache.__proto__)
   describe("setMaxPackets(int)",function(){
     it('should be returned by .getMaxPackets()',function(){
       var cs = new ContentStore()
@@ -111,15 +110,11 @@ describe("ContentStore", function(){
           return cs.createNode(data, cs)
         })
         .then(function(node){
-          console.log("node constructed",node.prefix.toUri());
           cs.removeNode(node);
-          console.log("node removed(?)")
           var interest = new ndn.Interest(new ndn.Name("a"));
           interest.setMustBeFresh(false);
-          console.log("even getting here?")
           cs.lookup(interest)
             .then(function(data){
-              console.log("!!!!!!!!!!!!!!!!")
               assert(false, "should have no data")
             })
             .catch(function(er){
@@ -137,7 +132,6 @@ describe("ContentStore", function(){
 
   describe("lookup(Interest)",function(){
     var cs = new ContentStore();
-    console.log(cs.keyChain)
     before(function(done){
       cs.insert(new ndn.Data(new ndn.Name("test/interest/lookup/2"), "SUCCESS"))
         .then(function(){
