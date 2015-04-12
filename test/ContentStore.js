@@ -55,22 +55,28 @@ describe("ContentStore", function(){
     })
 
     it("should resolve for signed data", function(done){
-        var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
-        keyChain.sign(dat, certificateName, function (){
-          cs.insert(dat).then(function(){
-              done();
-            })
-            .catch(function(er){
-              console.log(er.stack)
-              assert(false);
-            })
-        } );
-
-
+      var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
+      keyChain.sign(dat, certificateName, function (){
+        cs.insert(dat).then(function(){
+            done();
+          })
+          .catch(function(er){
+            console.log(er.stack)
+            assert(false);
+          })
+      });
     })
 
-    it("should reject unsigned data",function(){
-
+    it("should mark as stale after freshnessMilliseconds", function(done){
+      var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
+      dat.getMetaInfo().setFreshnessPeriod(500)
+      ContentStore.Node.prototype.onDataStale = function(){
+        ContentStore.Node.prototype.onDataStale = function(){}
+        done();
+      }
+      keyChain.sign(dat, certificateName, function (){
+        cs.insert(dat)
+      });
     })
   })
 
