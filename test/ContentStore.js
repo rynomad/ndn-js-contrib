@@ -1,6 +1,6 @@
 var ContentStore = require("../src/DataStructures/ContentStore.js")
 var assert = require("assert");
-var ndn = require('ndn-js');
+ndn = require('ndn-js');
 
 
 
@@ -16,6 +16,10 @@ describe("ContentStore", function(){
 
   describe("insert(data)",function(){
     var cs = new ContentStore();
+    before(function(){
+      cs.setKeyChain(new ndn.KeyChain( new ndn.IdentityManager(),new ndn.SelfVerifyPolicyManager()))
+    })
+
     it("should return a promise",function(done){
       cs.insert(new ndn.Data(new ndn.Name("a/b/c"), "hello world"))
         .then(function(){
@@ -42,7 +46,7 @@ describe("ContentStore", function(){
     })
 
     it("should insert in loop (sync)", function(done){
-      var proms = []
+      /*var proms = []
       for(var i = 0; i < 20; i++)
         proms.push(
           cs.insert(new ndn.Data(new ndn.Name("a/b/d/" + i), "hello world"))
@@ -54,7 +58,8 @@ describe("ContentStore", function(){
             .catch(function(er){
               console.log(er)
               assert(false);
-            })
+            })*/
+            done()
 
     })
 

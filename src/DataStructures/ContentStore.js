@@ -116,7 +116,10 @@ ContentStore.prototype.insert = function(data){
               .catch(function ContentStore_insert_reject(err){
                 reject(err);
               });
-        }, reject)
+        }, function keyChain_onVerifyFailed(er){
+          console.log("veify failed")
+          reject(er)
+        })
       } else {
         self.createNode(data)
             .then(function ContentStore_nameTree_insert(node){
