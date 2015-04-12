@@ -27,12 +27,41 @@ PIT.prototype.lookup = function PIT_lookup(data){
   return new Promise(function PIT_lookup_Promise(resolve,reject){
     var nameWithDigest = new Name(this.getData().name)
     nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
-                                                        .update(this.getData()
-                                                                  .wireEncode()
-                                                                  .buffer)
-                                                        .digest()
-                                                        .toString('hex'));
-    reject(data);
+                                                  .update(this.getData()
+                                                              .wireEncode()
+                                                              .buffer)
+                                                  .digest()
+                                                  .toString('hex'));
+
+    self._nameTree.up(nameWithDigest)
+    self._nameTree.skip(function(node){
+      return (!node.getItem());
+    })
+
+    var results = [];
+
+    for(var ntnode of this._nameTree){
+      var pitNode = ntnode.getItem()
+      for(var entry of pitNode){
+        var inface = entry.onData(data)
+        if (inface){
+          var dup = false;
+          for (var face of results){
+            if (face === inface){
+              dup = true;
+              break;
+            }
+          }
+          if (!dup)
+            results.push(inface);
+        }
+      }
+    }
+
+    if (results.length)
+      resolve(results);
+    else
+      reject(new Error("PIT.lookup(data): no outbound pitentries for that data"));
   });
 };
 
