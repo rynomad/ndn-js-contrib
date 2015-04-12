@@ -36,7 +36,7 @@ describe("PIT", function(){
     })
 
     it("should reject if duplicate", function(done){
-      var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
+      var interest = new ndn.Interest(new ndn.Name("test/pit/insert/duplicate"));
       interest.setNonce([1,2,3,4])
       interest.setInterestLifetimeMilliseconds(1000);
       pit.insert(interest)
@@ -52,12 +52,18 @@ describe("PIT", function(){
          })
     })
 
-    it("should reject if no lifetime", function(done){
-      done()
-    })
-
     it("should autoremove after timeout", function(done){
-      done()
+      var interest = new ndn.Interest(new ndn.Name("test/pit/insert/timeout"));
+      interest.setNonce([1,2,3,4])
+      this.timeout(600);
+      interest.setInterestLifetimeMilliseconds(500);
+      pit.insert(interest)
+         .then(function(intd){
+           setTimeout(function(){
+             assert(pit._nameTree.get(intd.name).getItem()._entries.length === 0, "failed to remove interest after timeout")
+             done();
+           }, 500)
+         });
     })
   })
 
