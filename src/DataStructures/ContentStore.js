@@ -22,7 +22,7 @@ ContentStore.Node = function ContentStore_Node(data, cs){
   this._data = data;
   this._stale = false;
   var self = this;
-  setTimeout( this.makeStale, data.getMetaInfo().getFreshnessPeriod(), cs );
+  setTimeout( this.makeStale.bind(this), data.getMetaInfo().getFreshnessPeriod(), cs );
   return new Promise(function(resolve,reject){
     resolve(new NameTree.Node(self.getNameWithDigest(),self));
   });
