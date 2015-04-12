@@ -9,7 +9,7 @@ describe("PIT", function(){
     })
   })
 
-  describe("insert(interest)",function(){
+  describe("insert(interest, onData)",function(){
     var pit = new PIT()
     it("should return a Promise", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/promise"));
@@ -24,7 +24,15 @@ describe("PIT", function(){
     })
 
     it("should resolve with interest", function(done){
-      done()
+      var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
+      console.log(pit)
+      pit.insert(interest)
+         .then(function(){
+           done()
+         })
+        .catch(function(){
+          done()
+        })
     })
 
     it("should reject if duplicate", function(done){
