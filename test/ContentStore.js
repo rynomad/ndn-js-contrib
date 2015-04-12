@@ -180,7 +180,20 @@ describe("ContentStore", function(){
     })
 
     it("should reject for excluded match", function(){
-
+      var exSucc = new ndn.Data(new ndn.Name("test/interest/lookup/exclude/this"), "ExSUCCESS");
+      cs.insert(exSucc)
+        .then(function(){
+          var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/exclude"));
+          interest.setChildSelector(1);
+          interest.setMustBeFresh(false);
+          interest.setExclude(new ndn.Exclude([new ndn.Name.Component('this')]))
+          return cs.lookup(interest);
+        })
+        .then(function(data){
+          assert(false, "did not exclude properly" + data.name.toUri())
+        }).catch(function(er){
+          done()
+        })
     })
 
     it("should reject for no match", function(){
