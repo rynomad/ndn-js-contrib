@@ -81,8 +81,21 @@ describe("ContentStore", function(){
   })
 
   describe("lookup(Interest)",function(){
+    var cs = new ContentStore();
+    before(function(done){
+      cs.insert(new ndn.Data(new ndn.Name("test/interest/lookup", "SUCCESS")))
+        .then(function(){
+          done()
+        })
+    })
     it("should return a promise",function(){
-
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
+      cs.lookup(interest)
+        .then(function(){
+          done();
+        }).catch(function(){
+          done();
+        })
     })
 
     it("should resolve for inserted data", function(){

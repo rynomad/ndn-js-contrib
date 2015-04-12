@@ -59,7 +59,7 @@ ContentStore.Node.prototype.getData = function ContentStore_Node_getData(){
 };
 
 ContentStore.Node.prototype.onDataStale = function ContentStore_Node_onDataStale (){
-  
+
 }
 
 ContentStore.Node.prototype.makeStale = function ContentStore_Node_makeStale(cs){
@@ -86,7 +86,10 @@ ContentStore.prototype._lookup = function(resolve, reject){
  *@returns {Buffer | null}
  */
 ContentStore.prototype.lookup = function(interest){
-
+  var self = this;
+  return new Promise(function ContentStore_lookup_Promise(resolve, reject){
+    reject()
+  })
 };
 
 ContentStore.prototype.setNodeClass = function(clas){
@@ -104,9 +107,9 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data){
  *@param {ndn.Data} data the ndn.Data object
  *@returns {ContentStore} - for chaining
  */
-ContentStore.prototype.insert = function(data){
+ContentStore.prototype.insert = function ContentStore_insert(data){
   var self = this;
-  return new Promise(function ContentStore_insert (resolve, reject){
+  return new Promise(function ContentStore_insert_Promise (resolve, reject){
     var keyChain = self.getKeyChain()
       if (keyChain){
         keyChain.verifyData(data, function keyChain_onVerify(){
