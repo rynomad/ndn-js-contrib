@@ -18,9 +18,8 @@ PIT.prototype.insert = function PIT_insert(interest, onData){
     if (pitNode.addEntry(interest, onData ))
       resolve(interest)
     else
-      reject(new Error("PIT.insert(interest, onData): interest is duplicate"))
-
-  })
+      reject(new Error("PIT.insert(interest, onData): interest is duplicate"));
+  });
 };
 
 PIT.prototype.lookup = function PIT_lookup(data){
