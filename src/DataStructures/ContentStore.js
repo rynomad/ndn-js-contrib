@@ -58,9 +58,13 @@ ContentStore.Node.prototype.getData = function ContentStore_Node_getData(){
   return this._data;
 };
 
+ContentStore.Node.prototype.onDataStale = function ContentStore_Node_onDataStale (){
+  
+}
 
 ContentStore.Node.prototype.makeStale = function ContentStore_Node_makeStale(cs){
   this.stale = true;
+  this.onDataStale();
 };
 
 ContentStore.prototype.setMaxPackets = function ContentStore_setMaxPackets(int){
