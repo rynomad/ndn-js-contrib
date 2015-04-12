@@ -59,6 +59,7 @@ describe("PIT", function(){
       interest.setInterestLifetimeMilliseconds(500);
       pit.insert(interest)
          .then(function(intd){
+           assert(pit._nameTree.get(intd.name).getItem()._entries.length === 1);
            setTimeout(function(){
              assert(pit._nameTree.get(intd.name).getItem()._entries.length === 0, "failed to remove interest after timeout")
              done();
