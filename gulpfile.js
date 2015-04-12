@@ -18,8 +18,9 @@ var sourcemaps = require('gulp-sourcemaps');
 gulp.task('browserify-tests',['mocha'], function () {
   // set up the browserify instance on a task basis
   var b = browserify();
-
-  b.add('./test/NameTree.js');
+  b.add('./test/NameTree.js')
+   .add('./test/ContentStore.js')
+   .add('./test/PIT.js');
 
   var stream = b.bundle()
     .pipe(source('tests.js'))
@@ -48,13 +49,13 @@ gulp.task('lint', function() {
 });
 
 
-gulp.task('live', function () {
+gulp.task('live',['browserify-tests'], function () {
   gulp.src('./test/browser/index.html')
     .pipe(connect.reload());
 });
 
-gulp.task('dev-auto-commit', ['browserify-tests','mocha'], function(){
-  return gulp.src('./src/DataStructures/*.js')
+gulp.task('dev-auto-commit', ['browserify-tests','mocha','live'], function(){
+  return gulp.src(['./src/DataStructures/*.js','./test/*.js'])
   .pipe(git.commit("auto commit: " + new Date()))
 
 })
