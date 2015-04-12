@@ -94,21 +94,21 @@ ContentStore.prototype.lookup = function(interest){
       self._nameTree.left(interest.name)
 
     for (var node of self._nameTree){
-      var item = node.getItem()
-      if (item){
-        var data = item.getData()
-        if (interest.matchesName(data))
+      var item = node.getItem();
+      if (item !== undefined){
+        var data = item.getData();
+        if (interest.matchesName(data.name))
           if(interest.getMustBeFresh()){
             if(!item.stale)
-              resolve(data)
+              resolve(data);
           } else {
-            resolve(data)
+            resolve(data);
           }
 
       }
     }
 
-    reject(interest)
+    reject(interest);
   })
 };
 
@@ -131,7 +131,8 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
   var self = this;
   return new Promise(function ContentStore_insert_Promise (resolve, reject){
     var keyChain = self.getKeyChain()
-      if (keyChain){
+    console.log(keyChain)
+      if (keyChain !== null){
         keyChain.verifyData(data, function keyChain_onVerify(){
           self.createNode(data)
               .then(function ContentStore_nameTree_insert(node){

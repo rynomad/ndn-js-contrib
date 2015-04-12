@@ -82,13 +82,14 @@ describe("ContentStore", function(){
 
   describe("lookup(Interest)",function(){
     var cs = new ContentStore();
+    console.log(cs.keyChain)
     before(function(done){
-      cs.insert(new ndn.Data(new ndn.Name("test/interest/lookup", "SUCCESS")))
+      cs.insert(new ndn.Data(new ndn.Name("test/interest/lookup/2"), "SUCCESS"))
         .then(function(){
           done()
         })
     })
-    it("should return a promise",function(){
+    it("should return a promise",function(done){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
       cs.lookup(interest)
         .then(function(){
@@ -98,17 +99,43 @@ describe("ContentStore", function(){
         })
     })
 
-    it("should resolve for inserted data", function(){
+    it("should resolve for inserted data", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
+      interest.setMustBeFresh(false)
       cs.lookup(interest)
         .then(function(){
           done();
-        }).catch(function(){
+        }).catch(function(er){
+          console.log(er, er.stack)
           assert(false);
         })
     })
 
-    it("should resolve rightMost", function(){
+    it("should resolve rightMost", function(done){
+      var right = new ndn.Data(new ndn.Name("test/interest/lookup/9"), "SUCCESS")
+      var left = new ndn.Data(new ndn.Name("test/interest/lookup/1"), "FAIL")
+      cs.insert(right)
+        .then(function(){
+          console.log(left.content, right.content)
+          return cs.insert(left)
+        })
+        .then(function(){
+          var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
+          interest.setChildSelector(1);
+          interest.setMustBeFresh(false);
+          console.log("here?")
+          return cs.lookup(interest)
+        })
+        .then(function(data){
+          console.log(data.name.toUri())
+          if (data.content.toString() == "SUCCESS")
+            done()
+          else
+            assert(false, "did not return the right data")
+        }).catch(function(er){
+          console.log("failed?", er, er.stack)
+          assert(false, er + er.stack)
+        })
 
     })
 
