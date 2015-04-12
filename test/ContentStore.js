@@ -99,6 +99,7 @@ describe("ContentStore", function(){
         })
     })
 
+
     it("should resolve for inserted data", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
       interest.setMustBeFresh(false)
@@ -173,6 +174,23 @@ describe("ContentStore", function(){
             done()
           else
             assert(false, "did not exclude properly" + data.name.toUri())
+        }).catch(function(er){
+          console.log(er, er.stack)
+          assert(false);
+        })
+    })
+
+    it("should resolve for fresh data", function(){
+      var data = new ndn.Data(new ndn.Name("test/interest/lookup/fresh"), "freshSUCCESS")
+      data.getMetaInfo().setFreshnessPeriod(5000);
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
+      interest.setMustBeFresh(true)
+      cs.insert(data)
+        .then(function(){
+          return cs.lookup(interest)
+        })
+        .then(function(dat){
+          assert(dat.name.equals(data.name), "return not fresh data")
         }).catch(function(er){
           console.log(er, er.stack)
           assert(false);
