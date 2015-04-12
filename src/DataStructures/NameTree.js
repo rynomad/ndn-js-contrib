@@ -135,7 +135,6 @@ Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
     var done = (this._stack.length === 0);
     if(!done)
       var next = this._stack.pop();
-    console.log("next",next, "done",done)
     return {
       value  : next
       , done : done
