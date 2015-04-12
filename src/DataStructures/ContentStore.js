@@ -33,8 +33,9 @@ ContentStore.prototype.onMaxPackets = function ContentStore_onMaxPackets(){
 ContentStore.Node = function ContentStore_Node(data, cs){
   this._data = data;
   this._stale = false;
+  this.cs = cs;
   var self = this;
-  setTimeout( this.makeStale.bind(this), data.getMetaInfo().getFreshnessPeriod(), cs );
+  setTimeout( this.makeStale.bind(this), data.getMetaInfo().getFreshnessPeriod() );
   return new Promise(function(resolve,reject){
     resolve(new NameTree.Node(self.getNameWithDigest(),self));
   });
@@ -94,23 +95,17 @@ ContentStore.prototype.lookup = function(interest){
       self._nameTree.right(interest.name)
     else
       self._nameTree.left(interest.name)
-
+    console.log("begin lookup")
     for (var node of self._nameTree){
       var item = node.getItem();
       if (item !== undefined){
         var data = item.getData();
-        if (interest.matchesName(data.name))
-          if(interest.getMustBeFresh()){
-            if(!item.stale)
-              resolve(data);
-          } else {
-            resolve(data);
-          }
-
+        if(interest.matchesName(data.name) && !(interest.getMustBeFresh() && item.stale))
+            return resolve(data);
       }
     }
-
-    reject(interest);
+    console.log("not found")
+    return reject(interest);
   })
 };
 
@@ -169,9 +164,9 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
   });
 };
 
-ContentStore.prototype.remove = function(node){
-  this.nameTree.get(node.getNameWithDigest()).setItem(null);
-  this.nameTree.remove(node.getNameWithDigest());
+ContentStore.prototype.removeNode = function ContentStore_removeNode(node){
+  this._nameTree.remove(node.prefix);
+  console.log("hit?")
 }
 
 

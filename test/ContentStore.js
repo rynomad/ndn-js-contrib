@@ -97,6 +97,44 @@ describe("ContentStore", function(){
     })
   })
 
+  describe(".remove(node)",function(){
+    var cs = new ContentStore();
+    var data
+    before(function(){
+      data = new ndn.Data(new ndn.Name("a/a/a/a/a/a/a/"), "fail")
+
+    })
+    it('should remove the packet',function(done){
+      this.timeout(10000)
+      cs.insert(data)
+        .then(function(){
+          return cs.createNode(data, cs)
+        })
+        .then(function(node){
+          console.log("node constructed",node.prefix.toUri());
+          cs.removeNode(node);
+          console.log("node removed(?)")
+          var interest = new ndn.Interest(new ndn.Name("a"));
+          interest.setMustBeFresh(false);
+          console.log("even getting here?")
+          cs.lookup(interest)
+            .then(function(data){
+              console.log("!!!!!!!!!!!!!!!!")
+              assert(false, "should have no data")
+            })
+            .catch(function(er){
+              done();
+            })
+        });
+
+
+    })
+
+    it('should decrement the packetCount', function(){
+
+    })
+  })
+
   describe("lookup(Interest)",function(){
     var cs = new ContentStore();
     console.log(cs.keyChain)
@@ -286,7 +324,9 @@ describe("ContentStore", function(){
     })
   })
 
-  describe(".remove(node)",function(){
+
+
+  describe(".onMaxPackets()",function(){
 
   })
 

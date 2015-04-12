@@ -66,7 +66,9 @@ NameTree.prototype.remove = function NameTree_remove(prefix){
     , item  = null
     , removeSuffix;
 
+  console.log("start iter loop")
   for (var node of this){
+    console.log("nodeinloop", node.prefix.toUri())
     if (first){
       item = node.getItem();
       node.setItem(null);
@@ -80,12 +82,13 @@ NameTree.prototype.remove = function NameTree_remove(prefix){
 
     removeSuffix = false;
 
-    if (node.isEmpty())
+    if (node.isEmpty() && node.prefix.size() > 0)
       removeSuffix = node.prefix.get(-1);
     else {
       node.updateDepth(~(prefix.size() - node.prefix.size()));
     }
   }
+  console.log("end iter lopp")
 
   if (removeSuffix)
     this.root.remove(removeSuffix);
@@ -120,6 +123,7 @@ function Prefix_Iterator(nameTree, prefix, skip){
 
 
   while (!curr.equals(node)){
+    console.log(curr.prefix.toUri(), node.prefix.toUri())
     if (!skip(curr))
       this._stack.push(curr)
 
@@ -129,16 +133,23 @@ function Prefix_Iterator(nameTree, prefix, skip){
   if (!skip(curr))
     this._stack.push(curr)
 
-
+  console.log(curr.prefix.toUri());
 }
 
 Prefix_Iterator.prototype.next = function NameTree_Iterator_next (){
-  var next = this._stack.pop();
+  try{
+    var done = (this._stack.length === 0);
+    if(!done)
+      var next = this._stack.pop();
+    console.log("next",next, "done",done)
+    return {
+      value  : next
+      , done : done
+    };
+  } catch(e){
+    console.log(e)
+  }
 
-  return {
-    value  : next
-    , done : !next
-  };
 
 };
 
@@ -308,8 +319,8 @@ NameTree.Node.prototype.insert  = function NameTree_Node_insert (node){
   if (this.equals(node)){
     if (this.item && node.item)
       throw new Error("NameTree.Node.insert: Already have that node with an Item");
-    else if (!this.item && node.item){
-      this.setItem(node.item)
+    else if (!this.getItem() && node.getItem()){
+      this.setItem(node.getItem())
     }
     return this;
   }
