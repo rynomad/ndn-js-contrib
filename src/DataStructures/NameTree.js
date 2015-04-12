@@ -120,7 +120,6 @@ function Prefix_Iterator(nameTree, prefix, skip){
 
 
   while (!curr.equals(node)){
-    console.log(curr.prefix.toUri(), node.prefix.toUri())
     if (!skip(curr))
       this._stack.push(curr)
 
