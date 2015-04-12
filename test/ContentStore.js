@@ -51,7 +51,8 @@ describe("ContentStore", function(){
             .then(function(){
               done();
             })
-            .catch(function(){
+            .catch(function(er){
+              console.log(er)
               assert(false);
             })
 
