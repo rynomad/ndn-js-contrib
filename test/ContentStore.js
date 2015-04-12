@@ -134,6 +134,7 @@ describe("ContentStore", function(){
         })
 
     })
+    
 
     it("should resolve rightMost with Exclude", function(){
 
