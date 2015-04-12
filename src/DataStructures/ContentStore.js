@@ -18,6 +18,16 @@ var ContentStore = function ContentStore(){
   this._nodeClass = ContentStore.Node;
 };
 
+ContentStore.prototype.setKeyChain = function ContentStore_setKeyChain(keyChain){
+  this._keyChain = keyChain;
+};
+
+ContentStore.prototype.getKeyChain = function ContentStore_getKeyChain(){
+  return this._keyChain || null;
+};
+
+
+
 ContentStore.Node = function ContentStore_Node(data, cs){
   this._data = data;
   this._stale = false;
