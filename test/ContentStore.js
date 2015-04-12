@@ -1,6 +1,7 @@
 var ContentStore = require("../src/DataStructures/ContentStore.js")
 var assert = require("assert");
 ndn = require('ndn-js');
+var keyChain = require("./setup/key-chain.js")
 
 
 
@@ -17,7 +18,7 @@ describe("ContentStore", function(){
   describe("insert(data)",function(){
     var cs = new ContentStore();
     before(function(){
-      cs.setKeyChain(new ndn.KeyChain( new ndn.IdentityManager(new ndn.MemoryIdentityStorage(), new ndn.MemoryIdentityStorage()),new ndn.SelfVerifyPolicyManager()))
+      cs.setKeyChain(keyChain)
     })
 
     it("should return a promise",function(done){
