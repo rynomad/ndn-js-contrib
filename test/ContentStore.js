@@ -33,7 +33,13 @@ describe("ContentStore", function(){
     })
 
     it("should reject if data fails to verify",function(){
-
+      var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
+      cs.insert(dat).then(function(){
+          assert(false)
+        })
+        .catch(function(er){
+          done()
+        })
     })
 
     it("should reject if data is duplicate", function(done){
@@ -50,7 +56,6 @@ describe("ContentStore", function(){
     it("should resolve for signed data", function(done){
         var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
         keyChain.sign(dat, certificateName);
-        console.log(dat);
         cs.insert(dat).then(function(){
             done();
           })
