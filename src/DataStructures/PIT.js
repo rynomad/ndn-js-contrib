@@ -1,21 +1,26 @@
-var binarySearch = require("./../Utility/binarySearch.js")
-  , ndn
-  , debug = {};
-debug.debug = require("debug")("PIT");
 
 
-function pubKeyMatch (ar1, ar2){
-  if (!ar1){
-    return true;
-  }
+var NameTree = require("./NameTree.js")
 
-  for(var i = 0; i < ar1.length; i++ ){
-    if (ar1[i] !== ar2[i]){
-      return false;
-    }
-  }
-  return true;
+function PIT(){
+  this._nameTree = new NameTree()
 }
+
+PIT.prototype.insert = function PIT_insert(interest){
+  return new Promise(function PIT_insert_Promise(resolve,reject){
+    reject(interest);
+  })
+};
+
+PIT.prototype.lookup = function PIT_lookup(data){
+  return new Promise(function PIT_lookup_Promise(resolve,reject){
+    reject(data);
+  })
+};
+
+PIT.Node = function PIT_Node(interest){
+
+};
 
 /**PIT Entry
  *@constructor
@@ -89,10 +94,7 @@ PitEntry.prototype.consume = function(callbackCalled) {
  *@param {NameTree} nameTree the nameTree to build the table on top of
  *@returns {PIT} a new PIT
  */
-var PIT = function PIT(nameTree){
-  this.nameTree = nameTree;
-  return this;
-};
+
 
 /**Import ndn-lib into the PIT scope
  *@param {Object} NDN the NDN-js library in object form
