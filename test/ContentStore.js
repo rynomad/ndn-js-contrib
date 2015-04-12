@@ -43,14 +43,15 @@ describe("ContentStore", function(){
     })
 
     it("should reject if data is duplicate", function(done){
-      cs.insert(new ndn.Data(new ndn.Name("a/b/d"), "hello world"))
-        .then(function(){
-          return cs.insert(new ndn.Data(new ndn.Name("a/b/d"), "hello world"))
-        }).then(function(){
-          assert(false)
-        }).catch(function(er){
-          done()
-        })
+      var dat = new ndn.Data(new ndn.Name("a/b/c"), "hello world")
+      keyChain.sign(dat, certificateName, function (){
+        cs.insert(dat).then(function(){
+            return cs.insert(dat)
+          })
+          .catch(function(er){
+            done();
+          })
+      } );
     })
 
     it("should resolve for signed data", function(done){
