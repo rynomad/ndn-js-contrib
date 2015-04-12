@@ -93,7 +93,7 @@ ContentStore.prototype.lookup = function(interest){
     else
       self._nameTree.left(interest.name)
 
-    for (node of self._nameTree){
+    for (var node of self._nameTree){
       var item = node.getItem()
       if (item){
         var data = item.getData()
