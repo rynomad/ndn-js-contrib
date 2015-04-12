@@ -103,16 +103,32 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data){
 ContentStore.prototype.insert = function(data){
   var self = this;
   return new Promise(function ContentStore_insert (resolve, reject){
-      self.createNode(data)
-          .then(function ContentStore_nameTree_insert(node){
-            return self._nameTree.insert(node);
-          })
-          .then(function ContentStore_insert_resolve(returns){
-            resolve(++self._packetCount)
-          })
-          .catch(function ContentStore_insert_reject(err){
-            reject(err);
-          });
+    var keyChain = self.getKeyChain()
+      if (keyChain){
+        keyChain.verifyData(data, function keyChain_onVerify(){
+          self.createNode(data)
+              .then(function ContentStore_nameTree_insert(node){
+                return self._nameTree.insert(node);
+              })
+              .then(function ContentStore_insert_resolve(returns){
+                resolve(++self._packetCount)
+              })
+              .catch(function ContentStore_insert_reject(err){
+                reject(err);
+              });
+        }, reject)
+      } else {
+        self.createNode(data)
+            .then(function ContentStore_nameTree_insert(node){
+              return self._nameTree.insert(node);
+            })
+            .then(function ContentStore_insert_resolve(returns){
+              resolve(++self._packetCount)
+            })
+            .catch(function ContentStore_insert_reject(err){
+              reject(err);
+            });
+      }
   });
 };
 
