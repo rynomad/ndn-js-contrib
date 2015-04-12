@@ -166,7 +166,6 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
 
 ContentStore.prototype.removeNode = function ContentStore_removeNode(node){
   this._nameTree.remove(node.prefix);
-  console.log("hit?")
 }
 
 
