@@ -44,19 +44,24 @@ PIT.prototype.lookup = function PIT_lookup(data){
     for(var ntnode of self._nameTree){
       var pitNode = ntnode.getItem()
       for(var entry in pitNode._entries){
-        var inface = pitNode._entries[entry].onData(data)
-        if (inface){
-          var dup = false;
-          for (var face in results){
-            if (results[face] === inface){
-              dup = true;
-              break;
+        if (pitNode._entries[entry].interest.matchesName(data.name)){
+
+          var inface = pitNode._entries.splice(entry, 1)[0].onData(data);
+          if (inface){
+            var dup = false;
+            for (var face in results){
+              if (results[face] === inface){
+                dup = true;
+                break;
+              }
             }
+            if (!dup)
+              results.push(inface);
           }
-          if (!dup)
-            results.push(inface);
         }
       }
+      if (!pitNode._entries)
+        self._nameTree.remove(ntnode.prefix)
     }
 
     if (results.length > 0)
