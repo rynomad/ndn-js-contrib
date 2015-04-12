@@ -32,7 +32,7 @@ describe("ContentStore", function(){
 
     })
 
-    it("should reject if data fails to verify",function(done){
+    it("should reject usnigned data",function(done){
       var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
       cs.insert(dat).then(function(){
           assert(false)
@@ -69,7 +69,7 @@ describe("ContentStore", function(){
 
     })
 
-    it("should mark stale",function(){
+    it("should reject unsigned data",function(){
 
     })
   })
