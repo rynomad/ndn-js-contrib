@@ -232,7 +232,14 @@ describe("ContentStore", function(){
     })
 
     it("should reject for mustBeFresh and stale content",function(){
-
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
+      interest.setMustBeFresh(false)
+      cs.lookup(interest)
+      .then(function(data){
+        assert(false, "returned false match" + data.name.toUri())
+      }).catch(function(er){
+        done()
+      })
     })
   })
 
