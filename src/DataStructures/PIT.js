@@ -32,9 +32,15 @@ PIT.Node = function PIT_Node(){
   this._entries = [];
 };
 
+PIT.Node.prototype.timeout = function PIT_Node_timeout(interest){
+  for (var index in this._entries)
+    if (this._entries[index].getNonce().equals(interest.getNonce()))
+      return this._entries.splice(index, 1);
+}
+
 PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
   var self = this;
-  for (var entry in this._entries)
+  for (var entry of this._entries)
     if (entry.interest.getNonce().equals(interest.getNonce()))
       return false;
 
