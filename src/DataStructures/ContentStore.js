@@ -92,10 +92,10 @@ ContentStore.prototype.lookup = function(interest){
   var self = this;
   return new Promise(function ContentStore_lookup_Promise(resolve, reject){
     if( interest.getChildSelector())
-      self._nameTree.right(interest.name)
+      self._nameTree.right(interest.name);
     else
-      self._nameTree.left(interest.name)
-    console.log("begin lookup")
+      self._nameTree.left(interest.name);
+    
     for (var node of self._nameTree){
       var item = node.getItem();
       if (item !== undefined){
@@ -104,7 +104,7 @@ ContentStore.prototype.lookup = function(interest){
             return resolve(data);
       }
     }
-    console.log("not found")
+
     return reject(interest);
   })
 };
