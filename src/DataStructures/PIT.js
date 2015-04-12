@@ -6,9 +6,19 @@ function PIT(){
   this._nameTree = new NameTree()
 }
 
-PIT.prototype.insert = function PIT_insert(interest){
+PIT.prototype.insert = function PIT_insert(interest, onData){
+  var self = this;
   return new Promise(function PIT_insert_Promise(resolve,reject){
-    reject(interest);
+    var node = self._nameTree.get(interest.name)
+    if (!node.getItem())
+      node.setItem(new PIT.Node())
+
+    var pitNode = node.getItem();
+    if (pitNode.addEntry(interest, onData ))
+      resolve(interest)
+    else
+      reject(new Error("PIT.insert(interest, onData): interest is duplicate"))
+
   })
 };
 
@@ -18,9 +28,24 @@ PIT.prototype.lookup = function PIT_lookup(data){
   })
 };
 
-PIT.Node = function PIT_Node(interest){
-
+PIT.Node = function PIT_Node(){
+  this._entries = [];
 };
+
+PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
+  var self = this;
+  for (var entry in this._entries)
+    if (entry.interest.getNonce().equals(interest.getNonce()))
+      return false;
+
+  this._entries.push({
+    interest: interest
+    , onData: onData
+    , timeID: setTimeout(function PIT_Node_entry_timeout(){
+      self.timeout(interest);
+    },interest.getInterestLifetimeMilliseconds())
+  });
+}
 
 /**PIT Entry
  *@constructor
