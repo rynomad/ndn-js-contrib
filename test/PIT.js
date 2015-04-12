@@ -82,7 +82,7 @@ describe("PIT", function(){
     })
     it("should resolve with all matching   entries", function(done){
       var name = new ndn.Name("")
-      proms = [];
+      var proms = [];
       for (var i = 0; i < 5; i++)
         proms.push(pit.insert(new ndn.Interest(name.append("comp")), function(){ return Math.random()}))
       Promise.all(proms)
