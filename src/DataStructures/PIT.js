@@ -1,7 +1,7 @@
 
 
-var NameTree = require("./NameTree.js")
-var crypto = require("ndn-js/js/crypto.js")
+var NameTree = require("./NameTree.js");
+var crypto = require("ndn-js/js/crypto.js");
 function PIT(){
   this._nameTree = new NameTree()
 }
@@ -56,8 +56,8 @@ PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
     interest: interest
     , onData: onData
     , timeID: setTimeout(function PIT_Node_entry_timeout(){
-      self.timeout(interest);
-    },interest.getInterestLifetimeMilliseconds())
+        self.timeout(interest);
+      }, interest.getInterestLifetimeMilliseconds())
   });
   return true;
 }
