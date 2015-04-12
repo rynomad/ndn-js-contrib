@@ -51,6 +51,7 @@ PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
       self.timeout(interest);
     },interest.getInterestLifetimeMilliseconds())
   });
+  return true;
 }
 
 /**PIT Entry
