@@ -99,7 +99,13 @@ describe("ContentStore", function(){
     })
 
     it("should resolve for inserted data", function(){
-
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
+      cs.lookup(interest)
+        .then(function(){
+          done();
+        }).catch(function(){
+          assert(false);
+        })
     })
 
     it("should resolve rightMost", function(){
