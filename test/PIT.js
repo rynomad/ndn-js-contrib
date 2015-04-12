@@ -100,8 +100,16 @@ describe("PIT", function(){
         })
       })
 
-    it("should reject if no matching entries", function(done){
-      done()
+    it("should reject if no matching face returning entries", function(done){
+      var data = new ndn.Data(new ndn.Name("no/matches/at/all"), "fail")
+
+      pit.lookup(data)
+         .then(function(res){
+           assert(false, "shouldn't be getting any responses")
+         })
+         .catch(function(){
+           done()
+         });
     })
 
     it("should consume matched entries", function(done){
