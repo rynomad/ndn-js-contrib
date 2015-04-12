@@ -78,6 +78,23 @@ describe("ContentStore", function(){
         cs.insert(dat)
       });
     })
+
+    it("should trigger ContentStore.onMaxPackets if max packets reached", function(done){
+      cs.setKeyChain(null)
+      cs.onMaxPackets = function(){
+        done();
+      }
+
+      cs.setMaxPackets(10);
+      function recurse (count){
+        console.log("count", count)
+        if (count < cs.getMaxPackets())
+        return cs.insert(new ndn.Data(new ndn.Name("test/packet/max" + count), "test"))
+                 .then(recurse)
+      }
+      cs.insert(new ndn.Data(new ndn.Name("test/packet/max"), "test"))
+        .then(recurse)
+    })
   })
 
   describe("lookup(Interest)",function(){
@@ -181,22 +198,28 @@ describe("ContentStore", function(){
     })
 
     it("should resolve for fresh data", function(done){
-      var data = new ndn.Data(new ndn.Name("test/interest/lookup/fresh"), "freshSUCCESS")
+      var data = new ndn.Data(new ndn.Name("test/interest/lookup/fresh/success"), "freshSUCCESS")
+      var dataf = new ndn.Data(new ndn.Name("test/interest/lookup/fresh/fail"), "freshFAIL")
+      dataf.getMetaInfo().setFreshnessPeriod(0);
       data.getMetaInfo().setFreshnessPeriod(5000);
-      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"))
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/fresh"))
       interest.setMustBeFresh(true)
-      cs.insert(data)
+      cs.insert(dataf)
         .then(function(){
-          return cs.lookup(interest)
+          return cs.insert(data)
+        }).then(function(){
+          setTimeout(function(){
+            cs.lookup(interest).then(function(dat){
+              console.log(dat.name.toUri(), data.name.toUri())
+              assert(dat.name.equals(data.name), "return not fresh data")
+              done()
+            }).catch(function(er){
+              console.log(er, er.stack)
+              assert(false);
+            })
+          }, 100)
         })
-        .then(function(dat){
-          console.log(dat.name.toUri(), data.name.toUri())
-          assert(dat.name.equals(data.name), "return not fresh data")
-          done()
-        }).catch(function(er){
-          console.log(er, er.stack)
-          assert(false);
-        })
+
     })
 
     it("should reject for excluded match", function(done){
@@ -261,6 +284,10 @@ describe("ContentStore", function(){
         done()
       })
     })
+  })
+
+  describe(".remove(node)",function(){
+
   })
 
 })
