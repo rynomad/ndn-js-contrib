@@ -69,8 +69,16 @@ describe("PIT", function(){
   })
 
   describe("lookup(data)",function(){
+    var pit = new PIT();
     it("should return a Promise", function(done){
-      done()
+      var data = new ndn.Data(new ndn.Name("test/pit/lookup/data/promise"))
+      pit.lookup(data)
+         .then(function(){
+           done();
+         })
+         .catch(function(){
+           done();
+         })
     })
     it("should resove with all matching   entries", function(done){
       done()
