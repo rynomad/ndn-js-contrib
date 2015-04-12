@@ -140,8 +140,11 @@ describe("PIT", function(){
     it("should clear timeouts on matched entries", function(done){
       var name = new ndn.Name("test/clear/timeout")
       var interest = new ndn.Interest(name)
-      global.clearTimeout = function(){
+      var saveClearTimeout = global.clearTimeout
+      global.clearTimeout = function(id){
         done()
+        global.clearTimeout = saveClearTimeout;
+        clearTimeout(id);
       }
       var data = new ndn.Data(name, "test")
       interest.setInterestLifetimeMilliseconds(10000)
