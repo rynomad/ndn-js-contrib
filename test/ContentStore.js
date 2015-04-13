@@ -110,7 +110,6 @@ describe("ContentStore", function(){
 
       cs.setMaxPackets(10);
       function recurse (count){
-        console.log("maxPacket, currentPacket", cs._packetCount, cs.getMaxPackets(), cs._packetCount < cs.getMaxPackets())
         if (cs._packetCount < cs.getMaxPackets())
           return cs.insert(new ndn.Data(new ndn.Name("test/packet/max/" + cs._packetCount), "test"))
                    .then(recurse)

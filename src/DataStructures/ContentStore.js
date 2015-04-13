@@ -53,7 +53,10 @@ ContentStore.Entry.prototype.getNameWithDigest = function ContentStore_Entry_get
 };
 
 ContentStore.Entry.prototype.getData = function ContentStore_Entry_getData(){
-  return this._data;
+  var self = this;
+  return new Promise(function ContentStore_Entry_getData_Promise(resolve, reject){
+    resolve(self._data);
+  })
 };
 
 ContentStore.Entry.prototype.onDataStale = function ContentStore_Entry_onDataStale (){
@@ -65,6 +68,10 @@ ContentStore.Entry.prototype.makeStale = function ContentStore_Entry_makeStale(c
   this._stale = true;
   this.onDataStale(cs);
 };
+
+ContentStore.Entry.prototype.getStale = function ContentStore_Entry_getStale(){
+  return this._stale;
+}
 
 ContentStore.prototype.setMaxPackets = function ContentStore_setMaxPackets(int){
   this._maxPackets = int;
@@ -95,9 +102,11 @@ ContentStore.prototype.lookup = function(interest){
     for (var node of self._nameTree){
       var item = node.getItem();
       if (item !== undefined){
-        var data = item.getData();
-        if(interest.matchesName(data.name) && !(interest.getMustBeFresh() && item._stale))
-            return resolve(data);
+
+        if(interest.matchesName(item.getNameWithDigest()) && !(interest.getMustBeFresh() && item.getStale()))
+          return item.getData()
+                     .then(resolve)
+                     .catch(reject);
       }
     }
 
