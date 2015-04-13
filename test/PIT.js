@@ -170,7 +170,6 @@ describe("PIT", function(){
          });
     })
 
-    it("should ")
 
     it("should clear timeouts on matched entries", function(done){
       var name = new ndn.Name("test/clear/timeout")
