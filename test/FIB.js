@@ -5,7 +5,20 @@ var ndn = require("ndn-js");
 
 describe("FIB", function(){
   describe("Entry",function(){
+    var fibEntry = new FIB.Entry();
+    var face = new ndn.Face();
     describe("addNextHop(face)",function(){
+      it("should return true for new face", function(){
+        assert(fibEntry.addNextHop(face));
+      })
+
+      it("should return false adding the same face again", function(){
+        assert(!fibEntry.addNextHop(face));
+      })
+
+      it("should actually only have one entry for that face", function(){
+        assert(fibEntry._nextHops.length === 1);
+      })
 
     })
     describe("getNextHops()",function(){
