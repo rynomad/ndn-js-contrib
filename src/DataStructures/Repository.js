@@ -48,19 +48,19 @@ Repository.Entry.prototype.getData = function Repository_Entry_getData(){
 Repository.Entry.prototype.setData = function Repository_Entry_setData(){
   return new Promise(function Repository_Entry_removeData_Promise(resolve, reject){
     reject();
-  })
-}
+  });
+};
 
 Repository.prototype.createNode = function Repository_createNode(){
   return new Promise(function Repository_createNode_Promsie(resolve,reject){
     reject();
-  })
-}
+  });
+};
 
 Repository.prototype.insert = function Repository_insert(data){
   return new Promise(function Repository_insert_Promise(resolve,reject){
     reject();
-  })
+  });
 };
 
 Repository.prototype.remove = function Repository_remove(entry){
