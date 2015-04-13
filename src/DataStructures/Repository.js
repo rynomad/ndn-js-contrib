@@ -42,7 +42,7 @@ Repository.Entry = function Repository_Entry(data){
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
   return new Promise(function Repository_Entry_getData_Promise(resolve, reject){
     reject();
-  })
+  });
 };
 
 Repository.Entry.prototype.setData = function Repository_Entry_setData(){
