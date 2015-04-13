@@ -1,6 +1,44 @@
-var binarySearch = require("./../Utility/binarySearch.js")
-  , ndn
-  ,debug = {}; debug.debug= require("debug")("FIB");
+var NameTree = require("./NameTree.js");
+
+function FIB (){
+  this._nameTree = new NameTree();
+}
+
+FIB.prototype.insert = function FIB_insert(prefix, face){
+  return new Promise(function FIB_insert_Promise){
+    reject();
+  });
+};
+
+FIB.prototype.lookup = function FIB_lookup(interest, face){
+  return new Promise(function FIB_lookup_Promise(resolve, reject){
+    reject()
+  });
+};
+
+FIB.Entry = function FIB_Node(){
+  this._nextHops = [];
+};
+
+FIB.Entry.prototype.getNextHops = functiopn FIB_Entry_getNextHops(){
+  return this._nextHops;
+};
+
+FIB.Entry.prototype.addNextHop = function FIB_Entry_addNextHop(face){
+  this.removeFace(face);
+  this._nextHops.push({
+    face: face
+    , measurements: {}
+  });
+}
+
+FIB.Entry.prototype.removeFace = function FIB_Entry_removeFace(face){
+  for (var i in this._nextHops)
+    if this._nextHops[i].face === face){
+      this._nextHops.splice(i,1);
+      break;
+    }
+}
 
 /**A Forwarding Entry
  *@constructor
