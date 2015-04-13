@@ -273,11 +273,11 @@ NameTree.Node.prototype.equals   = function NameTree_Node_equals (node){
 
 NameTree.Node.prototype.getItem  = function NameTree_Node_getItem (){
   return this.item;
-}
+};
 
 NameTree.Node.prototype.setItem  = function NameTree_Node_setItem (item){
   this.item = item;
-}
+};
 
 NameTree.Node.prototype.indexOf  = function NameTree_Node_indexOf (suffix){
   var min = 0
@@ -344,11 +344,11 @@ NameTree.Node.prototype.remove = function NameTree_Node_remove (suffix){
   var childIndex = this.indexOf(suffix)
     , node;
 
-  if (childIndex < 0){
+  if (childIndex < 0)
     node = null;
-  } else {
+  else
     node = this.children.splice(childIndex, 1)[0];
-  }
+  
 
   this.updateDepth();
 
