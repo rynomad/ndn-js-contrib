@@ -13,8 +13,10 @@ FIB.prototype.insert = function FIB_insert(prefix, face){
       node.setItem(new FIB.Entry())
 
     var fibEntry = node.getItem();
-    fibEntry.addNextHop(face);
-    resolve();
+    if (fibEntry.addNextHop(face))
+      resolve(face);
+    else
+      reject(new Error("FIB.insert(prefix, face): duplicate prefix and face combination"));
   });
 };
 
@@ -33,16 +35,21 @@ FIB.Entry.prototype.getNextHops = functiopn FIB_Entry_getNextHops(){
 };
 
 FIB.Entry.prototype.addNextHop = function FIB_Entry_addNextHop(face){
-  this.removeFace(face);
+  for (var i in this._nextHops)
+    if (this._nextHops[i].face === face)
+      return false;
+
   this._nextHops.push({
     face: face
     , measurements: {}
   });
+
+  return true;
 }
 
 FIB.Entry.prototype.removeFace = function FIB_Entry_removeFace(face){
   for (var i in this._nextHops)
-    if this._nextHops[i].face === face){
+    if (this._nextHops[i].face === face){
       this._nextHops.splice(i,1);
       break;
     }
