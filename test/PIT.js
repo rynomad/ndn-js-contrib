@@ -86,7 +86,7 @@ describe("PIT", function(){
     })
   })
 
-  describe("lookup(data)",function(){
+  describe("lookup(data, face)",function(){
     var pit = new PIT();
     it("should return a Promise", function(done){
       var data = new ndn.Data(new ndn.Name("test/pit/lookup/data/promise"))
@@ -156,7 +156,15 @@ describe("PIT", function(){
     })
 
     it("should execute onData(data, face)", function(done){
-      done()
+      var inst = new ndn.Interest(new ndn.Name("test/onData/callback"))
+      inst.setInterestLifetimeMilliseconds(1000)
+      function onData (data, face){
+        done()
+      }
+      pit.insert(inst, onData)
+         .then(function(interest){
+           return pit.lookup(new ndn.Data(new ndn.Name("test/onData/callback"), "SUCCESS"));
+         });
     })
 
     it("should clear timeouts on matched entries", function(done){
