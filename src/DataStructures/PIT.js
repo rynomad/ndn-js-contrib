@@ -22,7 +22,7 @@ PIT.prototype.insert = function PIT_insert(interest, onData){
   });
 };
 
-PIT.prototype.lookup = function PIT_lookup(data){
+PIT.prototype.lookup = function PIT_lookup(data, face){
   var self = this;
   return new Promise(function PIT_lookup_Promise(resolve,reject){
     var nameWithDigest = data.name.getPrefix(data.name.size())
@@ -49,7 +49,7 @@ PIT.prototype.lookup = function PIT_lookup(data){
           var ent = pitNode._entries.splice(entry, 1)[0];
           clearTimeout(ent.timeID);
 
-          var inface = ent.onData(data);
+          var inface = ent.onData(data, face);
 
           if (inface){
             var dup = false;
@@ -81,7 +81,7 @@ PIT.Node = function PIT_Node(){
 
 PIT.Node.prototype.timeout = function PIT_Node_timeout(interest){
   for (var index in this._entries)
-    if (this._entries[index].interest.getNonce().equals(interest.getNonce()))
+    if (this._entries[index].interest === interest)
       return this._entries.splice(index, 1);
 }
 
@@ -95,7 +95,8 @@ PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
     interest: interest
     , onData: onData
     , timeID: setTimeout(function PIT_Node_entry_timeout(){
-        self.timeout(interest);
+      console.log(self.timeout(interest)[0])
+        //self.timeout(interest)[0].onData(interest, null);
       }, interest.getInterestLifetimeMilliseconds())
   });
   return true;
