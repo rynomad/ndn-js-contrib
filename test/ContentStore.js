@@ -112,20 +112,36 @@ describe("ContentStore", function(){
           cs.removeNode(node);
           var interest = new ndn.Interest(new ndn.Name("a"));
           interest.setMustBeFresh(false);
-          cs.lookup(interest)
-            .then(function(data){
-              assert(false, "should have no data")
-            })
-            .catch(function(er){
-              done();
-            })
+          return cs.lookup(interest)
+
+        })
+        .then(function(data){
+          assert(false, "should have no data")
+        })
+        .catch(function(er){
+          done();
         });
 
 
     })
 
-    it('should decrement the packetCount', function(){
+    it('should decrement the packetCount', function(done){
 
+      var cs = new ContentStore();
+      assert(cs._packetCount === 0, "initial packetCount nonzero: " + cs._packetCount)
+      cs.insert(data)
+        .then(function(){
+          assert(cs._packetCount === 1, "packetCount not incremented" + cs._packetCount)
+          return cs.createNode(data, cs);
+        })
+        .then(function(node){
+          cs.removeNode(node)
+          assert(cs._packetCount === 0, "packetCount not decrimented" + cs._packetCount)
+          done()
+        }).catch(function(er){
+          console.log(er)
+          throw er
+        })
     })
   })
 
