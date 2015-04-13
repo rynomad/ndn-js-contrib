@@ -79,7 +79,7 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
     var proms = []
     self.db.createKeyStream()
         .on("data",function(key){
-          proms.push(self.createNode(key)
+          proms.push(self.createNode({name:new Name(key)}})
                          .then(function(node){
                            return self._contentStore._nameTree.insert(node);
                          }));
