@@ -164,8 +164,13 @@ describe("PIT", function(){
       pit.insert(inst, onData)
          .then(function(interest){
            return pit.lookup(new ndn.Data(new ndn.Name("test/onData/callback"), "SUCCESS"));
+         })
+         .then(function(results){
+           assert(false)
          });
     })
+
+    it("should ")
 
     it("should clear timeouts on matched entries", function(done){
       var name = new ndn.Name("test/clear/timeout")
