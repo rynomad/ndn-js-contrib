@@ -58,7 +58,7 @@ FIB.Entry = function FIB_Entry(){
   this._nextHops = [];
 };
 
-FIB.Entry.prototype.getNextHops = functiopn FIB_Entry_getNextHops(){
+FIB.Entry.prototype.getNextHops = function FIB_Entry_getNextHops(){
   return this._nextHops;
 };
 
