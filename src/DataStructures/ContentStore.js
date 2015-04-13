@@ -110,7 +110,7 @@ ContentStore.prototype.lookup = function(interest){
       }
     }
 
-    return reject(interest);
+    return reject(null);
   })
 };
 
