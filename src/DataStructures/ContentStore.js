@@ -40,7 +40,7 @@ ContentStore.Entry = function ContentStore_Entry(data, cs){
 
 ContentStore.Entry.prototype.getNameWithDigest = function ContentStore_Entry_getNameWithDigest(){
   if (!this._nameWithDigest){
-    this._nameWithDigest = new Name(this.getData().name)
+    this._nameWithDigest = new Name(this._data.name)
     this._nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
                                                         .update(this.getData()
                                                                   .wireEncode()
