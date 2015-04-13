@@ -29,7 +29,7 @@ FIB.prototype.lookup = function FIB_lookup(interest, face){
       var fibEntry = node.getItem();
       return (!fibEntry
           || (fibEntry.getNextHops().length === 0)
-          || ((fibEntry.getNextHops().length === 1) && (fibEntry.getNextHops[0].face === face)));
+          || ((fibEntry.getNextHops().length === 1) && (fibEntry.getNextHops()[0].face === face)));
     });
 
     var results = [];

@@ -52,7 +52,7 @@ describe("FIB", function(){
          })
     })
 
-    it("should resolve with all matches", function(){
+    it("should resolve with all matches", function(done){
       fib.insert(new ndn.Name("test/insert/f1"), f1)
          .then(function(){
            return fib.insert(new ndn.Name("test/insert/f1/f2"), f2)
@@ -62,14 +62,17 @@ describe("FIB", function(){
            return fib.lookup(new ndn.Interest(new ndn.Name("test/insert/f1/f2/f3/term")))
          }).then(function(results){
            assert(results.length === 3)
-           assert(results[0].face === f1)
+           console.log(results)
+           assert(results[0].face === f3, "results[0].face === " + results[0].face)
            assert(results[1].face === f2)
-           assert(results[2].face === f3)
+           assert(results[2].face === f1)
            done()
+         }).catch(function(er){
+           console.log(er, er.stack)
          })
     })
 
-    it("should resolve with de-duplicated nexthops", function(){
+    it("should resolve with de-duplicated nexthops", function(done){
       var proms = [], name = new ndn.Name("comp")
       for (var i = 0; i < 5; i++)
         proms.push(fib.insert(name.append("dup")), f1)
