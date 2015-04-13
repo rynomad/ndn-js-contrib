@@ -15,7 +15,9 @@ PIT.prototype.insert = function PIT_insert(interest, onData){
       nameTreeNode.setItem(new PIT.Node())
 
     var pitNode = nameTreeNode.getItem();
-    if (pitNode.addEntry(interest, onData ))
+    var result = pitNode.addEntry(interest, onData )
+    console.log(result)
+    if (result)
       resolve(interest)
     else
       reject(new Error("PIT.insert(interest, onData): interest is duplicate"));
