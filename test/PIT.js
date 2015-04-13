@@ -150,7 +150,7 @@ describe("PIT", function(){
       interest.setInterestLifetimeMilliseconds(10000)
       pit.insert(interest, function(){})
          .then(function(){
-           pit.lookup(data)
+           return pit.lookup(data)
          }).catch(function(er){
            assert(false)
          })
