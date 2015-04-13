@@ -21,8 +21,36 @@ FIB.prototype.insert = function FIB_insert(prefix, face){
 };
 
 FIB.prototype.lookup = function FIB_lookup(interest, face){
+  var self = this;
   return new Promise(function FIB_lookup_Promise(resolve, reject){
-    reject()
+    self._nameTree.up(interest.name);
+
+    self._nameTree.skip(function(node){
+      var fibEntry = node.getItem();
+      return (!fibEntry
+          || (fibEntry.getNextHops().length === 0)
+          || ((fibEntry.getNextHops().length === 1) && (fibEntry.getNextHops[0].face === face)));
+    });
+
+    var results = [];
+
+    for (var node of self._nameTree){
+      var nexthops = node.getItem().getNextHops();
+      for (var i in nexthops){
+        var dup = false;
+        for (var j in results)
+          if (nexthops[i].face === results[j].face){
+            dup = true;
+            break;
+          }
+        if (!dup && (nexthops[i].face !== face))
+          results.push(nexthops[i]);
+      }
+    }
+    if (results.length)
+      resolve(results);
+    else
+      reject(new Error("FIB.lookup(interest, face): no valid nexthops for that interest"));
   });
 };
 
