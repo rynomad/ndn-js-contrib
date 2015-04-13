@@ -5,8 +5,16 @@ function FIB (){
 }
 
 FIB.prototype.insert = function FIB_insert(prefix, face){
-  return new Promise(function FIB_insert_Promise){
-    reject();
+  var self = this;
+  return new Promise(function FIB_insert_Promise(resolve,reject){
+    var node = self._nameTree.get(prefix);
+
+    if (!node.getItem())
+      node.setItem(new FIB.Entry())
+
+    var fibEntry = node.getItem();
+    fibEntry.addNextHop(face);
+    resolve();
   });
 };
 
@@ -16,7 +24,7 @@ FIB.prototype.lookup = function FIB_lookup(interest, face){
   });
 };
 
-FIB.Entry = function FIB_Node(){
+FIB.Entry = function FIB_Entry(){
   this._nextHops = [];
 };
 
