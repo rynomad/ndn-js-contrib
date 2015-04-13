@@ -68,6 +68,21 @@ describe("FIB", function(){
            done()
          })
     })
+
+    it("should resolve with de-duplicated nexthops", function(){
+      var proms = [], name = new ndn.Name("comp")
+      for (var i = 0; i < 5; i++)
+        proms.push(fib.insert(name.append("dup")), f1)
+
+      Promise.all(proms)
+             .then(function(res){
+               return fib.lookup(new ndn.Interest(name), f2)
+             })
+             .then(function(res){
+               assert(res.length === 1)
+               done()
+             })
+    })
   })
 
 })
