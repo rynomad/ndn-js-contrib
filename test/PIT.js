@@ -25,7 +25,7 @@ describe("PIT", function(){
     it("should resolve with interest", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
       interest.setInterestLifetimeMilliseconds(1000);
-      pit.insert(interest)
+      pit.insert(interest, function(){})
          .then(function(intd){
            assert(interest.name.equals(intd.name))
            done()
@@ -57,7 +57,7 @@ describe("PIT", function(){
       interest.setNonce([1,2,3,4])
       this.timeout(600);
       interest.setInterestLifetimeMilliseconds(500);
-      pit.insert(interest)
+      pit.insert(interest, function(){})
          .then(function(intd){
            assert(pit._nameTree.get(intd.name).getItem()._entries.length === 1);
            setTimeout(function(){

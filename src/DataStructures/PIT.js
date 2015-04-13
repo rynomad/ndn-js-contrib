@@ -86,6 +86,9 @@ PIT.Node.prototype.timeout = function PIT_Node_timeout(interest){
 }
 
 PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
+  if (!onData || typeof onData !== "function")
+    throw new Error("PIT.Node.addEntry(interest, onData) : missing required argument function onData(data, face)")
+
   var self = this;
   for (var entry of this._entries)
     if (entry.interest.getNonce().equals(interest.getNonce()))
@@ -95,8 +98,7 @@ PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
     interest: interest
     , onData: onData
     , timeID: setTimeout(function PIT_Node_entry_timeout(){
-      console.log(self.timeout(interest)[0])
-        //self.timeout(interest)[0].onData(interest, null);
+        self.timeout(interest)[0].onData(interest, null);
       }, interest.getInterestLifetimeMilliseconds())
   });
   return true;
