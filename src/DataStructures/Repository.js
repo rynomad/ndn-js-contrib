@@ -6,8 +6,13 @@
  */
 
 var leveldown = require("leveldown"),
-    levelup = require("levelup");
+    levelup = require("levelup")
+  , Name   = require("ndn-js/js/name.js")
+  , NameTree = require("./NameTree.js")
+  , ContentStore = require("./ContentStore.js")
+  , crypto = require("ndn-js/js/crypto.js");
 var debug = true;
+
 
 /**NDN Repository
  *@constructor
@@ -37,19 +42,36 @@ function Repository (path){
 
 Repository.Entry = function Repository_Entry(data, repository){
   var self = this;
+  this._repository = repository;
 
 
   return new Promise(function Repository_createNode_Promsie(resolve,reject){
-    if (!data.content)                        // this is a dataShim from populateContentStoreNodes, name should already have a digest
-      if (!data.name.getContentDigestValue()) //check anyway
-        reject(new Error("new Repository.Entry(data, contentStore)"))
-
-    resolve(new NameTree.Node(Repository_getNameWithDigest(data.name), self));
+    if (!data.content){                       // this is a dataShim from populateContentStoreNodes, name should
+      if (!data.name.getContentDigestValue()) // already have a digest, but check anyway...
+        reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name"))
+      resolve(new NameTree.Node(data.name, self));
+    } else {                                  // we're actually inserting new data
+      var nameWithDigest = Repository_getNameWithDigest(data);
+      self._repository
+          .db
+          .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
+            if (err)
+              reject(err);
+            else
+              resolve(new NameTree.Node(data.name, self));
+          });
+    }
   });
 };
 
-function Repository_getNameWithDigest(){
-  if this.
+function Repository_getNameWithDigest(data){
+  var name = new Name(data.name)
+  name.append("sha256digest=" + crypto.createHash('sha256')
+                                      .update(this._data
+                                                  .wireEncode()
+                                                  .buffer)
+                                      .digest()
+                                      .toString('hex'));
 }
 
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
