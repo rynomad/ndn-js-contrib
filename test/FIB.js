@@ -22,11 +22,17 @@ describe("FIB", function(){
 
     })
     describe("getNextHops()",function(){
-
+      it("should return all next hops",function(){
+        fibEntry.addNextHop(new ndn.Face())
+        assert(fibEntry.getNextHops().length === 2)
+      })
     })
 
     describe("removeFace(face)",function(){
-
+      it("should remove face",function(){
+        fibEntry.removeFace(face)
+        assert(fibEntry.getNextHops().length === 1)
+      })
     });
   });
 
