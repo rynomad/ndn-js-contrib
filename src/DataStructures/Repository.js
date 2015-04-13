@@ -35,7 +35,7 @@ function Repository (path){
 
 
 
-Repository.Entry = function Repository_Entry(data){
+Repository.Entry = function Repository_Entry(data, repository){
   var self = this;
 
 
