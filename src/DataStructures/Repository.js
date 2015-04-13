@@ -18,7 +18,7 @@ var debug = true;
 function Repository (path){
   this._dataPath = path;
   this._indexPath = path + "/.index"
-  this._nameTree = new NameTree()
+  this._contentStore = new ContentStore()
 }
 
 Repository.Entry = function Repository_Entry(data){
@@ -30,7 +30,7 @@ Repository.Entry.prototype.getData = function Repository_Entry_getData(){
 };
 
 Repository.prototype.createNode = function Repository_createNode(){
-  
+
 }
 
 /** Install the NDN-lib Object
