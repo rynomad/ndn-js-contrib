@@ -292,11 +292,10 @@ NameTree.Node.prototype.indexOf  = function NameTree_Node_indexOf (suffix){
     } else {
       comparison = this.children[guess].prefix.get(-1).compare(suffix);
 
-      if (comparison < 0) {
+      if (comparison < 0)
         min = ++guess;
-      } else {
+      else
         max = --guess;
-      }
     }
   }
 
@@ -348,7 +347,6 @@ NameTree.Node.prototype.remove = function NameTree_Node_remove (suffix){
     node = null;
   else
     node = this.children.splice(childIndex, 1)[0];
-  
 
   this.updateDepth();
 
@@ -365,7 +363,6 @@ NameTree.Node.prototype.isEmpty = function NameTree_Node_isEmpty (){
 };
 
 NameTree.Node.prototype._traversal_direction = NameTree.TRAVERSE_LEFT;
-
 
 function Child_Iterator (node, direction, skip){
   this.direction = direction;
