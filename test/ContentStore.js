@@ -69,8 +69,8 @@ describe("ContentStore", function(){
     it("should mark as stale after freshnessMilliseconds", function(done){
       var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
       dat.getMetaInfo().setFreshnessPeriod(500)
-      ContentStore.Node.prototype.onDataStale = function(){
-        ContentStore.Node.prototype.onDataStale = function(){}
+      ContentStore.Entry.prototype.onDataStale = function(){
+        ContentStore.Entry.prototype.onDataStale = function(){}
         done();
       }
       keyChain.sign(dat, certificateName, function (){

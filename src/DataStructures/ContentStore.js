@@ -15,7 +15,7 @@ var ContentStore = function ContentStore(){
   this._maxPackets = Infinity;
   this._packetCount = 0;
   this._stales = [];
-  this._nodeClass = ContentStore.Node;
+  this._EntryClass = ContentStore.Entry;
 };
 
 ContentStore.prototype.setKeyChain = function ContentStore_setKeyChain(keyChain){
@@ -30,7 +30,7 @@ ContentStore.prototype.onMaxPackets = function ContentStore_onMaxPackets(){
 
 };
 
-ContentStore.Node = function ContentStore_Node(data, cs){
+ContentStore.Entry = function ContentStore_Entry(data, cs){
   this._data = data;
   this._stale = false;
   this.cs = cs;
@@ -43,7 +43,7 @@ ContentStore.Node = function ContentStore_Node(data, cs){
 
 
 
-ContentStore.Node.prototype.getNameWithDigest = function ContentStore_Node_getNameWithDigest(){
+ContentStore.Entry.prototype.getNameWithDigest = function ContentStore_Entry_getNameWithDigest(){
   if (!this._nameWithDigest){
     this._nameWithDigest = new Name(this.getData().name)
     this._nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
@@ -57,15 +57,16 @@ ContentStore.Node.prototype.getNameWithDigest = function ContentStore_Node_getNa
   return this._nameWithDigest;
 };
 
-ContentStore.Node.prototype.getData = function ContentStore_Node_getData(){
+ContentStore.Entry.prototype.getData = function ContentStore_Entry_getData(){
   return this._data;
 };
 
-ContentStore.Node.prototype.onDataStale = function ContentStore_Node_onDataStale (){
+ContentStore.Entry.prototype.onDataStale = function ContentStore_Entry_onDataStale (){
 
-}
+};
 
-ContentStore.Node.prototype.makeStale = function ContentStore_Node_makeStale(cs){
+
+ContentStore.Entry.prototype.makeStale = function ContentStore_Entry_makeStale(cs){
   this.stale = true;
   this.onDataStale();
 };
@@ -109,12 +110,12 @@ ContentStore.prototype.lookup = function(interest){
   })
 };
 
-ContentStore.prototype.setNodeClass = function(clas){
-  this._nodeClass = clas;
+ContentStore.prototype.setEntryClass = function(clas){
+  this._EntryClass = clas;
 }
 
 ContentStore.prototype.createNode = function ContentStore_createNode(data){
-  return new this._nodeClass(data, this);
+  return new this._EntryClass(data, this);
 }
 
 /**Insert a new entry into the contentStore
