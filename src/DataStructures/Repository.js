@@ -51,9 +51,9 @@ Repository.Entry.prototype.setData = function Repository_Entry_setData(){
   });
 };
 
-Repository.prototype.createNode = function Repository_createNode(){
+Repository.prototype.createNode = function Repository_createNode(name){
   return new Promise(function Repository_createNode_Promsie(resolve,reject){
-    reject();
+    resolve(new NameTree.Node(new Name(name), name));
   });
 };
 
@@ -76,8 +76,19 @@ Repository.prototype.lookup = function Repository_lookup(interest){
 };
 
 Repository.prototype.populateContentStoreNodes = function Repository_populateContentStoreNodes(){
+  var self = this;
   return new Promise(function Repository_populateContentStoreNodes_Promise(resolve,reject){
-    reject();
+    self.db.createKeyStream()
+        .on("data",function(key){
+          self.createNode(new Name(key))insert(null, new ndn.Data(new ndn.Name(key)));
+        })
+        .on("error", function(err){
+          reject(err);
+        })
+        .on("close", function(){
+          self.spun = true;
+          callback();
+        });
   });
 };
 
@@ -131,17 +142,7 @@ Repository.prototype.populateNameTree = function(callback){
   var self = this
     , db = self.db;
 
-  db.createKeyStream()
-    .on("data",function(key){
-      self.index.insert(null, new ndn.Data(new ndn.Name(key)));
-    })
-    .on("error", function(err){
-      callback(err);
-    })
-    .on("close", function(){
-      self.spun = true;
-      callback();
-    });
+
 };
 
 /**Check the Repository for data matching an interest
