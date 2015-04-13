@@ -143,30 +143,5 @@ Repository.prototype.insert = function(element, data, callback){
   return this;
 };
 
-/**Populate the index with keys from the db, called once on startup
- *@private
- *@param {function} callback called with err if one occurs
- */
-Repository.prototype.populateNameTree = function(callback){
-  var self = this
-    , db = self.db;
-
-
-};
-
-/**Check the Repository for data matching an interest
- *@param {Object} interest and NDN.Interest object
- *@param {function} callback recieves (err, element) err is null if everything is OK, element is a Buffer with the raw data packet
- *@returns {this} for chaining
- */
-Repository.prototype.check = function(interest, callback, db) {
-  db = db || this;
-  if (!db.spun){
-    setTimeout(db.check, 200, interest, callback, db);
-  } else {
-    db.index.check(interest, callback);
-  }
-  return this;
-};
 
 module.exports = Repository;
