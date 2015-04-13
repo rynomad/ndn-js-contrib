@@ -36,11 +36,21 @@ function Repository (path){
 
 
 Repository.Entry = function Repository_Entry(data){
+  var self = this;
+
 
   return new Promise(function Repository_createNode_Promsie(resolve,reject){
-    resolve(new NameTree.Node(data.name, new Repository.Entry(data.name.toUri()));
+    if (!data.content)                        // this is a dataShim from populateContentStoreNodes, name should already have a digest
+      if (!data.name.getContentDigestValue()) //check anyway
+        reject(new Error("new Repository.Entry(data, contentStore)"))
+
+    resolve(new NameTree.Node(Repository_getNameWithDigest(data.name), self));
   });
 };
+
+function Repository_getNameWithDigest(){
+  if this.
+}
 
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
   var self = this;
@@ -55,8 +65,8 @@ Repository.Entry.prototype.setData = function Repository_Entry_setData(){
   });
 };
 
-Repository.prototype.createNode = function Repository_createNode(data, contentStore){
-  return this._contentStore.createNode(data, contentStore);
+Repository.prototype.createNode = function Repository_createNode(data, repository){
+  return this._contentStore.createNode(data, repository);
 };
 
 Repository.prototype.insert = function Repository_insert(data){
