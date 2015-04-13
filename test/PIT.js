@@ -11,9 +11,10 @@ describe("PIT", function(){
 
   describe("insert(interest, onData)",function(){
     var pit = new PIT()
+     ,  onD = function(){};
     it("should return a Promise", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/promise"));
-      pit.insert(interest)
+      pit.insert(interest, onD)
          .then(function(){
            done()
          })
@@ -25,7 +26,7 @@ describe("PIT", function(){
     it("should resolve with interest", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
       interest.setInterestLifetimeMilliseconds(1000);
-      pit.insert(interest, function(){})
+      pit.insert(interest, onD)
          .then(function(intd){
            assert(interest.name.equals(intd.name))
            done()
@@ -39,10 +40,10 @@ describe("PIT", function(){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/duplicate"));
       interest.setNonce([1,2,3,4])
       interest.setInterestLifetimeMilliseconds(1000);
-      pit.insert(interest)
+      pit.insert(interest, onD)
          .then(function(intd){
            assert(interest.name.equals(intd.name))
-           return pit.insert(interest)
+           return pit.insert(interest, onD)
          })
          .then(function(interest){
            assert(false, "this should have rejected")
@@ -52,12 +53,16 @@ describe("PIT", function(){
          })
     })
 
+    it("should reject if typeof onData !== function",function(done){
+      done();
+    })
+
     it("should autoremove after timeout", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/timeout"));
       interest.setNonce([1,2,3,4])
       this.timeout(600);
       interest.setInterestLifetimeMilliseconds(500);
-      pit.insert(interest, function(){})
+      pit.insert(interest, onD)
          .then(function(intd){
            assert(pit._nameTree.get(intd.name).getItem()._entries.length === 1);
            setTimeout(function(){
@@ -135,6 +140,10 @@ describe("PIT", function(){
         .catch(function(){
           done()
         })
+    })
+
+    it("should execute onData(data, face)", function(done){
+      done()
     })
 
     it("should clear timeouts on matched entries", function(done){
