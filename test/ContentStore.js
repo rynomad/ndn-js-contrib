@@ -70,6 +70,7 @@ describe("ContentStore", function(){
       var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
       dat.getMetaInfo().setFreshnessPeriod(500)
       ContentStore.Entry.prototype.onDataStale = function(){
+        console.log("data stale",this)
         ContentStore.Entry.prototype.onDataStale = function(){}
         done();
       }
