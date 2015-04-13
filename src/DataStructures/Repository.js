@@ -33,7 +33,7 @@ function Repository (path){
   });
 }
 
-Repository.prototype.populateContentStoreNodes = function Repository()
+
 
 Repository.Entry = function Repository_Entry(data){
 
@@ -66,14 +66,20 @@ Repository.prototype.insert = function Repository_insert(data){
 Repository.prototype.remove = function Repository_remove(entry){
   return new Promise(function Repository_remove_Promise(resolve,reject){
     reject();
-  })
-}
+  });
+};
 
 Repository.prototype.lookup = function Repository_lookup(interest){
   return new Promise(function Repository_lookup_Promise(resolve,reject){
     reject();
-  })
-}
+  });
+};
+
+Repository.prototype.populateContentStoreNodes = function Repository_populateContentStoreNodes(){
+  return new Promise(function Repository_populateContentStoreNodes_Promise(resolve,reject){
+    reject();
+  });
+};
 
 
 /**get an element from a {RepoEntry}
