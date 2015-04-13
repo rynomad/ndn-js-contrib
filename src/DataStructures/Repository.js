@@ -16,30 +16,63 @@ var debug = true;
  *@returns {Repository}
  */
 function Repository (path){
+  var self = this;
   this._dataPath = path;
-  this._indexPath = path + "/.index"
-  this._contentStore = new ContentStore()
+  this._indexPath = path + "/.index";
+  this._contentStore = new ContentStore();
+  this._contentStore.setEntryClass(Repository.Entry);
+
+  return new Promise(function Repository_Constructor_Promise(resolve,reject){
+    self._dataDB  = levelup( self._dataPath
+                           , {db:leveldown, valueEncoding: "json"}
+                           , function Repository_Contstructor_Promise_levelup(){
+                               self.populateContentStoreNodes()
+                                   .then(resolve)
+                                   .catch(reject);
+                           });
+  });
 }
 
 Repository.Entry = function Repository_Entry(data){
-  this.data = data;
+
 };
 
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
-
+  return new Promise(function Repository_Entry_getData_Promise(resolve, reject){
+    reject();
+  })
 };
 
-Repository.prototype.createNode = function Repository_createNode(){
-
+Repository.Entry.prototype.setData = function Repository_Entry_setData(){
+  return new Promise(function Repository_Entry_removeData_Promise(resolve, reject){
+    reject();
+  })
 }
 
-/** Install the NDN-lib Object
- *@param {Object} NDN NDN-lib as object
- */
-Repository.installNDN = function(NDN){
-  ndn = NDN;
-  return this;
+Repository.prototype.createNode = function Repository_createNode(){
+  return new Promise(function Repository_createNode_Promsie(resolve,reject){
+    reject();
+  })
+}
+
+Repository.prototype.insert = function Repository_insert(data){
+  return new Promise(function Repository_insert_Promise(resolve,reject){
+    reject();
+  })
 };
+
+Repository.prototype.remove = function Repository_remove(entry){
+  return new Promise(function Repository_remove_Promise(resolve,reject){
+    reject();
+  })
+}
+
+Repository.prototype.lookup = function Repository_lookup(interest){
+  return new Promise(function Repository_lookup_Promise(resolve,reject){
+    reject();
+  })
+}
+
 
 /**get an element from a {RepoEntry}
  *@param {RepoEntry} repoEntry the entry for the desired element
@@ -89,7 +122,6 @@ Repository.prototype.insert = function(element, data, callback){
 Repository.prototype.populateNameTree = function(callback){
   var self = this
     , db = self.db;
-  callback = callback || function(){return;};
 
   db.createKeyStream()
     .on("data",function(key){
