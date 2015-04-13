@@ -116,8 +116,8 @@ ContentStore.prototype.setEntryClass = function(clas){
   this._EntryClass = clas;
 }
 
-ContentStore.prototype.createNode = function ContentStore_createNode(data){
-  return new this._EntryClass(data, this);
+ContentStore.prototype.createNode = function ContentStore_createNode(data, store){
+  return new this._EntryClass(data, store);
 }
 
 /**Insert a new entry into the contentStore
@@ -129,7 +129,7 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data){
 ContentStore.prototype.insert = function ContentStore_insert(data){
   var self = this;
   return new Promise(function ContentStore_insert_Promise (resolve, reject){
-    self.createNode(data)
+    self.createNode(data, self)
         .then(function ContentStore_nameTree_insert(node){
           self._nameTree.insert(node);
 
