@@ -42,9 +42,9 @@ ContentStore.Entry.prototype.getNameWithDigest = function ContentStore_Entry_get
   if (!this._nameWithDigest){
     this._nameWithDigest = new Name(this._data.name)
     this._nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
-                                                        .update(this.getData()
-                                                                  .wireEncode()
-                                                                  .buffer)
+                                                        .update(this._data
+                                                                    .wireEncode()
+                                                                    .buffer)
                                                         .digest()
                                                         .toString('hex'));
   }
