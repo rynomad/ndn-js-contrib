@@ -20,16 +20,22 @@ describe("ContentStore", function(){
     it("should return a promise", function(done){
       cs.createNode(new ndn.Data(new ndn.Name("test/create/node")), cs)
         .then(function(node){
+          done();
+        })
+        .catch(function(err){
+          dene();
+        })
+    });
+
+    it("should resolve with a nameTree node containing a ContentStore.Entry", function(done){
+      cs.createNode(new ndn.Data(new ndn.Name("test/create/node/resolve")), cs)
+        .then(function(node){
           assert(node.getItem() instanceof ContentStore.Entry)
           done()
         })
         .catch(function(err){
           throw err
         })
-    });
-
-    it("should resolve with a nameTree node containing a ContentStore.Entry", function(done){
-      done()
     });
   })
 
@@ -356,7 +362,7 @@ describe("ContentStore", function(){
 
   describe(".onMaxPackets()",function(){
 
-    
+
   })
 
 })
