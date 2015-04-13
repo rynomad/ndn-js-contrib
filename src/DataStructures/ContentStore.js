@@ -31,6 +31,7 @@ ContentStore.Entry = function ContentStore_Entry(data, cs){
     console.log("timeout?")
     self.makeStale(cs);
   }, data.getMetaInfo().getFreshnessPeriod() );
+  
   return new Promise(function(resolve,reject){
     resolve(new NameTree.Node(self.getNameWithDigest(),self));
   });
