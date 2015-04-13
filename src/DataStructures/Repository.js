@@ -33,6 +33,8 @@ function Repository (path){
   });
 }
 
+Repository.prototype.populateContentStoreNodes = function Repository()
+
 Repository.Entry = function Repository_Entry(data){
 
 };
