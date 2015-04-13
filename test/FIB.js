@@ -36,7 +36,7 @@ describe("FIB", function(){
     });
   });
 
-  describe("insert(prefix, face)", function(){
+  describe("insert(prefix, face)", function(done){
     var fib = new FIB();
     var face = new ndn.Face()
     it("should return a promise, resolve(face) or reject(err)", function(done){
@@ -49,7 +49,7 @@ describe("FIB", function(){
          })
     })
 
-    it("should reject a duplicate face", function(){
+    it("should reject a duplicate face", function(done){
       fib.insert(new ndn.Name("test/insert/forwarding/entry"), face)
          .then(function(fce){
            assert(false, "should have rejected this face")
