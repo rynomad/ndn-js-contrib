@@ -37,6 +37,9 @@ function Repository (path){
 
 Repository.Entry = function Repository_Entry(data){
 
+  return new Promise(function Repository_createNode_Promsie(resolve,reject){
+    resolve(new NameTree.Node(data.name, new Repository.Entry(data.name.toUri()));
+  });
 };
 
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
@@ -53,9 +56,7 @@ Repository.Entry.prototype.setData = function Repository_Entry_setData(){
 };
 
 Repository.prototype.createNode = function Repository_createNode(data, contentStore){
-  return new Promise(function Repository_createNode_Promsie(resolve,reject){
-    resolve(new NameTree.Node(data.name, data.name.toUri()));
-  });
+  return this._contentStore.createNode(data, contentStore);
 };
 
 Repository.prototype.insert = function Repository_insert(data){
