@@ -18,14 +18,6 @@ var ContentStore = function ContentStore(){
   this._EntryClass = ContentStore.Entry;
 };
 
-ContentStore.prototype.setKeyChain = function ContentStore_setKeyChain(keyChain){
-  this._keyChain = keyChain;
-};
-
-ContentStore.prototype.getKeyChain = function ContentStore_getKeyChain(){
-  return this._keyChain || null;
-};
-
 ContentStore.prototype.onMaxPackets = function ContentStore_onMaxPackets(){
 
 };
@@ -35,7 +27,10 @@ ContentStore.Entry = function ContentStore_Entry(data, cs){
   this._stale = false;
   this.cs = cs;
   var self = this;
-  setTimeout( this.makeStale.bind(this), data.getMetaInfo().getFreshnessPeriod() );
+  setTimeout( function(){
+    console.log("timeout?")
+    self.makeStale(cs);
+  }, data.getMetaInfo().getFreshnessPeriod() );
   return new Promise(function(resolve,reject){
     resolve(new NameTree.Node(self.getNameWithDigest(),self));
   });
@@ -68,7 +63,7 @@ ContentStore.Entry.prototype.onDataStale = function ContentStore_Entry_onDataSta
 
 ContentStore.Entry.prototype.makeStale = function ContentStore_Entry_makeStale(cs){
   this._stale = true;
-  this.onDataStale();
+  this.onDataStale(cs);
 };
 
 ContentStore.prototype.setMaxPackets = function ContentStore_setMaxPackets(int){
@@ -127,38 +122,20 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data){
 ContentStore.prototype.insert = function ContentStore_insert(data){
   var self = this;
   return new Promise(function ContentStore_insert_Promise (resolve, reject){
-    var keyChain = self.getKeyChain()
-    if (keyChain !== null){
-      keyChain.verifyData(data, function keyChain_onVerify(){
-        self.createNode(data)
-            .then(function ContentStore_nameTree_insert(node){
-              self._nameTree.insert(node);
-              if (self._packetCount + 1 === self.getMaxPackets())
-                self.onMaxPackets();
-              ++self._packetCount;
-              resolve(node.getItem())
-            })
-            .catch(function ContentStore_insert_reject(err){
-              reject(err);
-            });
-      }, function keyChain_onVerifyFailed(er){
-        console.log("verify failed")
-        reject(er)
-      })
-    } else {
-      self.createNode(data)
-          .then(function ContentStore_nameTree_insert(node){
-            return self._nameTree.insert(node);
-          })
-          .then(function ContentStore_insert_resolve(returns){
-            if (self._packetCount + 1 === self.getMaxPackets())
-              self.onMaxPackets();
-            resolve(++self._packetCount)
-          })
-          .catch(function ContentStore_insert_reject(err){
-            reject(err);
-          });
-    }
+    self.createNode(data)
+        .then(function ContentStore_nameTree_insert(node){
+          self._nameTree.insert(node);
+
+          if (self._packetCount + 1 === self.getMaxPackets())
+            self.onMaxPackets();
+
+          ++self._packetCount;
+
+          resolve(node.getItem())
+        })
+        .catch(function ContentStore_insert_reject(err){
+          reject(err);
+        });
   });
 };
 

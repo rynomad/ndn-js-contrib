@@ -1,7 +1,6 @@
 var ContentStore = require("../src/DataStructures/ContentStore.js")
 var assert = require("assert");
 ndn = require('ndn-js');
-var keyChain = require("./setup/key-chain.js").keyChain
 var certificateName = require("./setup/key-chain.js").certificateName
 
 
@@ -41,9 +40,6 @@ describe("ContentStore", function(){
 
   describe("insert(data)",function(){
     var cs = new ContentStore();
-    before(function(){
-      cs.setKeyChain(keyChain)
-    })
 
     it("should return a promise",function(done){
       cs.insert(new ndn.Data(new ndn.Name("a/b/c"), "hello world"))
@@ -67,54 +63,57 @@ describe("ContentStore", function(){
 
     it("should reject if data is duplicate", function(done){
       var dat = new ndn.Data(new ndn.Name("a/b/c"), "hello world")
-      keyChain.sign(dat, certificateName, function (){
-        cs.insert(dat).then(function(){
-            return cs.insert(dat)
-          })
-          .catch(function(er){
-            done();
-          })
-      } );
+
+      cs.insert(dat).then(function(){
+          return cs.insert(dat)
+        })
+        .catch(function(er){
+          done();
+        })
+
     })
 
     it("should resolve for signed data", function(done){
-      var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
-      keyChain.sign(dat, certificateName, function (){
-        cs.insert(dat).then(function(){
-            done();
-          })
-          .catch(function(er){
-            console.log(er.stack)
-            assert(false);
-          })
-      });
+      var dat = new ndn.Data(new ndn.Name("a/b/d/y"), "hello world")
+      cs.insert(dat).then(function(){
+          done();
+        })
+        .catch(function(er){
+          console.log(er.stack)
+          assert(false);
+        })
+
     })
 
     it("should mark as stale after freshnessMilliseconds", function(done){
       var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
-      dat.getMetaInfo().setFreshnessPeriod(10)
-      keyChain.sign(dat, certificateName, function (){
-        cs.insert(dat)
-          .then(function(entry){
-            entry.onDataStale = function(){
-              done();
-            }
-          })
-      });
+      dat.getMetaInfo().setFreshnessPeriod(500)
+
+      cs.insert(dat)
+        .then(function(entr){
+          entr.onDataStale = function(){
+            done();
+          }
+        })
+        .catch(function(err){
+          console.log(err, err.stack)
+          throw err
+        })
+
     })
 
     it("should trigger ContentStore.onMaxPackets if max packets reached", function(done){
-      cs.setKeyChain(null)
+
       cs.onMaxPackets = function(){
         done();
       }
 
       cs.setMaxPackets(10);
       function recurse (count){
-        console.log("count", count)
-        if (count < cs.getMaxPackets())
-        return cs.insert(new ndn.Data(new ndn.Name("test/packet/max" + count), "test"))
-                 .then(recurse)
+        console.log("maxPacket, currentPacket", cs._packetCount, cs.getMaxPackets(), cs._packetCount < cs.getMaxPackets())
+        if (cs._packetCount < cs.getMaxPackets())
+          return cs.insert(new ndn.Data(new ndn.Name("test/packet/max/" + cs._packetCount), "test"))
+                   .then(recurse)
       }
       cs.insert(new ndn.Data(new ndn.Name("test/packet/max"), "test"))
         .then(recurse)

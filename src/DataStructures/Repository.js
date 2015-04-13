@@ -21,11 +21,17 @@ function Repository (path){
   this._nameTree = new NameTree()
 }
 
-Repository.Entry = function(data){
+Repository.Entry = function Repository_Entry(data){
   this.data = data;
 };
 
+Repository.Entry.prototype.getData = function Repository_Entry_getData(){
 
+};
+
+Repository.prototype.createNode = function Repository_createNode(){
+  
+}
 
 /** Install the NDN-lib Object
  *@param {Object} NDN NDN-lib as object
