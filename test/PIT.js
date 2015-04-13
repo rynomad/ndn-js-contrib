@@ -54,7 +54,20 @@ describe("PIT", function(){
     })
 
     it("should reject if typeof onData !== function",function(done){
-      done();
+      var inst = new ndn.Interest(new ndn.Name("dfa/adfad/adf"))
+      pit.insert(inst)
+         .then(function(res){
+           assert(false, "promise resolved with undefined onData")
+         })
+         .catch(function(er){
+           return pit.insert(inst, 5)
+         })
+         .then(function(res){
+           assert(false, "promise resolved with integer onData")
+         })
+         .catch(function(er){
+           done()
+         })
     })
 
     it("should autoremove after timeout", function(done){
