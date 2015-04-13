@@ -78,16 +78,25 @@ Repository.prototype.lookup = function Repository_lookup(interest){
 Repository.prototype.populateContentStoreNodes = function Repository_populateContentStoreNodes(){
   var self = this;
   return new Promise(function Repository_populateContentStoreNodes_Promise(resolve,reject){
+    var proms = []
     self.db.createKeyStream()
         .on("data",function(key){
-          self.createNode(new Name(key))insert(null, new ndn.Data(new ndn.Name(key)));
+          proms.push(self.createNode(key)
+                         .then(function(node){
+                           return self._contentStore._nameTree.insert(node);
+                         }));
         })
         .on("error", function(err){
           reject(err);
         })
         .on("close", function(){
-          self.spun = true;
-          callback();
+          Promise.all(proms)
+                 .then(function (res){
+                   resolve();
+                 })
+                 .catch(function(err){
+                   reject(err);
+                 })
         });
   });
 };
