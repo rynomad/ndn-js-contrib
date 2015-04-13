@@ -51,7 +51,7 @@ Repository.Entry.prototype.setData = function Repository_Entry_setData(){
   });
 };
 
-Repository.prototype.createNode = function Repository_createNode(name){
+Repository.prototype.createNode = function Repository_createNode(name, contentStore){
   return new Promise(function Repository_createNode_Promsie(resolve,reject){
     resolve(new NameTree.Node(new Name(name), name));
   });
