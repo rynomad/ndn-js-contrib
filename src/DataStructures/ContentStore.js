@@ -31,7 +31,7 @@ ContentStore.Entry = function ContentStore_Entry(data, cs){
     console.log("timeout?")
     self.makeStale(cs);
   }, data.getMetaInfo().getFreshnessPeriod() );
-  
+
   return new Promise(function(resolve,reject){
     resolve(new NameTree.Node(self.getNameWithDigest(),self));
   });
@@ -84,9 +84,6 @@ ContentStore.prototype.getMaxPackets = function ContentStore_getMaxPackets(){
 
 
 
-ContentStore.prototype._lookup = function(resolve, reject){
-
-}
 /**check the ContentStore for data matching a given interest (including min/max suffix, exclude, publisherKey)
  *@param {ndn.Interest} interest the interest to match against
  *@param {function=} callback for asynchronous cases (like levelDB). recieves return value as only argument
