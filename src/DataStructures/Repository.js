@@ -6,9 +6,7 @@
  */
 
 var leveldown = require("leveldown"),
-    levelup = require("levelup"),
-    path = (process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || "") + "/.NDN-Repo",
-    ndn;
+    levelup = require("levelup");
 var debug = true;
 
 /**NDN Repository
@@ -17,20 +15,17 @@ var debug = true;
  *@param {Object} - policy an parameter option for deciding on policies for accepting/rejecting storage requests
  *@returns {Repository}
  */
-function Repository (index, policy, onopen){
-  Repository
-  var self = this;
-  this.index = index;
-  this.nameTree = index.nameTree;
-  this.ndn = index.ndn;
-  this.db = levelup(policy.path || path, {db: leveldown,
-                                          valueEncoding: "json"
-                                         }, function(){
-    self.populateNameTree(onopen);
-  });
-
-  return this;
+function Repository (path){
+  this._dataPath = path;
+  this._indexPath = path + "/.index"
+  this._nameTree = new NameTree()
 }
+
+Repository.Entry = function(data){
+  this.data = data;
+};
+
+
 
 /** Install the NDN-lib Object
  *@param {Object} NDN NDN-lib as object
