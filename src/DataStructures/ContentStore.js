@@ -67,7 +67,7 @@ ContentStore.Entry.prototype.onDataStale = function ContentStore_Entry_onDataSta
 
 
 ContentStore.Entry.prototype.makeStale = function ContentStore_Entry_makeStale(cs){
-  this.stale = true;
+  this._stale = true;
   this.onDataStale();
 };
 
@@ -101,7 +101,7 @@ ContentStore.prototype.lookup = function(interest){
       var item = node.getItem();
       if (item !== undefined){
         var data = item.getData();
-        if(interest.matchesName(data.name) && !(interest.getMustBeFresh() && item.stale))
+        if(interest.matchesName(data.name) && !(interest.getMustBeFresh() && item._stale))
             return resolve(data);
       }
     }
@@ -132,12 +132,11 @@ ContentStore.prototype.insert = function ContentStore_insert(data){
       keyChain.verifyData(data, function keyChain_onVerify(){
         self.createNode(data)
             .then(function ContentStore_nameTree_insert(node){
-              return self._nameTree.insert(node);
-            })
-            .then(function ContentStore_insert_resolve(returns){
+              self._nameTree.insert(node);
               if (self._packetCount + 1 === self.getMaxPackets())
                 self.onMaxPackets();
-              resolve(++self._packetCount)
+              ++self._packetCount;
+              resolve(node.getItem())
             })
             .catch(function ContentStore_insert_reject(err){
               reject(err);

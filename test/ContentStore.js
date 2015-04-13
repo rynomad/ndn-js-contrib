@@ -68,14 +68,14 @@ describe("ContentStore", function(){
 
     it("should mark as stale after freshnessMilliseconds", function(done){
       var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
-      dat.getMetaInfo().setFreshnessPeriod(500)
-      ContentStore.Entry.prototype.onDataStale = function(){
-        console.log("data stale",this)
-        ContentStore.Entry.prototype.onDataStale = function(){}
-        done();
-      }
+      dat.getMetaInfo().setFreshnessPeriod(10)
       keyChain.sign(dat, certificateName, function (){
         cs.insert(dat)
+          .then(function(entry){
+            entry.onDataStale = function(){
+              done();
+            }
+          })
       });
     })
 
@@ -248,7 +248,7 @@ describe("ContentStore", function(){
     it("should resolve for fresh data", function(done){
       var data = new ndn.Data(new ndn.Name("test/interest/lookup/fresh/success"), "freshSUCCESS")
       var dataf = new ndn.Data(new ndn.Name("test/interest/lookup/fresh/fail"), "freshFAIL")
-      dataf.getMetaInfo().setFreshnessPeriod(0);
+      dataf.getMetaInfo().setFreshnessPeriod(1);
       data.getMetaInfo().setFreshnessPeriod(5000);
       var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/fresh"))
       interest.setMustBeFresh(true)
@@ -260,7 +260,7 @@ describe("ContentStore", function(){
             cs.lookup(interest).then(function(dat){
               console.log(dat.name.toUri(), data.name.toUri())
               assert(dat.name.equals(data.name), "return not fresh data")
-              done()
+              done();
             }).catch(function(er){
               console.log(er, er.stack)
               assert(false);

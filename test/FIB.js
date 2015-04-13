@@ -81,7 +81,7 @@ describe("FIB", function(){
            return fib.lookup(new ndn.Interest(new ndn.Name("test/insert/f1/f2/f3/term")))
          }).then(function(results){
            assert(results.length === 3)
-           console.log(results)
+           
            assert(results[0].face === f3, "results[0].face === " + results[0].face)
            assert(results[1].face === f2)
            assert(results[2].face === f1)
