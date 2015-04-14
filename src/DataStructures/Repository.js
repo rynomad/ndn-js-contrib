@@ -90,8 +90,8 @@ Repository.Entry.prototype.setData = function Repository_Entry_setData(){
 };
 
 Repository.Entry.prototype.fulfillsInterest = function Repository_Entry_fulfillsInterest(interest){
-  return (interest.matchesName(this.prefix))
-}
+  return (interest.matchesName(this.prefix));
+};
 
 Repository.prototype.createNode = function Repository_createNode(data, repository){
   return this._contentStore.createNode(data, repository);
