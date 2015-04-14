@@ -111,7 +111,8 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
   var self = this;
   return new Promise(function Repository_populateContentStoreNodes_Promise(resolve,reject){
     var proms = []
-    self.db.createKeyStream()
+    self.dataDB
+        .createKeyStream()
         .on("data",function(key){
           proms.push(self.createNode({name:new Name(key)}})
                          .then(function(node){
