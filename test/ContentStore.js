@@ -356,10 +356,28 @@ describe("ContentStore", function(){
     })
   })
 
+  describe(".setOnMaxPackets(function)",function(){
+    it("should set .onMaxPackets", function(){
 
+    })
+
+    it("should bind to ContentStore", function(){
+
+    })
+  })
 
   describe(".onMaxPackets()",function(){
+    it("should least recently accessed stale packets first", function(){
 
+    })
+
+    it("should evict all stale packets before any fresh", function(){
+
+    })
+
+    it("should evict least recently used fresh packets", function(){
+      
+    })
 
   })
 
