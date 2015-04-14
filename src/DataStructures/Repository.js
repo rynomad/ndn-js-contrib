@@ -66,11 +66,12 @@ Repository.Entry = function Repository_Entry(data, repository){
 };
 
 function Repository_getNameWithDigest(name, packet){
-  var name = new Name(data.name)
+  var name = new Name(name)
   name.append("sha256digest=" + crypto.createHash('sha256')
                                       .update(packet)
                                       .digest()
                                       .toString('hex'));
+  return name;                      
 }
 
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
