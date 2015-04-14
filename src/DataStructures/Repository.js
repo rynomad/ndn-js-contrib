@@ -92,7 +92,7 @@ Repository.prototype.createNode = function Repository_createNode(data, repositor
 };
 
 Repository.prototype.insert = function Repository_insert(data){
-  return this._contentStore.insert(data);
+  return this._contentStore.insert(data, this);
 };
 
 Repository.prototype.remove = function Repository_remove(entry){
@@ -114,7 +114,7 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
     self.dataDB
         .createKeyStream()
         .on("data",function(key){
-          proms.push(self.createNode({name:new Name(key)}})
+          proms.push(self.createNode({name:new Name(key)}, self)
                          .then(function(node){
                            return self._contentStore._nameTree.insert(node);
                          }));
