@@ -27,9 +27,11 @@ describe("Repository",function(){
 
                 })
                 .then(function(repo){
-                  repo.close()
+                  return repo.close()
                 })
     })
+
+    it()
 
   })
 })

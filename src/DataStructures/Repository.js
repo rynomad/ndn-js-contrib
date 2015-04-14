@@ -34,7 +34,7 @@ function Repository (path){
                    resolve(self)
                  })
                  .catch(reject);
-             
+
            });
   });
 }
@@ -170,6 +170,13 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
 };
 
 Repository.prototype.close = function Repository_close(){
-  return this._dataDB.close();
+  var self = this;
+  return new Promise(function Repository_close_Promise(resolve,reject){
+    self._dataDB.close(function Repository_close_Promise_level(err){
+      if (err)
+        return reject(err)
+      resolve();
+    });
+  })
 }
 module.exports = Repository;
