@@ -53,6 +53,7 @@ Repository.Entry = function Repository_Entry(data, repository){
     } else {                                  // we're actually inserting new data
       var packet = data.wireEncode().buffer
         , nameWithDigest = Repository_getNameWithDigest(data.name, packet);
+
       self._repository
           .dataDB
           .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
@@ -104,7 +105,10 @@ Repository.prototype.insert = function Repository_insert(data){
 Repository.prototype.remove = function Repository_remove(entry){
   var self = this;
   return new Promise(function Repository_remove_Promise(resolve,reject){
-    self._contentStore.nameTree.remove();
+    self._contentStore.nameTree.remove(entry.prefix);
+    entry.delete()
+         .then(resolve)
+         .catch(reject);
   });
 };
 
