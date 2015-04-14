@@ -186,7 +186,8 @@ describe("PIT", function(){
          .then(function(){
            return pit.lookup(data);
          }).catch(function(er){
-           console.log(er)
+           //console.log(er)
+           
          })
     })
   })
