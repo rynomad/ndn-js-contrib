@@ -56,7 +56,7 @@ Repository.Entry = function Repository_Entry(data, repository){
         , nameWithDigest = Repository_getNameWithDigest(data.name, packet);
 
       self._repository
-          .dataDB
+          ._dataDB
           .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
             if (err)
               reject(err);
@@ -82,7 +82,7 @@ Repository.Entry.prototype.getData = function Repository_Entry_getData(){
   var self = this;
   return new Promise(function Repository_Entry_getData_Promise(resolve, reject){
     self._repository
-        .dataDB
+        ._dataDB
         .get(self.prefix.toUri(), function(err, packet){
           if (err)
             return reject(err);
@@ -98,7 +98,7 @@ Repository.Entry.prototype.delete = function Repository_Entry_delete(){
   var self = this;
   return new Promise(function Repository_Entry_delete_Promise(resolve, reject){
     self._repository
-        .dataDB
+        ._dataDB
         .del(self.prefix.toUri(), function(err){
           if (err)
             return reject(err);
@@ -137,19 +137,26 @@ Repository.prototype.lookup = function Repository_lookup(interest){
 Repository.prototype.populateContentStoreNodes = function Repository_populateContentStoreNodes(){
   var self = this;
   return new Promise(function Repository_populateContentStoreNodes_Promise(resolve,reject){
-    var proms = []
-    self.dataDB
+    var proms = [];
+    self._dataDB
         .createKeyStream()
         .on("data",function(key){
+          console.log("dat")
           proms.push(self.createNode({name:new Name(key)}, self)
                          .then(function(node){
                            return self._contentStore._nameTree.insert(node);
                          }));
         })
         .on("error", function(err){
+          console.log("err")
           reject(err);
         })
         .on("close", function(){
+          console.log("key stream complete")
+
+        })
+        .on("end", function(){
+          console.log("end")
           Promise.all(proms)
                  .then(resolve)
                  .catch(reject)
@@ -158,6 +165,6 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
 };
 
 Repository.prototype.close = function Repository_close(){
-  return this.dataDB.close();
+  return this._dataDB.close();
 }
 module.exports = Repository;
