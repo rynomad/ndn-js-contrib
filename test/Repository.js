@@ -49,9 +49,9 @@ describe("Repository",function(){
 
   /**
   describe("createNode(data, contentStore)",function(){
-    var cs = new ContentStore()
+    var repo = new ContentStore()
     it("should return a promise", function(done){
-      cs.createNode(new ndn.Data(new ndn.Name("test/create/node")), cs)
+      repo.createNode(new ndn.Data(new ndn.Name("test/create/node")), repo)
         .then(function(node){
           done();
         })
@@ -61,7 +61,7 @@ describe("Repository",function(){
     });
 
     it("should resolve with a nameTree node containing a ContentStore.Entry", function(done){
-      cs.createNode(new ndn.Data(new ndn.Name("test/create/node/resolve")), cs)
+      repo.createNode(new ndn.Data(new ndn.Name("test/create/node/resolve")), repo)
         .then(function(node){
           assert(node.getItem() instanceof ContentStore.Entry)
           done()
@@ -119,56 +119,191 @@ describe("Repository",function(){
         })
 
     })
-    /**
-    it("should resolve for signed data", function(done){
-      var dat = new ndn.Data(new ndn.Name("a/b/d/y"), "hello world")
-      cs.insert(dat).then(function(){
-          done();
-        })
-        .catch(function(er){
-          console.log(er.stack)
-          assert(false);
-        })
 
-    })
-
-    it("should mark as stale after freshnessMilliseconds", function(done){
-      var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
-      dat.getMetaInfo().setFreshnessPeriod(500)
-
-      cs.insert(dat)
-        .then(function(entr){
-          entr.onDataStale = function(){
-            done();
-          }
-        })
-        .catch(function(err){
-          console.log(err, err.stack)
-          throw err
-        })
-
-    })
-
-    it("should trigger ContentStore.onMaxPackets if max packets reached", function(done){
-
-      cs.onMaxPackets = function(){
-        done();
-      }
-
-      cs.setMaxPackets(10);
-      function recurse (count){
-        if (cs._packetCount < cs.getMaxPackets())
-          return cs.insert(new ndn.Data(new ndn.Name("test/packet/max/" + cs._packetCount), "test"))
-                   .then(recurse)
-      }
-      cs.insert(new ndn.Data(new ndn.Name("test/packet/max"), "test"))
-        .then(recurse)
-    })
-    */
     after(function(done){
       repo.close()
           .then(function(){
             done();
+          })
+    })
+  })
+
+  describe("lookup(interest)", function(){
+    var repo;
+
+    before(function(done){
+      Repository.Open("trash/test_lookup")
+                .then(function(rp){
+                  repo = rp;
+                  done();
+                })
+                .catch(function(err){
+                  console.log(err)
+                })
+    })
+
+    it("should return a promise",function(done){
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/exact"))
+      repo.lookup(interest)
+        .then(function(){
+          done();
+        }).catch(function(){
+          done();
+        })
+    })
+
+
+    it("should resolve for inserted data", function(done){
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/exact"))
+      interest.setMustBeFresh(false)
+      repo.insert(new ndn.Data(new ndn.Name("test/interest/lookup/exact"), "LOOK_SUCCESS"))
+          .then(function(){
+            return repo.lookup(interest)
+          })
+          .then(function(){
+            done();
+          }).catch(function(er){
+            console.log(er, er.stack)
+            assert(false);
+          })
+    })
+
+    it("should resolve rightMost", function(done){
+      var right = new ndn.Data(new ndn.Name("test/interest/right/lookup/9"), "SUCCESS");
+      var left = new ndn.Data(new ndn.Name("test/interest/right/lookup/1"), "FAIL");
+      repo.insert(right)
+        .then(function(){
+          return repo.insert(left);
+        })
+        .then(function(){
+          var interest = new ndn.Interest(new ndn.Name("test/interest/right/lookup"));
+          interest.setChildSelector(1);
+          interest.setMustBeFresh(false);
+          return repo.lookup(interest);
+        })
+        .then(function(data){
+          if (data.content.toString() == "SUCCESS")
+            done()
+          else
+            assert(false, "did not return the right data");
+        }).catch(function(er){
+          assert(false, er + er.stack)
+        })
+
+    })
+
+
+    it("should resolve rightMost with Exclude", function(done){
+      var exSucc = new ndn.Data(new ndn.Name("test/interest/exclude/lookup/9"), "ExFail");
+      var exSucc = new ndn.Data(new ndn.Name("test/interest/exclude/lookup/8"), "ExSUCCESS");
+      repo.insert(exSucc)
+        .then(function(){
+          var interest = new ndn.Interest(new ndn.Name("test/interest/exclude/lookup"));
+          interest.setChildSelector(1);
+          interest.setMustBeFresh(false);
+          interest.setExclude(new ndn.Exclude([new ndn.Name.Component('9')]))
+          return repo.lookup(interest);
+        })
+        .then(function(data){
+          if (data.content.toString() == "ExSUCCESS")
+            done()
+          else
+            assert(false, "did not exclude properly" + data.name.toUri())
+        }).catch(function(er){
+          console.log(er, er.stack)
+          assert(false);
+        })
+    })
+
+    it("should resolve rightMost with minSuffix", function(done){
+      var suffSucc = new ndn.Data(new ndn.Name("test/interest/lookup/8/long/suffix/comp"), "SuffSUCCESS");
+      repo.insert(suffSucc)
+        .then(function(){
+          var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
+          interest.setChildSelector(1);
+          interest.setMinSuffixComponents(5);
+          interest.setMustBeFresh(false);
+          interest.setExclude(new ndn.Exclude([new ndn.Name.Component('9')]))
+          return repo.lookup(interest);
+        })
+        .then(function(data){
+          if (data.content.toString() == "SuffSUCCESS")
+            done()
+          else
+            assert(false, "did not exclude properly" + data.name.toUri())
+        }).catch(function(er){
+          console.log(er, er.stack)
+          assert(false);
+        })
+    })
+
+    it("should reject for excluded match", function(done){
+      var exSucc = new ndn.Data(new ndn.Name("test/interest/lookup/exclude/this"), "ExSUCCESS");
+      repo.insert(exSucc)
+        .then(function(){
+          var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/exclude"));
+          interest.setChildSelector(1);
+          interest.setMustBeFresh(false);
+          interest.setExclude(new ndn.Exclude([new ndn.Name.Component('this')]))
+          return repo.lookup(interest);
+        })
+        .then(function(data){
+          assert(false, "did not exclude properly" + data.name.toUri())
+        }).catch(function(er){
+          done()
+        })
+    })
+
+    it("should reject for no match", function(done){
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup/no/data"));
+      interest.setMustBeFresh(false)
+      repo.lookup(interest)
+      .then(function(data){
+        assert(false, "returned false match" + data.name.toUri())
+      }).catch(function(er){
+        done()
+      })
+    })
+
+    it("should reject for minSuffix > tree height", function(done){
+      var interest = new ndn.Interest(new ndn.Name(""));
+      interest.setMinSuffixComponents(100)
+      interest.setMustBeFresh(false)
+      repo.lookup(interest)
+      .then(function(data){
+        assert(false, "returned false match" + data.name.toUri())
+      }).catch(function(er){
+        done()
+      })
+    })
+
+    it("should reject for maxSuffix < shortest data", function(done){
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
+      interest.setMaxSuffixComponents(0)
+      interest.setMustBeFresh(false)
+      repo.lookup(interest)
+      .then(function(data){
+        assert(false, "returned false match" + data.name.toUri())
+      }).catch(function(er){
+        done()
+      })
+    })
+
+    it("should reject for mustBeFresh and stale content",function(done){
+      var interest = new ndn.Interest(new ndn.Name("test/interest/lookup"));
+      interest.setMustBeFresh(false)
+      repo.lookup(interest)
+      .then(function(data){
+        assert(false, "returned false match" + data.name.toUri())
+      }).catch(function(er){
+        done()
+      })
+    })
+
+    after(function(done){
+      repo.close()
+          .then(function(){
+            done()
           })
     })
   })

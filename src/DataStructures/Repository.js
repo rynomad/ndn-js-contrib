@@ -51,10 +51,10 @@ Repository.Entry = function Repository_Entry(data, repository){
   this._repository = repository;
 
 
-  return new Promise(function Repository_createNode_Promsie(resolve,reject){
+  return new Promise(function Repository_createNode_Promise(resolve,reject){
     if (!data.content){                       // this is a dataShim from populateContentStoreNodes, name should
-      if (!data.name.getContentDigestValue()) // already have a digest, but check anyway...
-        reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name"))
+      if (data.name.get(-1).toEscapedString().substr(0, 12) !== "sha256digest") // already have a digest, but check anyway...
+        reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name" + data.name.toUri()))
       resolve(new NameTree.Node(data.name, self));
     } else {                                  // we're actually inserting new data
       var packet = data.wireEncode().buffer
@@ -113,7 +113,8 @@ Repository.Entry.prototype.delete = function Repository_Entry_delete(){
 };
 
 Repository.Entry.prototype.fulfillsInterest = function Repository_Entry_fulfillsInterest(interest){
-  return (interest.matchesName(this.prefix));
+
+  return (!!this.prefix && interest.matchesName(this.prefix));
 };
 
 Repository.prototype.createNode = function Repository_createNode(data, repository){
@@ -146,14 +147,14 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
     self._dataDB
         .createKeyStream()
         .on("data",function(key){
-          console.log("dat")
+          console.log("dat", key)
           proms.push(self.createNode({name:new Name(key)}, self)
                          .then(function(node){
                            return self._contentStore._nameTree.insert(node);
-                         }));
+                         }))
         })
         .on("error", function(err){
-          console.log("err")
+          console.log("err!!!!!!!!!!")
           reject(err);
         })
         .on("close", function(){
@@ -164,7 +165,13 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
           console.log("end")
           Promise.all(proms)
                  .then(resolve)
-                 .catch(reject)
+                 .catch(function(err){
+                   self.close()
+                       .then(function(){
+                         console.log('err?!')
+                         reject(err);
+                       })
+                 })
         });
   });
 };
