@@ -1,5 +1,7 @@
 var NameTree = require("./NameTree.js");
-/**/
+/**
+
+*/
 function FIB (){
   this._nameTree = new NameTree();
 }
