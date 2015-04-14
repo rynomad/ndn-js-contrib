@@ -158,4 +158,4 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
   });
 };
 
-le.exports = Repository;
+module.exports = Repository;
