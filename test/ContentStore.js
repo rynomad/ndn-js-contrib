@@ -280,7 +280,7 @@ describe("ContentStore", function(){
         }).then(function(){
           setTimeout(function(){
             cs.lookup(interest).then(function(dat){
-              console.log(dat.name.toUri(), data.name.toUri())
+              //console.log(dat.name.toUri(), data.name.toUri())
               assert(dat.name.equals(data.name), "return not fresh data")
               done();
             }).catch(function(er){
