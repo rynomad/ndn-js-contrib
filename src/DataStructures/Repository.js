@@ -22,15 +22,20 @@ function Repository (path){
   this._contentStore.setEntryClass(Repository.Entry);
 
   return new Promise(function Repository_Constructor_Promise(resolve,reject){
-    self._dataDB  = levelup( self._dataPath
-                           , {db:leveldown, valueEncoding: "json"}
-                           , function Repository_Contstructor_Promise_levelup(){
-                               self.populateContentStoreNodes()
-                                   .then(function(){
-                                     resolve(self)
-                                   })
-                                   .catch(reject);
-                           });
+    levelup( self._dataPath
+           , {db:leveldown, valueEncoding: "json"}
+           , function Repository_Contstructor_Promise_levelup(err, db){
+             if (err)
+               return reject(err);
+
+             self._dataDB = db;
+             self.populateContentStoreNodes()
+                 .then(function(){
+                   resolve(self)
+                 })
+                 .catch(reject);
+             
+           });
   });
 }
 
