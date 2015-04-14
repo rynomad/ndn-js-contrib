@@ -70,6 +70,11 @@ ContentStore.Entry.prototype.makeStale = function ContentStore_Entry_makeStale(c
   this.onDataStale(cs);
 };
 
+ContentStore.Entry.prototype.fulfillsInterest = function ContentStore_Entry_fulfillsInterest(interest){
+  return ( interest.matchesName(this.getNameWithDigest())
+      && !(interest.getMustBeFresh() && this.getStale()));
+}
+
 ContentStore.Entry.prototype.getStale = function ContentStore_Entry_getStale(){
   return this._stale;
 }
@@ -98,13 +103,11 @@ ContentStore.prototype.lookup = function(interest){
       self._nameTree.left(interest.name);
 
     for (var node of self._nameTree){
-      var item = node.getItem();
-      if (item !== undefined){
-
-        if(interest.matchesName(item.getNameWithDigest()) && !(interest.getMustBeFresh() && item.getStale()))
-          return item.getData()
-                     .then(resolve)
-                     .catch(reject);
+      var entry = node.getItem();
+      if (entry && entry.fulfillsInterest(interest)){
+        return entry.getData()
+                    .then(resolve)
+                    .catch(reject);
       }
     }
 
