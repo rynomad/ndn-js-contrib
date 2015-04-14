@@ -37,10 +37,10 @@ describe("Repository",function(){
 
     it("should reject if repo open", function(done){
       var repo;
-      Repository.Open("trash/test_openfail")
+      Repository.Open("trash/open_fail")
                 .then(function(rep){
                   repo = rep;
-                  return Repository.Open("trash/test_openfail")
+                  return Repository.Open("trash/open_fail")
                 })
                 .then(function(repo){
                   assert(false)
