@@ -43,7 +43,6 @@ ContentStore.Entry = function ContentStore_Entry(data, cs){
   this.cs = cs;
   var self = this;
   setTimeout( function(){
-    console.log("timeout?")
     self.makeStale(cs);
   }, data.getMetaInfo().getFreshnessPeriod() );
 
