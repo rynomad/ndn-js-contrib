@@ -129,9 +129,7 @@ Repository.prototype.remove = function Repository_remove(entry){
 };
 
 Repository.prototype.lookup = function Repository_lookup(interest){
-  return new Promise(function Repository_lookup_Promise(resolve,reject){
-    reject();
-  });
+  return this._contentStore.lookup(interest);
 };
 
 
