@@ -38,10 +38,10 @@ describe("Repository",function(){
     it("should reject if repo open", function(done){
       var repo;
       this.timeout(5000)
-      Repository.Open("trash/openfail")
+      Repository.Open("trash/test_openfail")
                 .then(function(rep){
-                  repo = rep
-                  return Repository.Open("trash/openfail")
+                  repo = rep;
+                  return Repository.Open("trash/test_openfail")
                 })
                 .then(function(repo){
                   assert(false)
