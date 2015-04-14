@@ -188,10 +188,10 @@ Repository.prototype.destroy = function Repository_destroy(){
 
     leveldown.destroy(self._dataPath, function Repository_destroy_level(err){
       console.log("leveldown.destroy", self._dataPath, err)
-      if (err)
-        return reject(err);
+      if (!err)
+        return resolve();
 
-      resolve();
+      reject(err);
     });
   });
 };
