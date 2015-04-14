@@ -85,7 +85,18 @@ Repository.Entry.prototype.getData = function Repository_Entry_getData(){
 };
 
 Repository.Entry.prototype.delete = function Repository_Entry_delete(){
+  var self = this;
   return new Promise(function Repository_Entry_removeData_Promise(resolve, reject){
+    self._repository
+        .dataDB
+        .del(self.prefix.toUri(), function(err){
+          if (err)
+            return reject(err);
+          resolve();
+        })
+      self.index.insert(element,data, self);
+      callback(err);
+    });
     reject();
   });
 };
@@ -136,12 +147,8 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
         })
         .on("close", function(){
           Promise.all(proms)
-                 .then(function (res){
-                   resolve();
-                 })
-                 .catch(function(err){
-                   reject(err);
-                 })
+                 .then(resolve)
+                 .catch(reject)
         });
   });
 };
