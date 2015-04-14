@@ -47,14 +47,16 @@ describe("Repository",function(){
                   assert(false)
                 })
                 .catch(function(err){
-                  console.log(err);
+                  console.log("catch1",err);
                   return repo.close();
                 }).then(function(repo){
+                  console.log("close")
                   return repo.destroy();
                 }).then(function(){
+                  console.log("destroy")
                   done();
                 }).catch(function(er){
-                  console.log(er)
+                  console.log("catch2",er)
                 });
     })
 
