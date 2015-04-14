@@ -7,7 +7,7 @@ describe("Repository",function(){
                 .then(function(repo){
                   return repo.close();
                 })
-                .then(function(){
+                .then(function(repo){
                   return repo.destroy();
                 }).then(function(){
                   done();
