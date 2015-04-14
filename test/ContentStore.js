@@ -360,10 +360,10 @@ describe("ContentStore", function(){
     var cs = new ContentStore()
     it("should set .onMaxPackets", function(done){
       cs.setOnMaxPackets(function(){
-        done()
+        done();
       })
 
-      cs.onMaxPackets()
+      cs.onMaxPackets();
     })
 
     it("should bind to ContentStore", function(done){
@@ -372,7 +372,7 @@ describe("ContentStore", function(){
         done()
       })
 
-      cs.onMaxPackets()
+      cs.onMaxPackets();
     })
   })
 
