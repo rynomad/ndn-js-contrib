@@ -3,7 +3,7 @@ var assert = require("assert");
 describe("Repository",function(){
   describe("Repository.Open(path)",function(){
     it("should return a promise", function(done){
-      Repository.Open("trash")
+      Repository.Open("trash/open")
                 .then(function(repo){
                   return repo.close();
                 })
