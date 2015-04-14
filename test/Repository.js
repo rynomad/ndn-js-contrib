@@ -344,17 +344,23 @@ describe("Repository",function(){
                 })
     })
 
-    it("should reject if not closed a promise", function(done){
+    it("should resolve only after close if not closed a promise", function(done){
       console.log(repo)
       repo.destroy()
           .then(function(){
             assert(false);
           })
           .catch(function(er){
+            return repo.close();
+          }).then(function(){
+            return repo.destroy();
+          }).then(function(){
             done();
+          }).catch(function(){
+            assert(false)
           })
     })
-    /*
+
     it("should resolve if DB closed ", function(done){
       repo.close()
           .then(function(){
@@ -368,7 +374,7 @@ describe("Repository",function(){
             console.log(er)
           })
     })
-    */
+
 
 
   })
