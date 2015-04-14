@@ -60,7 +60,7 @@ Repository.Entry = function Repository_Entry(data, repository){
             if (err)
               reject(err);
             else{
-              this.prefix = nameWithDigest;
+              self.prefix = nameWithDigest;
               resolve(new NameTree.Node(data.name, self));
             }
           });
