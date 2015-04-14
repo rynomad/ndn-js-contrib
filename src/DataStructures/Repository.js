@@ -187,6 +187,7 @@ Repository.prototype.destroy = function Repository_destroy(){
       return reject(new Error("Repository.destroy(): Repository must call Repository.close() prior to destruction"))
 
     leveldown.destroy(self._dataPath, function Repository_destroy_level(err){
+      console.log("leveldown.destroy")
       if (err)
         return reject(err);
 
