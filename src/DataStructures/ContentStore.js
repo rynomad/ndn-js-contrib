@@ -126,10 +126,11 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data, store
  *@param {ndn.Data} data the ndn.Data object
  *@returns {ContentStore} - for chaining
  */
-ContentStore.prototype.insert = function ContentStore_insert(data){
+ContentStore.prototype.insert = function ContentStore_insert(data, store){
   var self = this;
+  store = store || self;
   return new Promise(function ContentStore_insert_Promise (resolve, reject){
-    self.createNode(data, self)
+    self.createNode(data, store)
         .then(function ContentStore_nameTree_insert(node){
           self._nameTree.insert(node);
 
