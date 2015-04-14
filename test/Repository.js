@@ -47,11 +47,22 @@ describe("Repository",function(){
 
   })
 
-  /**
+
   describe("createNode(data, contentStore)",function(){
-    var repo = new ContentStore()
+    var repo;
+    before(function(done){
+      Repository.Open("trash/test_createNode")
+                .then(function(re){
+                  repo = re;
+                  done()
+                })
+                .catch(function(err){
+                  console.log(err);
+                })
+    });
+
     it("should return a promise", function(done){
-      repo.createNode(new ndn.Data(new ndn.Name("test/create/node")), repo)
+      repo.createNode(new ndn.Data(new ndn.Name("test/create/node"), "content"), repo)
         .then(function(node){
           done();
         })
@@ -61,17 +72,27 @@ describe("Repository",function(){
     });
 
     it("should resolve with a nameTree node containing a ContentStore.Entry", function(done){
-      repo.createNode(new ndn.Data(new ndn.Name("test/create/node/resolve")), repo)
+      repo.createNode(new ndn.Data(new ndn.Name("test/create/node/resolve"), "content"), repo)
         .then(function(node){
-          assert(node.getItem() instanceof ContentStore.Entry)
+          assert(node.getItem() instanceof Repository.Entry)
           done()
         })
         .catch(function(err){
           throw err
         })
     });
+
+    after(function(done){
+      repo.close()
+          .then(function(){
+            done();
+          })
+          .catch(function(er){
+            console.log(er)
+          })
+    })
   })
-  */
+
   describe("insert(data)",function(){
     var repo ;
     before(function(done){
