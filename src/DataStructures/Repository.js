@@ -54,7 +54,7 @@ Repository.Entry = function Repository_Entry(data, repository){
       var packet = data.wireEncode().buffer
         , nameWithDigest = Repository_getNameWithDigest(data.name, packet);
       self._repository
-          .db
+          .dataDB
           .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
             if (err)
               reject(err);
@@ -71,7 +71,7 @@ function Repository_getNameWithDigest(name, packet){
                                       .update(packet)
                                       .digest()
                                       .toString('hex'));
-  return name;                      
+  return name;
 }
 
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
