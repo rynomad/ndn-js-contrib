@@ -4,7 +4,7 @@ var NameTree = require("./NameTree.js")
 var crypto = require("ndn-js/js/crypto.js")
 var Name = require("ndn-js/js/name.js").Name;
 
-/**A ContentStore constructor for building cache's and database indexes
+/** ContentStore constructor for building cache's and database indexes
  *@constructor
  *@param {NameTree} nameTree the nameTree to build upon
  *@param {constructor} entryClass a constructor class conforming to the same API as {@link csEntry}.
@@ -18,10 +18,20 @@ var ContentStore = function ContentStore(){
   this._EntryClass = ContentStore.Entry;
 };
 
-ContentStore.prototype.onMaxPackets = function ContentStore_onMaxPackets(){
 
+ContentStore.prototype.setEntryClass = function(clas){
+  this._EntryClass = clas;
+}
+
+ContentStore.prototype.onMaxPackets = function ContentStore_onMaxPackets(){
+  //todo: impliment a basic eviction algorithm
 };
 
+ContentStore.prototype.setOnMaxPackets = function ContentStore_setOnMaxPackets(onMaxPackets){
+  if (typeof onMaxPackets !== "function")
+    throw new Error("ContentStore.setOnMaxPackets(onMaxPackets): must be a function")
+  this.onMaxPackets = onMaxPackets.bind(this);
+}
 ContentStore.Entry = function ContentStore_Entry(data, cs){
   this._data = data;
   this._stale = false;
@@ -115,9 +125,6 @@ ContentStore.prototype.lookup = function(interest){
   })
 };
 
-ContentStore.prototype.setEntryClass = function(clas){
-  this._EntryClass = clas;
-}
 
 ContentStore.prototype.createNode = function ContentStore_createNode(data, store){
   return new this._EntryClass(data, store);
