@@ -5,14 +5,13 @@
  *
  */
 
-var leveldown = require("leveldown"),
-    levelup = require("levelup")
+var leveldown = require("leveldown")
+  , levelup = require("levelup")
   , Name   = require("ndn-js/js/name.js")
   , crypto = require("ndn-js/js/crypto.js")
   , Data   = require("ndn-js/js/Data.js")
   , NameTree = require("./NameTree.js")
   , ContentStore = require("./ContentStore.js")
-var debug = true;
 
 
 function Repository (path){
