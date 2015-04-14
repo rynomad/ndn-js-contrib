@@ -91,7 +91,7 @@ NameTree.prototype.remove = function NameTree_remove(prefix){
     this.root.remove(removeSuffix);
   else
     this.root.updateDepth(~prefix.size())
-  
+
   return item;
 };
 
@@ -249,6 +249,7 @@ NameTree.Node = function NameTree_Node(prefix, item) {
   this.prefix = prefix;
   this.depth = 0;
   var self = this;
+
 
   this[Symbol.iterator] = function NameTree_Node_Iterator(){
     var iter = new Child_Iterator(self, self._traversal_direction, self._skipper());
