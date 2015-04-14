@@ -93,6 +93,38 @@ describe("Repository",function(){
     })
   })
 
+  describe("destroy()", function(){
+    var repo;
+    before(function(done){
+      Repository.Open("trash/test_dest")
+                .then(function(re){
+                  repo = re;
+                  done();
+                })
+                .catch(function(er){
+                  console.log(er)
+                  //done();
+                })
+    })
+
+    it("should resolve only after close if not closed a promise", function(done){
+      console.log(repo)
+      repo.destroy()
+          .then(function(){
+            assert(false);
+          })
+          .catch(function(er){
+            return repo.close();
+          }).then(function(){
+            return repo.destroy();
+          }).then(function(){
+            done();
+          }).catch(function(){
+            assert(false)
+          })
+    })
+  })
+
   describe("insert(data)",function(){
     var repo ;
     before(function(done){
@@ -144,6 +176,8 @@ describe("Repository",function(){
     after(function(done){
       repo.close()
           .then(function(){
+            return repo.destroy();
+          }).then(function(){
             done();
           })
     })
@@ -324,43 +358,13 @@ describe("Repository",function(){
     after(function(done){
       repo.close()
           .then(function(){
-            done();
-          })
-    })
-
-  })
-
-  describe("destroy(path)", function(){
-    var repo;
-    before(function(done){
-      Repository.Open("trash/test_dest")
-                .then(function(re){
-                  repo = re;
-                  done();
-                })
-                .catch(function(er){
-                  console.log(er)
-                  //done();
-                })
-    })
-
-    it("should resolve only after close if not closed a promise", function(done){
-      console.log(repo)
-      repo.destroy()
-          .then(function(){
-            assert(false);
-          })
-          .catch(function(er){
-            return repo.close();
-          }).then(function(){
             return repo.destroy();
           }).then(function(){
             done();
-          }).catch(function(){
-            assert(false)
           })
     })
 
-
   })
+
+
 })
