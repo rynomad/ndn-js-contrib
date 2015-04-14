@@ -12,7 +12,11 @@ describe("Repository",function(){
                 })
                 .catch(function(err){
                   done();
-                })
+                }).then(function(){
+                  return repo.destroy();
+                }).then(function(){
+                  done();
+                });
     })
 
     it("should resolve with the repo object", function(done){
@@ -28,7 +32,11 @@ describe("Repository",function(){
                 })
                 .then(function(repo){
                   return repo.close()
-                })
+                }).then(function(){
+                  return repo.destroy();
+                }).then(function(){
+                  done();
+                });
     })
 
     it("should reject if repo open", function(done){
