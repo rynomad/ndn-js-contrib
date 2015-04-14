@@ -6,9 +6,7 @@ var Name = require("ndn-js/js/name.js").Name;
 
 /** ContentStore constructor for building cache's and database indexes
  *@constructor
- *@param {NameTree} nameTree the nameTree to build upon
- *@param {constructor} entryClass a constructor class conforming to the same API as {@link csEntry}.
- *@returns {ContentStore} - a new store
+ *@returns {ContentStore} - a new ContentStore
  */
 var ContentStore = function ContentStore(){
   this._nameTree = new NameTree();
@@ -16,12 +14,19 @@ var ContentStore = function ContentStore(){
   this._packetCount = 0;
   this._stales = [];
   this._EntryClass = ContentStore.Entry;
+  return this;
 };
 
-
+/**
+ * override the default ContentStore.Entry class, see {@link Repository} for an example
+ *@param {Function} clas - the constructor for the entry class to use henceforth. Must provide a compatible promise api
+ *@param {Object} this - for chaining
+ */
 ContentStore.prototype.setEntryClass = function(clas){
   this._EntryClass = clas;
+  return this;
 }
+
 
 ContentStore.prototype.onMaxPackets = function ContentStore_onMaxPackets(){
   //todo: impliment a basic eviction algorithm
