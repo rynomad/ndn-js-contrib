@@ -20,10 +20,14 @@ describe("Repository",function(){
                 .then(function(repo){
                   assert(repo.insert === Repository.prototype.insert, "triple equals lol");
                   done()
+                  return repo;
                 })
                 .catch(function(err){
                   console.log(err)
 
+                })
+                .then(function(repo){
+                  repo.close()
                 })
     })
 
