@@ -46,8 +46,8 @@ describe("Repository",function(){
                   assert(false)
                 })
                 .catch(function(err){
-                  assert(err)
-                }).then(function(){
+                  return repo;
+                }).then(function(repo){
                   return repo.close();
                 }).then(function(){
                   return repo.destroy();
