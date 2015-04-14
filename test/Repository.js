@@ -44,23 +44,17 @@ describe("Repository",function(){
                 })
                 .then(function(repo){
                   assert(false)
-                  done()
                 })
                 .catch(function(err){
-                  console.log("catch1",err);
                   return repo.close();
                 }).then(function(repo){
 
                   return repo.destroy();
                 }).then(function(){
-                  console.log("destroy")
                   done();
-                }).catch(function(er){
-                  console.log("catch2",er)
-                });
+                })
+
     })
-
-
   })
 
 
