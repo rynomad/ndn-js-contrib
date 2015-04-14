@@ -1,7 +1,7 @@
 var Repository = require("./../src/DataStructures/Repository.js")
 var assert = require("assert");
 describe("Repository",function(){
-  describe(".Open(path)",function(){
+  describe("Repository.Open(path)",function(){
     it("should return a promise", function(done){
       Repository.Open("trash")
                 .then(function(repo){
@@ -324,8 +324,19 @@ describe("Repository",function(){
     after(function(done){
       repo.close()
           .then(function(){
-            done()
+            done();
           })
+    })
+
+  })
+
+  describe("destroy(path)", function(){
+    var repo;
+    before(function(){
+      Repository.Open("trash/test_destroy")
+                .then(function(){
+                  done();
+                })
     })
   })
 })
