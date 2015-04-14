@@ -37,6 +37,7 @@ describe("Repository",function(){
 
     it("should reject if repo open", function(done){
       var repo;
+      this.timeout(5000)
       Repository.Open("trash/openfail")
                 .then(function(rep){
                   repo = rep
@@ -46,10 +47,9 @@ describe("Repository",function(){
                   assert(false)
                 })
                 .catch(function(err){
-                  console.log(err)
-
+                  console.log(err);
                   return repo.close();
-                }).then(function(){
+                }).then(function(repo){
                   return repo.destroy();
                 }).then(function(){
                   done();

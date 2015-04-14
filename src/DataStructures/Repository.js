@@ -145,28 +145,23 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
     self._dataDB
         .createKeyStream()
         .on("data",function(key){
-          console.log("dat", key)
           proms.push(self.createNode({name:new Name(key)}, self)
                          .then(function(node){
                            return self._contentStore._nameTree.insert(node);
                          }))
         })
         .on("error", function(err){
-          console.log("err!!!!!!!!!!")
           reject(err);
         })
         .on("close", function(){
-          console.log("key stream complete")
 
         })
         .on("end", function(){
-          console.log("end")
           Promise.all(proms)
                  .then(resolve)
                  .catch(function(err){
                    self.close()
                        .then(function(){
-                         console.log('err?!')
                          reject(err);
                        })
                  })
