@@ -95,7 +95,7 @@ Repository.Entry.prototype.getData = function Repository_Entry_getData(){
 
 Repository.Entry.prototype.delete = function Repository_Entry_delete(){
   var self = this;
-  return new Promise(function Repository_Entry_removeData_Promise(resolve, reject){
+  return new Promise(function Repository_Entry_delete_Promise(resolve, reject){
     self._repository
         .dataDB
         .del(self.prefix.toUri(), function(err){
