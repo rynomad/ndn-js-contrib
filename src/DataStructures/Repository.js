@@ -17,7 +17,6 @@ var leveldown = require("leveldown")
 function Repository (path){
   var self = this;
   this._dataPath = path;
-  this._indexPath = path + "/.index";
   this._contentStore = new ContentStore();
   this._contentStore.setEntryClass(Repository.Entry);
 
@@ -187,5 +186,21 @@ Repository.prototype.close = function Repository_close(){
       resolve();
     });
   })
-}
+};
+
+Repository.prototype.destroy = function Repository_destroy(){
+  var self = this;
+  return new Promise(function Repository_destroy_Promise(resolve,reject){
+    if (self._dataDB.isOpen())
+      return reject(new Error("Repository.destroy(): Repository must call Repository.close() prior to destruction"))
+
+    leveldown.destroy(self._dataPath, function Repository_destroy_level(err){
+      if (err)
+        return reject(err);
+
+      resolve();
+    });
+  });
+};
+
 module.exports = Repository;

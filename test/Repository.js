@@ -332,11 +332,44 @@ describe("Repository",function(){
 
   describe("destroy(path)", function(){
     var repo;
-    before(function(){
-      Repository.Open("trash/test_destroy")
-                .then(function(){
+    before(function(done){
+      Repository.Open("trash/test_dest")
+                .then(function(re){
+                  repo = re;
                   done();
                 })
+                .catch(function(er){
+                  console.log(er)
+                  //done();
+                })
     })
+
+    it("should reject if not closed a promise", function(done){
+      console.log(repo)
+      repo.destroy()
+          .then(function(){
+            assert(false);
+          })
+          .catch(function(er){
+            done();
+          })
+    })
+    /*
+    it("should resolve if DB closed ", function(done){
+      repo.close()
+          .then(function(){
+            return repo.destroy();
+          })
+          .then(function(){
+            done();
+            repo
+          })
+          .catch(function(er){
+            console.log(er)
+          })
+    })
+    */
+
+
   })
 })
