@@ -58,8 +58,10 @@ Repository.Entry = function Repository_Entry(data, repository){
           .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
             if (err)
               reject(err);
-            else
+            else{
+              this.prefix = nameWithDigest;
               resolve(new NameTree.Node(data.name, self));
+            }
           });
     }
   });
@@ -87,6 +89,10 @@ Repository.Entry.prototype.setData = function Repository_Entry_setData(){
   });
 };
 
+Repository.Entry.prototype.fulfillsInterest = function Repository_Entry_fulfillsInterest(interest){
+
+}
+
 Repository.prototype.createNode = function Repository_createNode(data, repository){
   return this._contentStore.createNode(data, repository);
 };
@@ -96,8 +102,9 @@ Repository.prototype.insert = function Repository_insert(data){
 };
 
 Repository.prototype.remove = function Repository_remove(entry){
+  var self = this;
   return new Promise(function Repository_remove_Promise(resolve,reject){
-    reject();
+    self._contentStore.nameTree.remove()
   });
 };
 
