@@ -377,9 +377,19 @@ describe("Repository",function(){
     })
 
   })
-
+  /*
+  describe("batch")
+  */
   describe("Entry", function(){
+    describe("construct and getData()",function(){
+
+    })
+
     describe("delete()", function(){
+
+    })
+
+    describe("fulfillsInterest",function(){
 
     })
   })
