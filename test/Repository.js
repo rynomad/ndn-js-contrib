@@ -3,7 +3,7 @@ var assert = require("assert");
 describe("Repository",function(){
   describe("Repository.Open(path)",function(){
     it("should return a promise", function(done){
-      Repository.Open("trash/open")
+      Repository.Open("trash/open_first")
                 .then(function(repo){
                   return repo.close();
                 })
@@ -20,7 +20,7 @@ describe("Repository",function(){
     })
 
     it("should resolve with the repo object", function(done){
-      Repository.Open("trash")
+      Repository.Open("trash/open_second")
                 .then(function(repo){
                   assert(repo.insert === Repository.prototype.insert, "triple equals lol");
                   done()
