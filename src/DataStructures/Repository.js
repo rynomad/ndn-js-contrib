@@ -183,6 +183,7 @@ Repository.prototype.close = function Repository_close(){
 Repository.prototype.destroy = function Repository_destroy(){
   var self = this;
   return new Promise(function Repository_destroy_Promise(resolve,reject){
+    console.log("destroy", self._dataPath)
     if (self._dataDB.isOpen())
       return reject(new Error("Repository.destroy(): Repository must call Repository.close() prior to destruction"))
 
