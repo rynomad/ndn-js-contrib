@@ -13,6 +13,9 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
+var jsdoc = require("gulp-jsdoc");
+
+
 
 
 gulp.task('browserify-tests',['mocha'], function () {
@@ -20,7 +23,8 @@ gulp.task('browserify-tests',['mocha'], function () {
   var b = browserify();
   b.add('./test/NameTree.js')
    .add('./test/ContentStore.js')
-   .add('./test/PIT.js');
+   .add('./test/PIT.js')
+   .add('./test/FIB.js');
 
   var stream = b.bundle()
     .pipe(source('tests.js'))
@@ -50,11 +54,16 @@ gulp.task('lint', function() {
 
 
 gulp.task('live',['browserify-tests'], function () {
-  gulp.src('./test/browser/index.html')
+  gulp.src('./test/index.html')
     .pipe(connect.reload());
 });
 
-gulp.task('dev-auto-commit', ['browserify-tests','mocha','live'], function(){
+gulp.task('jsdoc', function(){
+  gulp.src("./src/*.js")
+    .pipe(jsdoc('./doc'))
+})
+
+gulp.task('dev-auto-commit', ['browserify-tests','mocha','live', 'jsdoc'], function(){
   return gulp.src(['./src/DataStructures/*.js','./test/*.js'])
   .pipe(git.commit("auto commit: " + new Date()))
 
