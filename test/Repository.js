@@ -53,6 +53,8 @@ describe("Repository",function(){
                   return repo.destroy();
                 }).then(function(){
                   done();
+                }).catch(function(er){
+                  console.log(er)
                 });
     })
 
