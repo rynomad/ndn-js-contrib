@@ -9,7 +9,7 @@ var leveldown = require("leveldown")
   , levelup = require("levelup")
   , Name   = require("ndn-js/js/name.js")
   , crypto = require("ndn-js/js/crypto.js")
-  , Data   = require("ndn-js/js/Data.js")
+  , Data   = require("ndn-js/js/data.js")
   , NameTree = require("./NameTree.js")
   , ContentStore = require("./ContentStore.js")
 
@@ -157,4 +157,7 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
   });
 };
 
+Repository.prototype.close = function Repository_close(){
+  return this.dataDB.close();
+}
 module.exports = Repository;
