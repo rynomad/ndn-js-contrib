@@ -361,21 +361,6 @@ describe("Repository",function(){
           })
     })
 
-    it("should resolve if DB closed ", function(done){
-      repo.close()
-          .then(function(){
-            return repo.destroy();
-          })
-          .then(function(){
-            done();
-            repo
-          })
-          .catch(function(er){
-            console.log(er)
-          })
-    })
-
-
 
   })
 })
