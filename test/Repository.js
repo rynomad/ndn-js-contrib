@@ -94,17 +94,19 @@ describe("Repository",function(){
           })
 
     })
-    /**
-    it("should reject usnigned data",function(done){
+
+    it("should resolve data insertion",function(done){
       var dat = new ndn.Data(new ndn.Name("a/b/d/e"), "hello world")
-      cs.insert(dat).then(function(){
-          assert(false)
-        })
-        .catch(function(er){
-          done()
-        })
+      repo.insert(dat)
+          .then(function(){
+            done();
+          })
+          .catch(function(er){
+            console.log("err????", er, er.stack)
+            assert(false, er + er.stack)
+          })
     })
-    */
+
 
     it("should reject if data is duplicate", function(done){
       var dat = new ndn.Data(new ndn.Name("a/b/c"), "hello world")

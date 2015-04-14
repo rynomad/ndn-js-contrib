@@ -7,9 +7,9 @@
 
 var leveldown = require("leveldown")
   , levelup = require("levelup")
-  , Name   = require("ndn-js/js/name.js")
+  , Name   = require("ndn-js/js/name.js").Name
   , crypto = require("ndn-js/js/crypto.js")
-  , Data   = require("ndn-js/js/data.js")
+  , Data   = require("ndn-js/js/data.js").Data
   , NameTree = require("./NameTree.js")
   , ContentStore = require("./ContentStore.js")
 
