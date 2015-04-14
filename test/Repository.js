@@ -46,12 +46,13 @@ describe("Repository",function(){
                   assert(false)
                 })
                 .catch(function(err){
+                  return repo.close()
+                             .then(function(){
+                               repo.destroy()
+                             });
+                }).then(function(){
                   done();
-                  return repo.close();
-                }).then(function(repo){
-                  return repo.destroy();
-                })
-
+                });
     })
   })
 
