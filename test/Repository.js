@@ -31,7 +31,19 @@ describe("Repository",function(){
                 })
     })
 
-    it()
+    it("should reject if repo open", function(done){
+      Repository.Open("trash/openfail")
+                .then(function(repo){
+                  return Repository.Open("trash/openfail")
+                })
+                .then(function(repo){
+                  assert(false)
+                })
+                .catch(function(err){
+                  assert(err)
+                  done();
+                })
+    })
 
   })
 })
