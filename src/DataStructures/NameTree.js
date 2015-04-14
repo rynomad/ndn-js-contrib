@@ -91,6 +91,7 @@ NameTree.prototype.remove = function NameTree_remove(prefix){
     this.root.remove(removeSuffix);
   else
     this.root.updateDepth(~prefix.size())
+  
   return item;
 };
 
