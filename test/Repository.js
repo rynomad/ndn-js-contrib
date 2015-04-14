@@ -2,7 +2,7 @@ var Repository = require("./../src/DataStructures/Repository.js")
 
 describe("Repository",function(){
   describe(".Open(path)",function(){
-    it("should return a promise", function(){
+    it("should return a promise", function(done){
       Repository.Open("trash")
                 .then(function(repo){
                   return repo.close();
