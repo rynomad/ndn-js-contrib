@@ -104,7 +104,7 @@ Repository.prototype.insert = function Repository_insert(data){
 Repository.prototype.remove = function Repository_remove(entry){
   var self = this;
   return new Promise(function Repository_remove_Promise(resolve,reject){
-    self._contentStore.nameTree.remove()
+    self._contentStore.nameTree.remove();
   });
 };
 
