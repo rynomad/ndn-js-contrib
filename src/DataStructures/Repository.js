@@ -80,7 +80,16 @@ function Repository_getNameWithDigest(name, packet){
 Repository.Entry.prototype.getData = function Repository_Entry_getData(){
   var self = this;
   return new Promise(function Repository_Entry_getData_Promise(resolve, reject){
-    reject();
+    self._repository
+        .dataDB
+        .get(self.prefix.toUri(), function(err, packet){
+          if (err)
+            return reject(err);
+
+          var data = new Data()
+          data.wireDecode(new Buffer(packet));
+          resolve(data);
+        });
   });
 };
 
@@ -93,11 +102,7 @@ Repository.Entry.prototype.delete = function Repository_Entry_delete(){
           if (err)
             return reject(err);
           resolve();
-        })
-      self.index.insert(element,data, self);
-      callback(err);
-    });
-    reject();
+        });
   });
 };
 
