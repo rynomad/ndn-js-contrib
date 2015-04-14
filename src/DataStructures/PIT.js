@@ -4,21 +4,20 @@ var NameTree = require("./NameTree.js");
 var crypto = require("ndn-js/js/crypto.js");
 
 function PIT(){
-  this._nameTree = new NameTree()
+  this._nameTree = new NameTree();
 }
 
 PIT.prototype.insert = function PIT_insert(interest, onData){
   var self = this;
   return new Promise(function PIT_insert_Promise(resolve,reject){
-    var nameTreeNode = self._nameTree.get(interest.name)
+    var nameTreeNode = self._nameTree.get(interest.name);
     if (!nameTreeNode.getItem())
-      nameTreeNode.setItem(new PIT.Node())
+      nameTreeNode.setItem(new PIT.Node());
 
     var pitNode = nameTreeNode.getItem();
-    var result = pitNode.addEntry(interest, onData )
-    console.log(result)
+    var result = pitNode.addEntry(interest, onData );
     if (result)
-      resolve(interest)
+      resolve(interest);
     else
       reject(new Error("PIT.insert(interest, onData): interest is duplicate"));
   });
@@ -27,8 +26,7 @@ PIT.prototype.insert = function PIT_insert(interest, onData){
 PIT.prototype.lookup = function PIT_lookup(data, face){
   var self = this;
   return new Promise(function PIT_lookup_Promise(resolve,reject){
-    var nameWithDigest = data.name.getPrefix(data.name.size())
-
+    var nameWithDigest = data.name.getPrefix(data.name.size());
 
     nameWithDigest.append("sha256digest=" + crypto.createHash('sha256')
                                                   .update(data.wireEncode()
