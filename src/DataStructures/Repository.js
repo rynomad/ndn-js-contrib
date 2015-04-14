@@ -48,7 +48,6 @@ Repository.Open = function Repository_Open(path){
 Repository.Entry = function Repository_Entry(data, repository){
   var self = this;
   this._repository = repository;
-  console.log("!!!!!!!!!!!!!", data)
 
   return new Promise(function Repository_createNode_Promise(resolve,reject){
     console.log(">>>>",!data.content)
