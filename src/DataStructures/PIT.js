@@ -36,15 +36,15 @@ PIT.prototype.lookup = function PIT_lookup(data, face){
                                                   .digest()
                                                   .toString('hex'));
 
-    self._nameTree.up(nameWithDigest)
+    self._nameTree.up(nameWithDigest);
     self._nameTree.skip(function(node){
       return (!node.getItem());
-    })
+    });
 
     var results = [];
 
     for(var ntnode of self._nameTree){
-      var pitNode = ntnode.getItem()
+      var pitNode = ntnode.getItem();
       for(var entry in pitNode._entries){
         if (pitNode._entries[entry].interest.matchesName(data.name)){
 
