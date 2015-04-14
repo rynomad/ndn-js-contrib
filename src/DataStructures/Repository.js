@@ -183,7 +183,7 @@ Repository.prototype.close = function Repository_close(){
     self._dataDB.close(function Repository_close_Promise_level(err){
       if (err)
         return reject(err)
-      resolve();
+      resolve(self);
     });
   })
 };

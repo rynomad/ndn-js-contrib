@@ -8,13 +8,10 @@ describe("Repository",function(){
                   return repo.close();
                 })
                 .then(function(){
-                  done();
-                })
-                .catch(function(err){
-                  done();
-                }).then(function(){
                   return repo.destroy();
                 }).then(function(){
+                  done();
+                }).catch(function(){
                   done();
                 });
     })
@@ -23,19 +20,18 @@ describe("Repository",function(){
       Repository.Open("trash/open_second")
                 .then(function(repo){
                   assert(repo.insert === Repository.prototype.insert, "triple equals lol");
-                  done()
                   return repo;
+                })
+                .then(function(repo){
+                  return repo.close()
+                }).then(function(repo){
+                  return repo.destroy();
+                }).then(function(){
+                  done();
                 })
                 .catch(function(err){
                   console.log(err)
 
-                })
-                .then(function(repo){
-                  return repo.close()
-                }).then(function(){
-                  return repo.destroy();
-                }).then(function(){
-                  done();
                 });
     })
 
