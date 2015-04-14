@@ -33,12 +33,19 @@ function Repository (path){
                            , {db:leveldown, valueEncoding: "json"}
                            , function Repository_Contstructor_Promise_levelup(){
                                self.populateContentStoreNodes()
-                                   .then(resolve)
+                                   .then(function(){
+                                     resolve(self)
+                                   })
                                    .catch(reject);
                            });
   });
 }
 
+Repository.Open = function Repository_Open(path){
+  return new Repository(path);
+};
+
+module.exports = Repository;
 
 
 Repository.Entry = function Repository_Entry(data, repository){
@@ -156,73 +163,3 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
         });
   });
 };
-
-
-/**get an element from a {RepoEntry}
- *@param {RepoEntry} repoEntry the entry for the desired element
- *@param {function} callback function receiving (err, element) as arguments, asyncronously
- *@returns {this} for chaining
- */
-Repository.prototype.getElement = function(repoEntry, callback){
-  this.db.get(repoEntry.uri, function(err, data){
-   if (!err && !Buffer.isBuffer(data)){
-     console.log("got element", data, err)
-     data = new Buffer(data);
-   }
-   callback(data);
-  });
-  return this;
-};
-
-/**Insert an element into the DB and a corresponding RepoEntry into the index
- *@param {Buffer} element - raw data packet
- *@param {Object=} data - the NDN.Data object of the packet
- *@param {function=} callback - called with no arguments on success, with err if fail
- *@returns {this} for chaining
- */
-Repository.prototype.insert = function(element, data, callback){
-  var db = this.db,
-      self = this;
-  callback = callback || function(){};
-
-  if (typeof data == "function"){
-    callback = data
-    data = new ndn.Data()
-    data.wireDecode(element);
-  }
-
-  db.put(data.name.toUri(), element, function(err){
-    self.index.insert(element,data, self);
-    callback(err);
-  });
-
-  return this;
-};
-
-/**Populate the index with keys from the db, called once on startup
- *@private
- *@param {function} callback called with err if one occurs
- */
-Repository.prototype.populateNameTree = function(callback){
-  var self = this
-    , db = self.db;
-
-
-};
-
-/**Check the Repository for data matching an interest
- *@param {Object} interest and NDN.Interest object
- *@param {function} callback recieves (err, element) err is null if everything is OK, element is a Buffer with the raw data packet
- *@returns {this} for chaining
- */
-Repository.prototype.check = function(interest, callback, db) {
-  db = db || this;
-  if (!db.spun){
-    setTimeout(db.check, 200, interest, callback, db);
-  } else {
-    db.index.check(interest, callback);
-  }
-  return this;
-};
-
-module.exports = Repository;
