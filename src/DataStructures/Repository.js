@@ -51,7 +51,8 @@ Repository.Entry = function Repository_Entry(data, repository){
         reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name"))
       resolve(new NameTree.Node(data.name, self));
     } else {                                  // we're actually inserting new data
-      var nameWithDigest = Repository_getNameWithDigest(data);
+      var packet = data.wireEncode().buffer
+        , nameWithDigest = Repository_getNameWithDigest(data.name, packet);
       self._repository
           .db
           .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
@@ -64,12 +65,10 @@ Repository.Entry = function Repository_Entry(data, repository){
   });
 };
 
-function Repository_getNameWithDigest(data){
+function Repository_getNameWithDigest(name, packet){
   var name = new Name(data.name)
   name.append("sha256digest=" + crypto.createHash('sha256')
-                                      .update(this._data
-                                                  .wireEncode()
-                                                  .buffer)
+                                      .update(packet)
                                       .digest()
                                       .toString('hex'));
 }
