@@ -32,8 +32,10 @@ describe("Repository",function(){
     })
 
     it("should reject if repo open", function(done){
+      var repo;
       Repository.Open("trash/openfail")
-                .then(function(repo){
+                .then(function(rep){
+                  repo = rep
                   return Repository.Open("trash/openfail")
                 })
                 .then(function(repo){
@@ -41,9 +43,15 @@ describe("Repository",function(){
                 })
                 .catch(function(err){
                   assert(err)
+                }).then(function(){
+                  return repo.close();
+                }).then(function(){
+                  return repo.destroy();
+                }).then(function(){
                   done();
-                })
+                });
     })
+
 
   })
 
