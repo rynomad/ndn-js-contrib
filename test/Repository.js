@@ -71,7 +71,7 @@ describe("Repository",function(){
         })
     });
 
-    it("should resolve with a nameTree node containing a ContentStore.Entry", function(done){
+    it("should resolve with a nameTree node containing a Repository.Entry", function(done){
       repo.createNode(new ndn.Data(new ndn.Name("test/create/node/resolve"), "content"), repo)
         .then(function(node){
           assert(node.getItem() instanceof Repository.Entry)
