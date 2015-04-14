@@ -83,7 +83,7 @@ Repository.Entry.prototype.getData = function Repository_Entry_getData(){
   });
 };
 
-Repository.Entry.prototype.setData = function Repository_Entry_setData(){
+Repository.Entry.prototype.delete = function Repository_Entry_delete(){
   return new Promise(function Repository_Entry_removeData_Promise(resolve, reject){
     reject();
   });
