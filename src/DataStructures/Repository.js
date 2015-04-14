@@ -15,12 +15,6 @@ var leveldown = require("leveldown"),
 var debug = true;
 
 
-/**NDN Repository
- *@constructor
- *@param {ContentStore} index - the in-memory {@link http://rynomad.github.io/ndn-javascript-data-structures/doc/ContentStore.html|ContentStore} to do lookups on the underlying key-value store
- *@param {Object} - policy an parameter option for deciding on policies for accepting/rejecting storage requests
- *@returns {Repository}
- */
 function Repository (path){
   var self = this;
   this._dataPath = path;
@@ -41,11 +35,11 @@ function Repository (path){
   });
 }
 
+
 Repository.Open = function Repository_Open(path){
   return new Repository(path);
 };
 
-module.exports = Repository;
 
 
 Repository.Entry = function Repository_Entry(data, repository){
@@ -163,3 +157,5 @@ Repository.prototype.populateContentStoreNodes = function Repository_populateCon
         });
   });
 };
+
+le.exports = Repository;
