@@ -198,17 +198,36 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
           nexthops = res
           return self._pit.insert(interest, function Node_expressInterest_onData(data, respondFace){
             if (data === interest)
-              reject(interest);
+              reject(new Error("Node.expressInterest timeoout"), interest);
             else
               resolve(data, respondFace, Date.now() - t);
           });
         }).catch(function Node_expressInterest_FIB_Miss(err){
-          reject(err)
+          reject(err, interest)
         }).then(function Node_expressInterest_PitInsert(pit){
           for (var i in nexthops)
             nexthops[i].putData(interest);
         });
   });
+}
+
+Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime){
+  var pipe = [];
+  if (data0.name.get(-1).toSegment() !== 0){
+
+    var interest = new Interest(data0.name.getPrefix(-1).appendSegment(0));
+    interest.setInterestLifetimeMilliseconds(roundtriptime * 2)
+    interest.setMinSuffixComponents(1);
+    interest.setMaxSuffixComponents(1);
+    this.expressInterest(interest)
+        .then(function(data){
+
+        })
+        .catch(function(){
+
+        })
+  }
+
 }
 
 Node.prototype.get = function Node_get(params){
