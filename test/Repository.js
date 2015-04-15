@@ -396,7 +396,6 @@ before(function(done){
         this.timeout(5000)
         repo.createNode(new ndn.Data(new ndn.Name("test/insert/delete"), "hello world"), repo)
         .then(function(entry){
-          console.log(entry.getItem())
           return entry.getItem().getData();
         }).then(function(data){
           assert(data.content.toString() === "hello world", "something went wrong")
