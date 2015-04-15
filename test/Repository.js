@@ -381,8 +381,21 @@ describe("Repository",function(){
   describe("batch")
   */
   describe("Entry", function(){
-    describe("construct and getData()",function(){
-
+    var repo;
+    before(function(done){
+      Repository.Open("trash/test_Entry")
+                .then(function(r){
+                  repo = r;
+                })
+    })
+    describe("construct and getData()",function(done){
+      var entry = new Repository.Entry(new ndn.Data("test/construct/entry", "hello world"), repo)
+      entry.then(function(){
+        return entry.getData()
+      }).then(function(){
+        assert(data.content.toString() === "hello world", "something went wrong")
+        done();
+      })
     })
 
     describe("delete()", function(){
