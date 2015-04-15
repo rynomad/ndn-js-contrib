@@ -77,7 +77,6 @@ describe("Repository",function(){
     })
 
     it("should resolve only after close if not closed a promise", function(done){
-      console.log(repo)
       repo.destroy()
           .then(function(){
             assert(false);
