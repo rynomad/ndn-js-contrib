@@ -231,47 +231,50 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime)
   return Promise.all(pipe);
 }
 
-Node.prototype.get = function Node_get(params){
+Node.prototype.fetch = function Node_fetch(params){
   var prefix    = new Name(params.prefix)
     , versioned = params.versioned
     , self = this;
 
-  return new Promise(function Node_get_Promise(resolve,reject){
-    var firstInterest = new Interest(prefix)
-    firstInterest.setInterestLifetimeMilliseconds(4000)
-    var minSuffix = (versioned) ? 3 : 2;
-    var maxSuffix = minSuffix;
-    var childSelector = (versioned) ? 1 : 0;
+  var firstInterest = new Interest(prefix)
+  firstInterest.setInterestLifetimeMilliseconds(4000)
+  var minSuffix = (versioned) ? 3 : 2;
+  var maxSuffix = minSuffix;
+  var childSelector = (versioned) ? 1 : 0;
 
-    firstInterest.setMinSuffixComponents(minSuffix);
-    firstInterest.setMaxSuffixComponents(maxSuffix);
-    firstInterest.setChildSelector(childSelector);
+  firstInterest.setMinSuffixComponents(minSuffix);
+  firstInterest.setMaxSuffixComponents(maxSuffix);
+  firstInterest.setChildSelector(childSelector);
 
-    self.expressInterest(firstInterest )
-        .then(function(data, face, roundTripTime){
-          return self.pipelineFetch(data, roundTripTime)
-        })
-        .catch(function(err){
-          reject(err);
-        })
-        .then(function(datas){
-          return Node.assemble(datas);
-        })
-        .then(function(type, thing){
-          resolve(type, thing);
-        })
-        .catch(function(err){
-          reject(err)
-        })
-  })
+  return self.expressInterest(firstInterest )
+             .then(function(data, face, roundTripTime){
+               return self.pipelineFetch(data, roundTripTime)
+             })
+             .catch(function(err){
+               reject(err);
+             });
+}
+
+Node.prototype.get = function Node_get(params){
+  return this.fetch(params)
+             .then(function (datas){
+               return Node.assemble(datas);
+             });
 }
 
 Node.prototype.store = function Node_store(params){
   return this.put(params, this._repository)
 }
 
-Node.prototype.steward = function Node_steward(keyLocator){
-
+Node.prototype.steward = function Node_steward(params){
+  var self = this;
+  return this.fetch(params)
+             .then(function(datas){
+               var proms = []
+               for (var i in datas)
+                 proms.push(self._repository.insert(datas[i]))
+               return Promise.all(proms);
+             });
 }
 
 Node.prototype.addConnectionMethod = function Node_addConnectionMethod(method){
