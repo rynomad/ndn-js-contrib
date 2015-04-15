@@ -4,7 +4,8 @@ var Repository = require("./Repository.js")
   , FIB = require("./FIB.js")
   , getFileChunks = require("./util/get-file-chunks.js")
   , Name = require("ndn-js/js/name.js").Name
-  , Data = require("ndn-js/js/data.js").Data;
+  , Data = require("ndn-js/js/data.js").Data
+  , Interest = require("ndn-js/js/interest").Interest;
 
 function Node (){
   this._contentStore = new ContentStore();
