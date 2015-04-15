@@ -166,12 +166,28 @@ Node.prototype.put = function Node_put(param, store){
 
       var proms = [
         store.insert(data0)
+             .then(function(){
+               self._pit
+                   .lookup(data0, face)
+                   .then(function Node_onData_pitResults(faceArray){
+                     for (var i in faceArray)
+                       faceArray[i].putData(data);
+                   });
+             })
       ]
       for (var chunk of chunks){
         proms.push(chunk.then(function onChunk(buffer, chunkNumber){
           var name = new Name(prefix);
           name.appendSegment(chunkNumber+1);
-          return store.insert(new Data(name, buffer));
+          var data = new Data(name, buffer)
+          self._pit
+              .lookup(data0, face)
+              .then(function Node_onData_pitResults(faceArray){
+                for (var i in faceArray)
+                  faceArray[i].putData(data);
+              });
+
+          return store.insert(data);
         }));
       }
 
@@ -234,6 +250,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime)
 Node.prototype.fetch = function Node_fetch(params){
   var prefix    = new Name(params.prefix)
     , versioned = params.versioned
+    , chained = params.chained
     , self = this;
 
   var firstInterest = new Interest(prefix)
