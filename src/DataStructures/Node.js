@@ -171,7 +171,7 @@ Node.prototype.put = function Node_put(param, store){
       return reject(new Error("Node.put(param): param.type must be json, string, file, or buffer"))
     }
 
-    chunkify.then(function(chunks){
+    chunkify.then(function Node_put_processChunks(chunks){
       var name = new Name(prefix);
       name.appendSegment(0);
       var data0 = new Data(name, JSON.stringify(param));
@@ -183,7 +183,7 @@ Node.prototype.put = function Node_put(param, store){
       var proms = [
         self.putPacket(data0, store)
       ];
-      
+
       for (var chunk of chunks){
         proms.push(chunk.then(function onChunk(buffer, chunkNumber){
           var name = new Name(prefix);
@@ -202,7 +202,7 @@ Node.prototype.put = function Node_put(param, store){
                reject(err);
              })
 
-    })
+    });
   });
 };
 
