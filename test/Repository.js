@@ -421,8 +421,7 @@ before(function(done){
 
             entry._repository._dataDB.createKeyStream()
                 .on("data",function( data){
-                  console.log(data.substr(0,6))
-                  assert(data.substr(0, 6) !== "delete")
+                  assert(data.substr(0, 7) !== "/delete")
                 })
                 .on("end",function(err){
                   done()
