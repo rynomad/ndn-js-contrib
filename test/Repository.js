@@ -430,7 +430,14 @@ before(function(done){
       })
     })
 
-    describe("fulfillsInterest",function(){
+    describe("fulfillsInterest(interest)",function(){
+      it("should return true for exact match",function(done){
+        repo.createNode(new ndn.Data(new ndn.Name("test/repo/fulfills/interest"), "goodbye world") ).then(function(node){
+
+          assert(node.getItem().fulfillsInterest(new ndn.Interest(new ndn.Name("test/repo/fulfills/interest"))), "not matching");
+          done();
+        })
+      })
 
     })
 
