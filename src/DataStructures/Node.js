@@ -213,21 +213,22 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
 
 Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime){
   var pipe = [];
-  if (data0.name.get(-1).toSegment() !== 0){
+  var numberOfPackets = data0.getMetaInfo().getFinalBlockID().toSegment() + 1;
+  var millisecondsPerPacket = this.getMaximumPacketSendTime() || 200;
+  var timeToExpectedLastPacket = (millisecondsPerPacket * numberOfPackets) + roundtriptime;
 
-    var interest = new Interest(data0.name.getPrefix(-1).appendSegment(0));
-    interest.setInterestLifetimeMilliseconds(roundtriptime * 2)
-    interest.setMinSuffixComponents(1);
-    interest.setMaxSuffixComponents(1);
-    this.expressInterest(interest)
-        .then(function(data){
-
-        })
-        .catch(function(){
-
-        })
+  for (var i = 0; i < numberOfPackets; i++  ){
+    pipe[i] = new Interest(data0.name.getPrefix(-1).appendSegment(0));
+    pipe[i].setInterestLifetimeMilliseconds(timeToExpectedLastPacket);
+    pipe[i].setMinSuffixComponents(1);
+    pipe[i].setMaxSuffixComponents(1);
+    pipe[i] = this.expressInterest(interest)
+                  .then(function(data, face, rtt){
+                    return data;
+                  });
   }
 
+  return Promise.all(pipe);
 }
 
 Node.prototype.get = function Node_get(params){
