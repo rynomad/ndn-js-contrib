@@ -181,29 +181,16 @@ Node.prototype.put = function Node_put(param, store){
                           )
 
       var proms = [
-        store.insert(data0)
-             .then(function(){
-               self._pit
-                   .lookup(data0, face)
-                   .then(function Node_onData_pitResults(faceArray){
-                     for (var i in faceArray)
-                       faceArray[i].putData(data);
-                   });
-             })
-      ]
+        self.putPacket(data0, store)
+      ];
+      
       for (var chunk of chunks){
         proms.push(chunk.then(function onChunk(buffer, chunkNumber){
           var name = new Name(prefix);
           name.appendSegment(chunkNumber+1);
-          var data = new Data(name, buffer)
-          self._pit
-              .lookup(data0, face)
-              .then(function Node_onData_pitResults(faceArray){
-                for (var i in faceArray)
-                  faceArray[i].putData(data);
-              });
+          var data = new Data(name, buffer);
 
-          return store.insert(data);
+          return self.putPacket(data, store);
         }));
       }
 
