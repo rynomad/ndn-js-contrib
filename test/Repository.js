@@ -377,25 +377,44 @@ describe("Repository",function(){
     })
 
   })
-  /*
-  describe("batch")
-  */
+
   describe("Entry", function(){
-    var repo;
-    before(function(done){
-      Repository.Open("trash/test_Entry")
-                .then(function(r){
-                  repo = r;
-                })
-    })
-    describe("construct and getData()",function(done){
-      var entry = new Repository.Entry(new ndn.Data("test/construct/entry", "hello world"), repo)
-      entry.then(function(){
-        return entry.getData()
-      }).then(function(){
-        assert(data.content.toString() === "hello world", "something went wrong")
-        done();
+
+    describe("construct and getData()",function(){
+      var repo;
+      before(function(done){
+        Repository.Open("trash/test_entry")
+                  .then(function(r){
+                    repo = r;
+                    done();
+
+                  }).catch(function(err){
+                    console.log(err)
+                  })
       })
+      it("should insert and retrieve it's own packet",function(done){
+        this.timeout(5000)
+        var entry = new Repository.Entry(new ndn.Data(new ndn.Name("test/construct/entry"), "hello world"), repo)
+        entry.then(function(entry){
+          console.log(entry.getItem())
+          return entry.getItem().getData();
+        }).then(function(data){
+          console.log("hello>????", data)
+          assert(data.content.toString() === "hello world", "something went wrong")
+          done();
+        }).catch(function(er){
+          console.log(err)
+        })
+      })
+
+      after(function(done){
+        repo.close()
+            .then(function(repo){
+              repo.destroy();
+              done()
+            })
+      })
+
     })
 
     describe("delete()", function(){

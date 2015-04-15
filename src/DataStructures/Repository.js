@@ -50,6 +50,7 @@ Repository.Entry = function Repository_Entry(data, repository){
   this._repository = repository;
 
   return new Promise(function Repository_createNode_Promise(resolve,reject){
+    console.log(data)
     if (!data.content){                       // this is a dataShim from populateContentStoreNodes, name should
       if (data.name.get(-1).toEscapedString().substr(0, 12) !== "sha256digest") // already have a digest, but check anyway...
         reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name" + data.name.toUri()))
@@ -65,7 +66,7 @@ Repository.Entry = function Repository_Entry(data, repository){
               reject(err);
             else{
               self.prefix = nameWithDigest;
-              resolve(new NameTree.Node(data.name, self));
+              resolve(new NameTree.Node(self.prefix, self));
             }
           });
     }
