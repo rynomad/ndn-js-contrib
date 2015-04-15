@@ -46,9 +46,7 @@ ContentStore.Entry = function ContentStore_Entry(data, cs){
     self.makeStale(cs);
   }, data.getMetaInfo().getFreshnessPeriod() );
 
-  return new Promise(function(resolve,reject){
-    resolve(new NameTree.Node(self.getNameWithDigest(),self));
-  });
+  return this;
 };
 
 
@@ -131,7 +129,11 @@ ContentStore.prototype.lookup = function(interest){
 
 
 ContentStore.prototype.createNode = function ContentStore_createNode(data, store){
-  return new this._EntryClass(data, store);
+  self = this;
+  return new Promise(function ContentStore_createNode_Promise(resolve,reject){
+    var entry = new self._EntryClass(data, self);
+    resolve(new NameTree.Node(entry.getNameWithDigest(),entry));
+  })
 }
 
 /**Insert a new entry into the contentStore
@@ -144,7 +146,7 @@ ContentStore.prototype.insert = function ContentStore_insert(data, store){
   var self = this;
   store = store || self;
   return new Promise(function ContentStore_insert_Promise (resolve, reject){
-    self.createNode(data, store)
+    store.createNode(data, store)
         .then(function ContentStore_nameTree_insert(node){
           self._nameTree.insert(node);
 

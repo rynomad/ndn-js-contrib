@@ -49,28 +49,7 @@ Repository.Entry = function Repository_Entry(data, repository){
   var self = this;
   this._repository = repository;
 
-  return new Promise(function Repository_createNode_Promise(resolve,reject){
-    console.log(data)
-    if (!data.content){                       // this is a dataShim from populateContentStoreNodes, name should
-      if (data.name.get(-1).toEscapedString().substr(0, 12) !== "sha256digest") // already have a digest, but check anyway...
-        reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name" + data.name.toUri()))
-      resolve(new NameTree.Node(data.name, self));
-    } else {                                  // we're actually inserting new data
-      var packet = data.wireEncode().buffer
-        , nameWithDigest = Repository_getNameWithDigest(data.name, packet);
-
-      self._repository
-          ._dataDB
-          .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
-            if (err)
-              reject(err);
-            else{
-              self.prefix = nameWithDigest;
-              resolve(new NameTree.Node(self.prefix, self));
-            }
-          });
-    }
-  });
+  return this;
 };
 
 function Repository_getNameWithDigest(name, packet){
@@ -104,20 +83,45 @@ Repository.Entry.prototype.delete = function Repository_Entry_delete(){
     self._repository
         ._dataDB
         .del(self.prefix.toUri(), function(err){
+          console.log(err)
           if (err)
             return reject(err);
-          resolve();
+          resolve(self);
         });
   });
 };
 
 Repository.Entry.prototype.fulfillsInterest = function Repository_Entry_fulfillsInterest(interest){
-
   return (!!this.prefix && interest.matchesName(this.prefix));
 };
 
 Repository.prototype.createNode = function Repository_createNode(data, repository){
-  return this._contentStore.createNode(data, repository);
+  var self = this;
+  return new Promise(function Repository_createNode_Promise(resolve,reject){
+    var entry = new Repository.Entry(data, repository)
+    entry._repository = self;
+
+    if (!data.content){                       // this is a dataShim from populateContentStoreNodes, name should
+      if (data.name.get(-1).toEscapedString().substr(0, 12) !== "sha256digest") // already have a digest, but check anyway...
+        reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name" + data.name.toUri()))
+      resolve(new NameTree.Node(data.name, self));
+    } else {                                  // we're actually inserting new data
+      var packet = data.wireEncode().buffer
+        , nameWithDigest = Repository_getNameWithDigest(data.name, packet);
+
+
+      entry._repository
+           ._dataDB
+           .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
+             if (err)
+               reject(err);
+             else{
+               entry.prefix = nameWithDigest;
+               resolve(new NameTree.Node(entry.prefix, entry));
+             }
+           });
+    }
+  })
 };
 
 Repository.prototype.insert = function Repository_insert(data){
@@ -184,13 +188,10 @@ Repository.prototype.close = function Repository_close(){
 Repository.prototype.destroy = function Repository_destroy(){
   var self = this;
   return new Promise(function Repository_destroy_Promise(resolve,reject){
-    console.log("destroy", self._dataPath, self._dataDB.isOpen())
     if (self._dataDB.isOpen())
       return reject(new Error("Repository.destroy(): Repository must call Repository.close() prior to destruction"))
 
-    console.log("before ld")
     leveldown.destroy(self._dataPath, function Repository_destroy_level(err){
-      console.log("leveldown.destroy", self._dataPath, err)
       if (!err)
         return resolve();
 

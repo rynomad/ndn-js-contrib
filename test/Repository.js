@@ -380,26 +380,26 @@ describe("Repository",function(){
 
   describe("Entry", function(){
 
-    describe("construct and getData()",function(){
-      var repo;
-      before(function(done){
-        Repository.Open("trash/test_entry")
-                  .then(function(r){
-                    repo = r;
-                    done();
+var repo;
+before(function(done){
+  Repository.Open("trash/test_entry")
+            .then(function(r){
+              repo = r;
+              done();
 
-                  }).catch(function(err){
-                    console.log(err)
-                  })
-      })
+            }).catch(function(err){
+              console.log(err)
+            })
+})
+    describe("construct and getData()",function(){
+
       it("should insert and retrieve it's own packet",function(done){
         this.timeout(5000)
-        var entry = new Repository.Entry(new ndn.Data(new ndn.Name("test/construct/entry"), "hello world"), repo)
-        entry.then(function(entry){
+        repo.createNode(new ndn.Data(new ndn.Name("test/insert/delete"), "hello world"), repo)
+        .then(function(entry){
           console.log(entry.getItem())
           return entry.getItem().getData();
         }).then(function(data){
-          console.log("hello>????", data)
           assert(data.content.toString() === "hello world", "something went wrong")
           done();
         }).catch(function(er){
@@ -407,22 +407,38 @@ describe("Repository",function(){
         })
       })
 
-      after(function(done){
-        repo.close()
-            .then(function(repo){
-              repo.destroy();
-              done()
-            })
-      })
+
+
 
     })
 
     describe("delete()", function(){
-
+      it("should remove the packet from the db", function(done){
+        console.log("dfad",repo)
+        repo.createNode(new ndn.Data(new ndn.Name("test/delete/data"), "goodbye world") ).then(function(node){
+          console.log("????",node)
+          return node.getItem().delete();
+        }).then(function(entry){
+            console.log("!!!", entry)
+            entry._repository._dataDB.createKeyStream()
+                .on("data",function(err, data){
+                  console.log("SF", data, err)
+                });
+            done();
+        })
+      })
     })
 
     describe("fulfillsInterest",function(){
 
+    })
+
+    after(function(done){
+      repo.close()
+          .then(function(repo){
+            repo.destroy();
+            done()
+          })
     })
   })
 
