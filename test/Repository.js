@@ -379,17 +379,17 @@ describe("Repository",function(){
 
   describe("Entry", function(){
 
-var repo;
-before(function(done){
-  Repository.Open("trash/test_entry")
-            .then(function(r){
-              repo = r;
-              done();
+    var repo;
+    before(function(done){
+      Repository.Open("trash/test_entry")
+                .then(function(r){
+                  repo = r;
+                  done();
 
-            }).catch(function(err){
-              console.log(err)
-            })
-})
+                }).catch(function(err){
+                  console.log(err)
+                })
+    })
     describe("construct and getData()",function(){
 
       it("should insert and retrieve it's own packet",function(done){
