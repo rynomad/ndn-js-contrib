@@ -126,6 +126,22 @@ Node.getBufferChunks = function getBufferChunks(buffer){
   })
 }
 
+Node.prototype.putPacket = function Node_putPacket(data, store){
+  var self = this;
+  return Promise.all([
+    store.insert(data)
+    , self._pit
+          .lookup(data)
+          .then(function Node_putPacket_PIT_Hit(faces){
+            for (var i in faces)
+              faces[i].putData(data);
+          })
+          .catch(function Node_putPacket_PIT_Miss(er){
+            return false;
+          })
+    ]);
+};
+
 Node.prototype.put = function Node_put(param, store){
   var self = this
     , store = store || this._contentStore
