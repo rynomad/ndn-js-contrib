@@ -109,7 +109,7 @@ ContentStore.prototype.getMaxPackets = function ContentStore_getMaxPackets(){
 ContentStore.prototype.lookup = function(interest){
   var self = this;
   return new Promise(function ContentStore_lookup_Promise(resolve, reject){
-    if( interest.getChildSelector())
+    if(interest.getChildSelector())
       self._nameTree.right(interest.name);
     else
       self._nameTree.left(interest.name);
@@ -123,13 +123,13 @@ ContentStore.prototype.lookup = function(interest){
       }
     }
 
-    return reject(null);
+    return reject(interest);
   })
 };
 
 
 ContentStore.prototype.createNode = function ContentStore_createNode(data, store){
-  self = this;
+  var self = this;
   return new Promise(function ContentStore_createNode_Promise(resolve,reject){
     var entry = new self._EntryClass(data, self);
     resolve(new NameTree.Node(entry.getNameWithDigest(),entry));
