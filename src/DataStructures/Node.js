@@ -222,7 +222,7 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
               resolve(data, respondFace, Date.now() - t);
           });
         }).catch(function Node_expressInterest_FIB_Miss(err){
-          reject(err, interest)
+          reject(err, interest);
         }).then(function Node_expressInterest_PitInsert(pit){
           for (var i in nexthops)
             nexthops[i].putData(interest);
@@ -248,7 +248,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime)
   }
 
   return Promise.all(pipe);
-}
+};
 
 Node.prototype.fetch = function Node_fetch(params){
   var prefix    = new Name(params.prefix)
@@ -256,8 +256,8 @@ Node.prototype.fetch = function Node_fetch(params){
     , chained = params.chained
     , self = this;
 
-  var firstInterest = new Interest(prefix)
-  firstInterest.setInterestLifetimeMilliseconds(4000)
+  var firstInterest = new Interest(prefix);
+  firstInterest.setInterestLifetimeMilliseconds(4000);
   var minSuffix = (versioned) ? 3 : 2;
   var maxSuffix = minSuffix;
   var childSelector = (versioned) ? 1 : 0;
@@ -268,34 +268,34 @@ Node.prototype.fetch = function Node_fetch(params){
 
   return self.expressInterest(firstInterest )
              .then(function(data, face, roundTripTime){
-               return self.pipelineFetch(data, roundTripTime)
+               return self.pipelineFetch(data, roundTripTime);
              })
              .catch(function(err){
                reject(err);
              });
-}
+};
 
 Node.prototype.get = function Node_get(params){
   return this.fetch(params)
              .then(function (datas){
                return Node.assemble(datas);
              });
-}
+};
 
 Node.prototype.store = function Node_store(params){
-  return this.put(params, this._repository)
-}
+  return this.put(params, this._repository);
+};
 
 Node.prototype.steward = function Node_steward(params){
   var self = this;
   return this.fetch(params)
              .then(function(datas){
-               var proms = []
+               var proms = [];
                for (var i in datas)
-                 proms.push(self._repository.insert(datas[i]))
+                 proms.push(self._repository.insert(datas[i]));
                return Promise.all(proms);
              });
-}
+};
 
 Node.prototype.addConnectionMethod = function Node_addConnectionMethod(method){
 
