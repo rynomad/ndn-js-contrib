@@ -415,16 +415,19 @@ before(function(done){
     describe("delete()", function(){
       it("should remove the packet from the db", function(done){
         console.log("dfad",repo)
-        repo.createNode(new ndn.Data(new ndn.Name("test/delete/data"), "goodbye world") ).then(function(node){
+        var node
+        repo.createNode(new ndn.Data(new ndn.Name("delete/data"), "goodbye world") ).then(function(node){
           console.log("????",node)
           return node.getItem().delete();
         }).then(function(entry){
             console.log("!!!", entry)
             entry._repository._dataDB.createKeyStream()
-                .on("data",function(err, data){
-                  console.log("SF", data, err)
-                });
-            done();
+                .on("data",function( data){
+                  assert(data.substr(0, 6) !== "delete")
+                })
+                .on("end",function(err){
+                  done()
+                })
         })
       })
     })

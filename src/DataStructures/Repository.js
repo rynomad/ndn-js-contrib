@@ -83,7 +83,6 @@ Repository.Entry.prototype.delete = function Repository_Entry_delete(){
     self._repository
         ._dataDB
         .del(self.prefix.toUri(), function(err){
-          console.log(err)
           if (err)
             return reject(err);
           resolve(self);
