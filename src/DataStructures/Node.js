@@ -292,6 +292,10 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
   });
 }
 
+Node.prototype.getMaximumPacketSendTime = function Node_getMaximumPacketSendTime(){
+  return undefined;
+}
+
 Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime){
   var pipe = [];
   var numberOfPackets = data0.getMetaInfo().getFinalBlockID().toSegment() + 1;
@@ -303,7 +307,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime)
     pipe[i].setInterestLifetimeMilliseconds(timeToExpectedLastPacket);
     pipe[i].setMinSuffixComponents(1);
     pipe[i].setMaxSuffixComponents(1);
-    pipe[i] = this.expressInterest(interest)
+    pipe[i] = this.expressInterest(pipe[i])
                   .then(function(data, face, rtt){
                     return data;
                   });

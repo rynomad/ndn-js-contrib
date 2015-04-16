@@ -302,7 +302,16 @@ describe("Node", function(){
     })
 
     it("should return a promise",function(){
+      var data = new ndn.Data(new ndn.Name("test/pipeline"), "SUCCESS")
+      data.name.appendSegment(0)
+      data.getMetaInfo().setFinalBlockId(data.name.get(-1))
 
+      handle.node.pipelineFetch(data, 100)
+            .then(function(){
+              done()
+            }).catch(function(){
+              cone()
+            })
     });
   })
 
