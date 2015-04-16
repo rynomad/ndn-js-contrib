@@ -313,7 +313,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
     console.log(pipe[i].toUri())
     proms.push(this.expressInterest(pipe[i])
                   .then(function(response){
-                    console.log("!!!!!!!!!!!!!?????")
+                    console.log("!!!!!!!!!!!!!?????", response.data)
                     return response.data;
                   }).catch(function(er){
                     console.log("errrr!")
