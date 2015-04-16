@@ -332,6 +332,10 @@ Node.prototype.setProfile = function Node_setProfile(){
 
 }
 
+Node.prototype.advertiseRoute = function Node_advertiseRoute(){
+
+}
+
 Node.prototype.listen = require("./util/server.js");
 
 Node.prototype.connect = require("./util/connect.js");
