@@ -312,6 +312,18 @@ describe("Node", function(){
         done()
       })
     });
+
+    it("should resolve for json", function(){
+      handle.node.store({
+        type: "json"
+        , prefix: "test/store/json2"
+        , data: testJson
+      }).then(function(){
+        done()
+      }).catch(function(){
+        done()
+      })
+    })
   })
 
   describe("steward(params)",function(){
