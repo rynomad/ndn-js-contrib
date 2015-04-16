@@ -167,6 +167,33 @@ describe("Node", function(){
         done();
       })
     });
+
+    it("should only resolve if  type, data, or prefix fields in params", function(){
+      handle.node.put(
+        {
+          type: "string"
+          , prefix : "test/no/data"
+        }
+      ).then(function(){
+        assert(false, "resolved with missing data ")
+      }).catch(function(){
+       return handle.node.put({
+         type: "string"
+         , data: "somedata"
+       })
+     }).then(function(){
+       assert(false, "resolved with missing prefix")
+     }).catch(function(err){
+       return handle.node.put({
+         data:"dfsadfafads"
+         , prefix: "test/no/type"
+       })
+     }).then(function(){
+       assert(false, "resolved with missing type")
+     }).catch(function(){
+       done()
+     })
+    })
   })
 
   describe("expressInterest(interest, onData)",function(){

@@ -17,11 +17,11 @@ function Node (){
 Node.create = function Node_create(path){
   var node = new Node();
   if (path)
-    Repository.Open(path)
-              .then(function Node_create_Repository_Open(repo){
-                node._repository = repo;
-                return node;
-              })
+    return Repository.Open(path)
+                      .then(function Node_create_Repository_Open(repo){
+                        node._repository = repo;
+                        return node;
+                      });
   else
     return new Promise(function Node_create_no_repository(resolve,reject){
       resolve(new Node());
