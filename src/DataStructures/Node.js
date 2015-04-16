@@ -56,7 +56,9 @@ Node.getBufferChunks = function getBufferChunks(buffer){
       chunks.push(buffer.slice(i*8000, (i+1)*8000))
     resolve(chunks);
   })
-}
+};
+
+Node.getFileChunks = getFileChunks;
 
 Node.assemble = function Node_assemble(datas){
   var meta = JSON.parse(datas.shift().content.toString());
