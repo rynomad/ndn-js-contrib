@@ -71,7 +71,7 @@ Node.assemble = function Node_assemble(datas){
   } else if (meta.type === "buffer"){
     return Buffer.concat(datas.map(function(data){return data.content}));
   } else if (meta.type === "file"){
-    return assembleFile(datas.map(function(data){return data.content}));
+    return assembleFile(datas.map(function(data){return data.content}), meta.mime);
   }
 
 }
