@@ -1,7 +1,7 @@
 var assert = require('assert')
 var Node = require("../src/DataStructures/Node.js")
 var testFile = require("./env/file-chunk-test.js")
-var serverTest = require("./env/server-test.js")
+var serverConfigs = require("./env/server-test.js")
 
 describe("Node", function(){
   describe("Static Methods", function(){
@@ -82,6 +82,12 @@ describe("Node", function(){
 
   describe("getStream",function(){
 
+  })
+
+  describe("listen(param)",function(){
+    it("should return a promise",function(){
+
+    });
   })
 
 
