@@ -205,6 +205,7 @@ describe("Node", function(){
     })
 
     it("should resolve for file",function(done){
+      console.log(testFile)
       handle.node.put({
         type: "file"
         , prefix: "test/put/file"
