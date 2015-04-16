@@ -301,7 +301,7 @@ describe("Node", function(){
       create(handle,done);
     })
 
-    it("should return a promise",function(){
+    it("should return a promise",function(done){
       handle.node.store({
         type: "json"
         , prefix: "test/store/json"
@@ -313,7 +313,7 @@ describe("Node", function(){
       })
     });
 
-    it("should resolve for json", function(){
+    it("should resolve for json", function(done){
       handle.node.store({
         type: "json"
         , prefix: "test/store/json2"
