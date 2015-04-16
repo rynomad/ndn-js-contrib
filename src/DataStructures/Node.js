@@ -23,7 +23,7 @@ Node.create = function Node_create(path){
                 return node;
               })
   else
-    return new Promise(function Node_create_no_repository(){
+    return new Promise(function Node_create_no_repository(resolve,reject){
       resolve(new Node());
     })
 }
