@@ -244,6 +244,12 @@ describe("Node", function(){
 
   describe("expressInterest(interest, onData)",function(){
     var handle = {}
+    handle.face = {
+      putData: function(data){
+        console.log("handle.face.putData")
+        handle.done(data)
+      }
+    }
     before(function(done){
       create(handle,done);
     })
@@ -270,6 +276,21 @@ describe("Node", function(){
               assert(typeof response.rtt === "number", "roundTripTime not a number")
               assert(response.data.content.toString() === "SUCCESS", "")
               done()
+            })
+    })
+
+    it("should putData to matching fib face", function(done){
+      handle.done = function(data){
+        console.log("heres?")
+        assert(data.name.get(-1).toEscapedString = "interest")
+        done();
+      }
+      handle.node
+            ._fib
+            .insert(new ndn.Name("test/express/interest/fib"), handle.face)
+            .then(function(){
+              console.log("fib entry inserted")
+              return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/express/interest/fib/interest")))
             })
     })
   })

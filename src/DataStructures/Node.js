@@ -264,12 +264,13 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
           return self._repository.lookup(interest);
         })
         .then(function Node_onInterest_Repository_Hit(data){
-          face.putData();
+          face.putData(data);
         })
         .catch(function Node_onInterest_Repository_Miss(){
           return self._fib.lookup(interest);
         })
         .then(function Node_expressInterest_FIB_Hit(res){
+          console.log("expressInterest fib hit")
           nexthops = res
           return self._pit.insert(interest, function Node_expressInterest_onData(data, respondFace){
             if (data === interest)
@@ -284,8 +285,9 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
         }).catch(function Node_expressInterest_FIB_Miss(err){
           reject(err, interest);
         }).then(function Node_expressInterest_PitInsert(pit){
+          console.log("pitInsert", nexthops)
           for (var i in nexthops)
-            nexthops[i].putData(interest);
+            nexthops[i].face.putData(interest);
         });
   });
 }
