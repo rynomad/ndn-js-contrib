@@ -460,9 +460,35 @@ describe("Node", function(){
       create(handle,done);
     });
 
-    it("should return a promise",function(){
-
+    it("should return a promise",function(done){
+      handle.node.get({
+        mustBeFresh: false
+        , prefix: "test/get/json"
+      }).then(function(){
+        done()
+      }).catch(function(){
+        done()
+      })
     });
+
+    it("should resolve with json stored via put", function(done){
+      handle.node.put({
+        type: "json"
+        , prefix : "test/get/json"
+        , data: testJson
+      }).then(function(){
+        return handle.node.get({
+          mustBeFresh: false
+          , prefix: "test/get/json"
+        }).then(function(json){
+          console.log("testfetchjson")
+          assert.deepEqual(json, testJson)
+          done()
+        }).catch(function(er){
+          console.log("er",er, er.stack)
+        })
+      })
+    })
   })
 
   describe("steward(params)",function(){
