@@ -367,10 +367,13 @@ describe("Node", function(){
         return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/store/json3")))
       }).then(function(response){
         console.log(response)
+        var finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00)
+        console.log("",finalBlock)
         return handle.node.pipelineFetch({
           prefix: response.data.name.getPrefix(-1)
           , rtt : 100
           , mustBeFresh: false
+          , finalBlock : finalBlock
         })
       }).then(function(parts){
         console.log(parts)

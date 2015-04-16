@@ -255,7 +255,6 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
     self._contentStore
         .lookup(interest)
         .then(function Node_expressInterest_ContentStore_Hit(data){
-          console.log("cache hit", data)
           resolve({
             data: data
             , from: "cache"
@@ -350,7 +349,7 @@ Node.prototype.fetch = function Node_fetch(params){
                  prefix : data.name
                  , rtt  : rtt
                  , mustBeFresh : mustBeFresh
-                 , finalBlock  : Name.Component.toNumberWithMarker( data.getMetaInfo().getFinalBlockID(),0x00) 
+                 , finalBlock  : Name.Component.toNumberWithMarker( data.getMetaInfo().getFinalBlockID(),0x00)
                });
              })
 };
