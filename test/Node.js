@@ -377,10 +377,10 @@ describe("Node", function(){
           , rtt : 100
           , mustBeFresh: false
           , finalBlock : finalBlock
-        })
+        });
       }).then(function(parts){
-        assert(parts.length - 1 === finalBlock)
-        done()
+        assert(parts.length - 1 === finalBlock);
+        done();
       })
     })
 
@@ -424,8 +424,14 @@ describe("Node", function(){
     before(function(done){
       create(handle,done);
     })
-    it("should return a promise",function(){
+    it("should return a promise",function(done){
+      handle.node.fetch({
 
+      }).then(function(){
+        done();
+      }).catch(function(){
+        done();
+      })
     });
   })
 
