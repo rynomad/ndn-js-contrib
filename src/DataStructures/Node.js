@@ -248,14 +248,12 @@ Node.prototype.put = function Node_put(param, store){
 
 Node.prototype.expressInterest = function Node_expressInterest(interest){
   var self = this;
-  var t = Date.now()
-  console.log(interest.name.toUri())
+  var t = Date.now();
   return new Promise(function Node_expressInterest_Promise(resolve,reject){
     var nexthops;
     self._contentStore
         .lookup(interest)
         .then(function Node_expressInterest_ContentStore_Hit(data){
-          console.log(interest.name.toUri(), "cache hit")
           resolve({
             data: data
             , from: "cache"
@@ -272,7 +270,6 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
           return self._fib.lookup(interest);
         })
         .then(function Node_expressInterest_FIB_Hit(res){
-          console.log("expressInterest fib hit")
           nexthops = res
           return self._pit.insert(interest, function Node_expressInterest_onData(data, respondFace){
             if (data === interest)
@@ -287,7 +284,6 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
         }).catch(function Node_expressInterest_FIB_Miss(err){
           reject(err, interest);
         }).then(function Node_expressInterest_PitInsert(pit){
-          console.log("pitInsert", nexthops)
           for (var i in nexthops)
             nexthops[i].face.putData(interest);
         });
@@ -310,13 +306,10 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
     pipe[i] = new Interest(name.getPrefix(-1).appendSegment(i));
     pipe[i].setInterestLifetimeMilliseconds(timeToExpectedLastPacket);
     pipe[i].setMustBeFresh(params.mustBeFresh)
-    console.log(pipe[i].toUri())
     proms.push(this.expressInterest(pipe[i])
                   .then(function(response){
-                    console.log("!!!!!!!!!!!!!?????", response.data)
                     return response.data;
                   }).catch(function(er){
-                    console.log("errrr!")
                     console.log(er)
                   }));
   }
