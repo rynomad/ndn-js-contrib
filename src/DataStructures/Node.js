@@ -321,7 +321,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
                   }));
   }
 
-  return Promise.all(pipe);
+  return Promise.all(proms);
 };
 
 Node.prototype.fetch = function Node_fetch(params){
