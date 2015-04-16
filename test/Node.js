@@ -68,7 +68,10 @@ describe("Node", function(){
     var handle = {}
     before(function(done){
       create(handle,function(){
-        handle.onData = function(){}
+        handle.onData = function(){
+          console.log("!!!!!!!!!!!!!!!!!!!!")
+          handle.done()
+        }
         var interest = new ndn.Interest(new ndn.Name("putData/interest"))
         interest.setInterestLifetimeMilliseconds(100000)
         handle.node
@@ -108,15 +111,12 @@ describe("Node", function(){
     } )
 
     it("should trigger matching entries in the PIT", function(done){
-      handle.onData = function(){
-        done()
-      }
+      handle.done = done;
       handle.node
             .putData(new ndn.Data(new ndn.Name("putData/interest/test"), "hello world" ))
             .then(function(arr){
               assert(arr[0])
               assert(arr[1] === false, "should not have gotten a forwarding entry");
-              done()
             }).catch(function (err){
               console.log(err, err.stack)
             })
