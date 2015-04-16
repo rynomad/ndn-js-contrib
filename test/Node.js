@@ -295,6 +295,36 @@ describe("Node", function(){
     })
   })
 
+  describe("store(params)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+
+    it("should return a promise",function(){
+      handle.node.store({
+        type: "json"
+        , prefix: "test/store/json"
+        , data: testJson
+      }).then(function(){
+        done()
+      }).catch(function(){
+        done()
+      })
+    });
+  })
+
+  describe("steward(params)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+
+    it("should return a promise",function(){
+
+    });
+  })
+
   describe("pipelineFetch(data, roundTripTime)",function(){
     var handle = {}
     before(function(done){
@@ -330,28 +360,6 @@ describe("Node", function(){
     before(function(done){
       create(handle,done);
     });
-
-    it("should return a promise",function(){
-
-    });
-  })
-
-  describe("store(params)",function(){
-    var handle = {}
-    before(function(done){
-      create(handle,done);
-    })
-
-    it("should return a promise",function(){
-
-    });
-  })
-
-  describe("steward(params)",function(){
-    var handle = {}
-    before(function(done){
-      create(handle,done);
-    })
 
     it("should return a promise",function(){
 
