@@ -334,10 +334,14 @@ describe("Node", function(){
     })
   })
 
-  describe("pipelineFetch(data, roundTripTime)",function(){
+  describe("pipelineFetch(params)",function(){
     var handle = {}
     before(function(done){
-      create(handle,done);
+      Node.create("trash/n_put")
+          .then(function(node){
+            handle.node = node;
+            done();
+          })
     })
 
     it("should return a promise",function(done){
@@ -364,12 +368,10 @@ describe("Node", function(){
         , data: testJson
         , mustBeFresh : false
       }).then(function(puts){
-        console.log(puts)
         return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/store/json3")))
       }).then(function(response){
-        console.log(response)
-        finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00)
-        console.log("",finalBlock)
+        finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00);
+
         return handle.node.pipelineFetch({
           prefix: response.data.name.getPrefix(-1)
           , rtt : 100
@@ -380,6 +382,40 @@ describe("Node", function(){
         assert(parts.length - 1 === finalBlock)
         done()
       })
+    })
+
+    it("should fetch data stored in repo", function(done){
+      var finalBlock
+      handle.node.store({
+        type: "json"
+        , prefix: "test/store/json4"
+        , data: testJson
+      }).then(function(puts){
+        return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/store/json4")))
+      }).then(function(response){
+        finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00);
+
+        return handle.node.pipelineFetch({
+          prefix: response.data.name.getPrefix(-1)
+          , rtt : 100
+          , mustBeFresh: false
+          , finalBlock : finalBlock
+        })
+      }).then(function(parts){
+        assert(parts.length - 1 === finalBlock)
+        done()
+      }).catch(function(er){
+        console.log(er)
+      })
+    })
+
+    after(function (done){
+      handle.node._repository.close()
+            .then(function(){
+              return handle.node._repository.destroy()
+            }).then(function(){
+              done()
+            })
     })
   })
 

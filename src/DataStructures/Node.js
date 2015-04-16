@@ -264,7 +264,11 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
           return self._repository.lookup(interest);
         })
         .then(function Node_onInterest_Repository_Hit(data){
-          face.putData(data);
+          resolve({
+            data: data
+            , from : "repo"
+            , rtt : Date.now() - 1
+          })
         })
         .catch(function Node_onInterest_Repository_Miss(){
           return self._fib.lookup(interest);
