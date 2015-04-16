@@ -309,8 +309,6 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
   for (var i = 0; i < numberOfPackets; i++  ){
     pipe[i] = new Interest(name.getPrefix(-1).appendSegment(i));
     pipe[i].setInterestLifetimeMilliseconds(timeToExpectedLastPacket);
-    pipe[i].setMinSuffixComponents(1);
-    pipe[i].setMaxSuffixComponents(1);
     pipe[i].setMustBeFresh(params.mustBeFresh)
     console.log(pipe[i].toUri())
     proms.push(this.expressInterest(pipe[i])
