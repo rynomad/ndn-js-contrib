@@ -494,12 +494,35 @@ describe("Node", function(){
   describe("steward(params)",function(){
     var handle = {}
     before(function(done){
-      create(handle,done);
+      Node.create("trash/n_steward")
+          .then(function(node){
+            handle.node = node;
+            done()
+          })
     })
 
-    it("should return a promise",function(){
-
+    it("should return a promise",function(done){
+      handle.node.steward({
+        prefix: "fail"
+        
+      })
+            .then(function(){
+              done()
+            })
+            .catch(function(){
+              done()
+            })
     });
+
+    after(function(done){
+      handle.node._repository.close()
+            .then(function(){
+              return handle.node._repository.destroy()
+            })
+            .then(function(){
+              done()
+            })
+    })
   })
 
 
