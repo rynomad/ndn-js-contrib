@@ -255,6 +255,7 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
     self._contentStore
         .lookup(interest)
         .then(function Node_expressInterest_ContentStore_Hit(data){
+          console.log(interest.name.toUri(), "cache hit")
           resolve({
             data: data
             , from: "cache"
