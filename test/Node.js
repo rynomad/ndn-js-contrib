@@ -443,8 +443,9 @@ describe("Node", function(){
         return handle.node.fetch({
           mustBeFresh: false
           , prefix: "test/fetch/json"
-        }).then(function(json){
-          assert(json.length)
+        }).then(function(datas){
+          console.log(datas.length)
+          assert(datas.length)
           done()
         }).catch(function(er){
           console.log(er, er.stack)
