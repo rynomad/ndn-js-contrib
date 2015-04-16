@@ -305,17 +305,20 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
   var millisecondsPerPacket = this.getMaximumPacketSendTime() || 200;
   var timeToExpectedLastPacket = (millisecondsPerPacket * numberOfPackets) + params.rtt;
 
+  var proms = []
   for (var i = 0; i < numberOfPackets; i++  ){
     pipe[i] = new Interest(name.getPrefix(-1).appendSegment(i));
     pipe[i].setInterestLifetimeMilliseconds(timeToExpectedLastPacket);
     pipe[i].setMinSuffixComponents(1);
     pipe[i].setMaxSuffixComponents(1);
     pipe[i].setMustBeFresh(params.mustBeFresh)
-    pipe[i] = this.expressInterest(pipe[i])
+    proms.push(this.expressInterest(pipe[i])
                   .then(function(response){
                     console.log("!!!!!!!!!!!!!?????")
                     return response.data;
-                  });
+                  }).catch(function(er){
+                    console.log(er)
+                  }));
   }
 
   return Promise.all(pipe);
