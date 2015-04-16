@@ -42,7 +42,10 @@ chunkIterator.prototype.next = function chunkIterator_next(){
   this.curr++;
 
   var next = (!done) ? new Promise(function (resolve, reject){
-                        resolve(self.chunks.shift(),chunkNumber);
+                        resolve({
+                          buffer: self.chunks.shift()
+                          , chunkNumber : chunkNumber
+                        });
                        })
                      : null;
 
@@ -222,11 +225,11 @@ Node.prototype.put = function Node_put(param, store){
       ];
 
       for (var chunk of chunks){
-        proms.push(chunk.then(function onChunk(buffer, chunkNumber){
-          console.log(buffer, chunkNumber)
+        proms.push(chunk.then(function onChunk(chunk){
+          console.log(chunk.buffer, chunk.chunkNumber)
           var name = new Name(prefix);
-          name.appendSegment(chunkNumber+1);
-          var data = new Data(name, buffer);
+          name.appendSegment(chunk.chunkNumber+1);
+          var data = new Data(name, chunk.buffer);
           return self.putData(data, store);
         }));
       }
