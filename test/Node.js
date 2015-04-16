@@ -113,10 +113,9 @@ describe("Node", function(){
     it("should trigger matching entries in the PIT", function(done){
       handle.done = done;
       handle.node
-            .putData(new ndn.Data(new ndn.Name("putData/interest/test"), "hello world" ))
+            .putData(new ndn.Data(new ndn.Name("putData/interest/test"), "insertSUCCESS" ))
             .then(function(arr){
-              assert(arr[0])
-              console.log(arr[0])
+              assert(arr[0]._data.content.toString() === "insertSUCCESS")
               assert(arr[1] === false, "should not have gotten a forwarding entry");
             }).catch(function (err){
               console.log(err, err.stack)
