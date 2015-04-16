@@ -115,7 +115,7 @@ describe("Node", function(){
             .putData(new ndn.Data(new ndn.Name("putData/interest/test"), "insertSUCCESS" ))
             .then(function(arr){
               assert(arr[0]._data.content.toString() === "insertSUCCESS")
-              assert(arr[1] === false, "should not have gotten a forwarding entry");
+              assert(arr[1] === false, "should not have gotten a returned face value");
             }).catch(function (err){
               console.log(err, err.stack)
             })
