@@ -153,6 +153,8 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
 
 Node.prototype.putData = function Node_putData(data, store){
   var self = this;
+  store = store || this._contentStore;
+  console.log(store)
   return Promise.all([
     store.insert(data)
     , self._pit

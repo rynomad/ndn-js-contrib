@@ -2,6 +2,7 @@ var assert = require('assert')
 var Node = require("../src/DataStructures/Node.js")
 var testFile = require("./env/file-chunk-test.js")
 var serverConfigs = require("./env/server-test.js")
+var ndn = require("ndn-js");
 
 function create(handle, done){
   Node.create()
@@ -52,9 +53,6 @@ describe("Node", function(){
     before(function(done){
       create(handle,done);
     })
-      it("should return a promise",function(){
-
-      });
   })
 
   describe("onInterest(interest, face)",function(){
@@ -63,9 +61,6 @@ describe("Node", function(){
     before(function(done){
       create(handle,done);
     })
-    it("should return a promise",function(){
-
-    });
 
   })
 
@@ -75,8 +70,14 @@ describe("Node", function(){
       create(handle,done);
     })
 
-    it("should return a promise",function(){
-
+    it("should return a promise",function(done){
+      handle.node.putData(new ndn.Data(new ndn.Name("putData/promise"), "helloworld"))
+            .then(function(){
+              done()
+            })
+            .catch(function(){
+              done()
+            })
     });
   })
 
