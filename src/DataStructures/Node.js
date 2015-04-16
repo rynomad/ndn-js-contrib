@@ -216,16 +216,14 @@ Node.prototype.put = function Node_put(param, store){
       data0.getMetaInfo().setFinalBlockID(
                             new Name.Component(Name.Component.fromNumberWithMarker(chunks.length, 0x00))
                           )
-      console.log(data0.name.toUri())
+
       var proms = [
         self.putData(data0, store)
       ];
 
       for (var chunk of chunks){
-        console.log("loop in")
         proms.push(chunk.then(function onChunk(buffer, chunkNumber){
           var name = new Name(prefix);
-          console.log("chunkNumber",chunkNumber)
           name.appendSegment(chunkNumber+1);
           var data = new Data(name, buffer);
           return self.putData(data, store);
@@ -237,7 +235,6 @@ Node.prototype.put = function Node_put(param, store){
                resolve();
              })
              .catch(function Node_put_Promise_Reject(err){
-               console.log("allPromiseReject")
                reject(err);
              })
 
