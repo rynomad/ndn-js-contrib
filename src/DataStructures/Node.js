@@ -312,6 +312,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
     pipe[i].setMinSuffixComponents(1);
     pipe[i].setMaxSuffixComponents(1);
     pipe[i].setMustBeFresh(params.mustBeFresh)
+    console.log(pipe[i].toUri())
     proms.push(this.expressInterest(pipe[i])
                   .then(function(response){
                     console.log("!!!!!!!!!!!!!?????")
