@@ -28,32 +28,37 @@ Node.create = function Node_create(path){
     });
 }
 
-function chunkIterator(){
+function chunkIterator(chunks){
   this.curr = 0;
+  this.size = chunks.length + 0;
+  this.chunks = chunks;
+  return this;
 }
 
 chunkIterator.prototype.next = function chunkIterator_next(){
   var self = this;
+  var chunkNumber = this.curr;
+  var done = (self.size === chunkNumber);
   this.curr++;
-  var done = (self.length === 0);
-  var chunkNumber = this.curr - 1;
 
   var next = (!done) ? new Promise(function (resolve, reject){
-                        resolve(self.shift(), chunkNumber);
+                        resolve(self.chunks.shift(),chunkNumber);
                        })
                      : null;
+
   return {
-    next: next
+    value: next
     ,done: done
-  }
+  };
 };
 
-Node.getStringChunks = function getStringChunks(string){
+Node.getStringChunks = function Node_getStringChunks(string){
   return new Promise(function getStringChunks_Promise(resolve,reject){
     var chunks = [];
 
-
-    chunks[Symbol.iterator] = chunkIterator.bind(chunks)
+    chunks[Symbol.iterator] = function(){
+      return new chunkIterator(chunks);
+    };
     while (string.length > 0){
       chunks.push(string.substr(0,8000));
       string = string.substr(8000, string.length);
@@ -68,12 +73,17 @@ Node.getBufferChunks = function getBufferChunks(buffer){
     var chunks = [];
     var i = 0;
 
-    chunks.numberOfChunks = MatH.ceil(buffer.length / 8000)
-
-    chunks[Symbol.iterator] = chunkIterator.bind(chunks);
-
-    while (i*8000 < buffer.length)
-      chunks.push(buffer.slice(i*8000, (i+1)*8000))
+    chunks.numberOfChunks = Math.ceil((buffer.length / 8000));
+    console.log("numberOfChunks", buffer.length)
+    chunks[Symbol.iterator] = function(){
+      return new chunkIterator(chunks);
+    };
+    console.log("loop begin")
+    while (i*8000 < buffer.length){
+      chunks.push(buffer.slice(i*8000, (i+1)*8000));
+      i++;
+    }
+    console.log("loop end")
     resolve(chunks);
   })
 };
@@ -154,7 +164,6 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
 Node.prototype.putData = function Node_putData(data, store){
   var self = this;
   store = store || this._contentStore;
-  console.log(store)
   return Promise.all([
     store.insert(data)
     , self._pit
@@ -188,13 +197,14 @@ Node.prototype.put = function Node_put(param, store){
 
     var chunkify;
     if (type === "json"){
-      chunkify = getStringChunks(JSON.stringify(data));
+      chunkify = Node.getStringChunks(JSON.stringify(data));
     } else if (type === "string") {
-      chunkify = getStringChunks(data);
+      chunkify = Node.getStringChunks(data);
     } else if (type === "file"){
-      chunkify = getFileChunks(data);
+      chunkify = Node.getFileChunks(data);
     } else if (type === "buffer"){
-      chunkify = getBufferChunks();
+      console.log("type === buff")
+      chunkify = Node.getBufferChunks(data);
     } else {
       return reject(new Error("Node.put(param): param.type must be json, string, file, or buffer"))
     }
@@ -207,18 +217,19 @@ Node.prototype.put = function Node_put(param, store){
       data0.getMetaInfo().setFinalBlockID(
                             new Name.Component(Name.Component.fromNumberWithMarker(chunks.length, 0x00))
                           )
-
+      console.log(data0.name.toUri())
       var proms = [
-        self.putPacket(data0, store)
+        self.putData(data0, store)
       ];
 
       for (var chunk of chunks){
+        console.log("loop in")
         proms.push(chunk.then(function onChunk(buffer, chunkNumber){
           var name = new Name(prefix);
+          console.log("chunkNumber",chunkNumber)
           name.appendSegment(chunkNumber+1);
           var data = new Data(name, buffer);
-
-          return self.putPacket(data, store);
+          return self.putData(data, store);
         }));
       }
 
@@ -227,6 +238,7 @@ Node.prototype.put = function Node_put(param, store){
                resolve();
              })
              .catch(function Node_put_Promise_Reject(err){
+               console.log("allPromiseReject")
                reject(err);
              })
 

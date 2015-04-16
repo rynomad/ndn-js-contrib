@@ -1,6 +1,7 @@
 var assert = require('assert')
 var Node = require("../src/DataStructures/Node.js")
 var testFile = require("./env/file-chunk-test.js")
+var testJson = require("./env/test-json.js")
 var serverConfigs = require("./env/server-test.js")
 var ndn = require("ndn-js");
 
@@ -168,7 +169,7 @@ describe("Node", function(){
       })
     });
 
-    it("should only resolve if  type, data, or prefix fields in params", function(){
+    it("should only resolve if  type, data, or prefix fields in params", function(done){
       handle.node.put(
         {
           type: "string"
@@ -190,9 +191,53 @@ describe("Node", function(){
        })
      }).then(function(){
        assert(false, "resolved with missing type")
-     }).catch(function(){
-       done()
+     }).catch(function(res){
+       return handle.node.put({
+         data:"dfsadfafads"
+         , prefix: "test/no/type"
+         , type: "string"
+       })
+     }).then(function(){
+       done();
+     }).catch(function(err){
+       console.log(err)
      })
+    })
+
+    it("should resolve for file",function(done){
+      handle.node.put({
+        type: "file"
+        , prefix: "test/put/file"
+        , data: testFile
+      }).then(function(){
+        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
+      })
+    })
+
+    it("should resolve for json",function(done){
+      handle.node.put({
+        type: "json"
+        , prefix: "test/p/json"
+        , data: testJson
+      }).then(function(){
+        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
+      })
+    })
+
+    it("should resolve for buffer", function(done){
+      handle.node.put({
+        type: "buffer"
+        , prefix: "test/p/json"
+        , data: new Buffer(10000)
+      }).then(function(){
+        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
+      })
     })
   })
 
