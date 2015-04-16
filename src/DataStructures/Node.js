@@ -214,6 +214,7 @@ Node.prototype.put = function Node_put(param, store){
     chunkify.then(function Node_put_processChunks(chunks){
       var name = new Name(prefix);
       name.appendSegment(0);
+      delete param.data;
       var data0 = new Data(name, JSON.stringify(param));
       data0.getMetaInfo().setFreshnessPeriod(freshnessPeriod);
       data0.getMetaInfo().setFinalBlockID(
