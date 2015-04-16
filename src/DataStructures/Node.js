@@ -322,6 +322,4 @@ Node.prototype.steward = function Node_steward(params){
              });
 };
 
-Node.prototype.addConnectionMethod = function Node_addConnectionMethod(method){
-
-}
+Node.prototype.listen = require("./util/server.js");
