@@ -298,7 +298,7 @@ describe("Node", function(){
   describe("store(params)",function(){
     var handle = {}
     before(function(done){
-      Node.create("trash/node_repo")
+      Node.create("trash/n_repo")
           .then(function(node){
             handle.node = node;
             done();
@@ -330,8 +330,12 @@ describe("Node", function(){
     })
 
     after(function(done){
-      handle.node._repository.destroy()
-      done();
+      handle.node._repository.close()
+      .then(function(){
+        return handle.node._repository.destroy()
+      }).then(function(){
+        done()
+      })
     })
   })
 
@@ -361,7 +365,7 @@ describe("Node", function(){
             .then(function(){
               done()
             }).catch(function(){
-              cone()
+              done()
             })
     });
   })
