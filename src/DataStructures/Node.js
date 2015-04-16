@@ -94,7 +94,6 @@ Node.getBufferChunks = function getBufferChunks(buffer){
 Node.getFileChunks = getFileChunks;
 
 Node.assemble = function Node_assemble(datas){
-  console.log("assemble",datas)
   var meta = JSON.parse(datas.shift().content.toString());
 
   if (meta.type === "string" || meta.type === "json"){
@@ -305,7 +304,6 @@ Node.prototype.getMaximumPacketSendTime = function Node_getMaximumPacketSendTime
 }
 
 Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
-  console.log("pipeline", params.prefix.toUri())
   var name = params.prefix.append("prototype")
   var pipe = [];
   var numberOfPackets = params.finalBlock + 1;
@@ -319,10 +317,8 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
     pipe[i].setMustBeFresh(params.mustBeFresh)
     proms.push(this.expressInterest(pipe[i])
                   .then(function(response){
-                    console.log("got data", response.data)
                     return response.data;
                   }).catch(function(er){
-                    console.log("er")
                     console.log(er)
                   }));
   }
@@ -351,7 +347,6 @@ Node.prototype.fetch = function Node_fetch(params){
 
   return self.expressInterest(firstInterest )
              .then(function(response){
-               console.log('first interest response')
                return self.pipelineFetch({
                  prefix : response.data.name.getPrefix(-1)
                  , rtt  : response.rtt
