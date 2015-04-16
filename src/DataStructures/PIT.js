@@ -86,6 +86,7 @@ PIT.Node.prototype.timeout = function PIT_Node_timeout(interest){
 }
 
 PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
+  console.log(onData)
   if (!onData || typeof onData !== "function")
     throw new Error("PIT.Node.addEntry(interest, onData) : missing required argument function onData(data, face)")
 

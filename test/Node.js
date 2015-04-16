@@ -67,18 +67,60 @@ describe("Node", function(){
   describe("putData(data, store)",function(){
     var handle = {}
     before(function(done){
-      create(handle,done);
+      create(handle,function(){
+        handle.onData = function(){}
+        var interest = new ndn.Interest(new ndn.Name("putData/interest"))
+        interest.setInterestLifetimeMilliseconds(100000)
+        handle.node
+              ._pit
+              .insert(interest, handle.onData)
+              .then(function(){
+                done();
+              })
+              .catch(function (err){
+                console.log(err, err.stack)
+              })
+      });
     })
 
     it("should return a promise",function(done){
       handle.node.putData(new ndn.Data(new ndn.Name("putData/promise"), "helloworld"))
             .then(function(){
-              done()
+              done();
             })
-            .catch(function(){
-              done()
+            .catch(function(err){
+              done();
             })
     });
+
+    it("should resolve with an array [insertResult, forwardResult]",function(done){
+
+      handle.node
+            .putData(new ndn.Data(new ndn.Name("putData/promise/test"), "hello world" ))
+            .then(function(arr){
+              assert(arr[0])
+              assert(arr[1] === false, "should not have gotten a forwarding entry");
+              done()
+            }).catch(function (err){
+              console.log(err, err.stack)
+            })
+
+    } )
+
+    it("should trigger matching entries in the PIT", function(done){
+      handle.onData = function(){
+        done()
+      }
+      handle.node
+            .putData(new ndn.Data(new ndn.Name("putData/interest/test"), "hello world" ))
+            .then(function(arr){
+              assert(arr[0])
+              assert(arr[1] === false, "should not have gotten a forwarding entry");
+              done()
+            }).catch(function (err){
+              console.log(err, err.stack)
+            })
+    })
   })
 
   describe("put(params)",function(){
