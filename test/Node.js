@@ -298,7 +298,11 @@ describe("Node", function(){
   describe("store(params)",function(){
     var handle = {}
     before(function(done){
-      create(handle,done);
+      Node.create("trash/nodeRepo")
+          .then(function(node){
+            handle.node = node;
+            done()
+          })
     })
 
     it("should return a promise",function(done){
