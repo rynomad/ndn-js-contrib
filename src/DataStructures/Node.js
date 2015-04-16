@@ -28,6 +28,26 @@ Node.create = function Node_create(path){
     })
 }
 
+function chunkIterator(){
+  this.curr = 0;
+}
+
+chunkIterator.prototype.next = function chunkIterator_next(){
+  var self = this;
+  this.curr++;
+  var done = (self.length === 0);
+  var chunkNumber = this.curr - 1;
+
+  var next = (!done) ? new Promise(function (resolve, reject){
+                        resolve(self.shift(), chunkNumber);
+                       })
+                     : null;
+  return {
+    next: next
+    ,done: done
+  }
+};
+
 Node.getStringChunks = function getStringChunks(string){
   return new Promise(function getStringChunks_Promise(resolve,reject){
     var chunks = [];
@@ -127,25 +147,7 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
       });
 }
 
-function chunkIterator(){
-  this.curr = 0;
-}
 
-chunkIterator.prototype.next = function chunkIterator_next(){
-  var self = this;
-  this.curr++;
-  var done = (self.length === 0);
-  var chunkNumber = this.curr - 1;
-
-  var next = (!done) ? new Promise(function (resolve, reject){
-                        resolve(self.shift(), chunkNumber);
-                       })
-                     : null;
-  return {
-    next: next
-    ,done: done
-  }
-}
 
 
 
