@@ -250,15 +250,36 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
   var t = Date.now()
   return new Promise(function Node_expressInterest_Promise(resolve,reject){
     var nexthops;
-    self._fib
+    self._contentStore
         .lookup(interest)
+        .then(function Node_expressInterest_ContentStore_Hit(data){
+          console.log("cache hit", data)
+          resolve({
+            data: data
+            , from: "cache"
+            , rtt : Date.now() - t
+          });
+        })
+        .catch(function Node_onInterest_ContentStore_Miss(interest){
+          return self._repository.lookup(interest);
+        })
+        .then(function Node_onInterest_Repository_Hit(data){
+          face.putData();
+        })
+        .catch(function Node_onInterest_Repository_Miss(){
+          return self._fib.lookup(interest);
+        })
         .then(function Node_expressInterest_FIB_Hit(res){
           nexthops = res
           return self._pit.insert(interest, function Node_expressInterest_onData(data, respondFace){
             if (data === interest)
               reject(new Error("Node.expressInterest timeoout"), interest);
             else
-              resolve(data, respondFace, Date.now() - t);
+              resolve({
+                data: data
+                , from: respondFace
+                , rtt : Date.now() - t
+              });
           });
         }).catch(function Node_expressInterest_FIB_Miss(err){
           reject(err, interest);
