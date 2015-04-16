@@ -226,7 +226,6 @@ Node.prototype.put = function Node_put(param, store){
 
       for (var chunk of chunks){
         proms.push(chunk.then(function onChunk(chunk){
-          console.log(chunk.buffer, chunk.chunkNumber)
           var name = new Name(prefix);
           name.appendSegment(chunk.chunkNumber+1);
           var data = new Data(name, chunk.buffer);
