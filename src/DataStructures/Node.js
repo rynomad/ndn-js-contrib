@@ -25,7 +25,7 @@ Node.create = function Node_create(path){
   else
     return new Promise(function Node_create_no_repository(resolve,reject){
       resolve(new Node());
-    })
+    });
 }
 
 function chunkIterator(){
@@ -279,6 +279,7 @@ Node.prototype.fetch = function Node_fetch(params){
   var prefix    = new Name(params.prefix)
     , versioned = params.versioned
     , chained = params.chained
+    , onProgress = params.onProgress
     , self = this;
 
   var firstInterest = new Interest(prefix);
@@ -295,9 +296,6 @@ Node.prototype.fetch = function Node_fetch(params){
              .then(function(data, face, roundTripTime){
                return self.pipelineFetch(data, roundTripTime);
              })
-             .catch(function(err){
-               reject(err);
-             });
 };
 
 Node.prototype.get = function Node_get(params){
@@ -322,6 +320,20 @@ Node.prototype.steward = function Node_steward(params){
              });
 };
 
+Node.prototype.getRemotes = function Node_getRemotes(){
+
+}
+
+Node.prototype.getProfile = function Node_getProfile(){
+
+}
+
+Node.prototype.setProfile = function Node_setProfile(){
+
+}
+
 Node.prototype.listen = require("./util/server.js");
+
+Node.prototype.connect = require("./util/connect.js");
 
 module.exports = Node;
