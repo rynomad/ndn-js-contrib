@@ -317,6 +317,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
     pipe[i].setMustBeFresh(params.mustBeFresh)
     proms.push(this.expressInterest(pipe[i])
                   .then(function(response){
+                    console.log("got data")
                     return response.data;
                   }).catch(function(er){
                     console.log(er)
@@ -340,17 +341,19 @@ Node.prototype.fetch = function Node_fetch(params){
   var maxSuffix = minSuffix;
   var childSelector = (versioned) ? 1 : 0;
 
-  firstInterest.setMinSuffixComponents(minSuffix);
-  firstInterest.setMaxSuffixComponents(maxSuffix);
+  //firstInterest.setMinSuffixComponents(minSuffix);
+  //firstInterest.setMaxSuffixComponents(maxSuffix);
   firstInterest.setChildSelector(childSelector);
+  firstInterest.setMustBeFresh(mustBeFresh);
 
   return self.expressInterest(firstInterest )
-             .then(function(data, face, rtt){
+             .then(function(response){
+               console.log('first interest response')
                return self.pipelineFetch({
-                 prefix : data.name
-                 , rtt  : rtt
+                 prefix : response.data.name
+                 , rtt  : response.rtt
                  , mustBeFresh : mustBeFresh
-                 , finalBlock  : Name.Component.toNumberWithMarker( data.getMetaInfo().getFinalBlockID(),0x00)
+                 , finalBlock  :  response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00)
                });
              })
 };

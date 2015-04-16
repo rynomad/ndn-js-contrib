@@ -433,6 +433,24 @@ describe("Node", function(){
         done();
       })
     });
+
+    it("should resolve with data array stored via put", function(done){
+      handle.node.put({
+        type: "json"
+        , prefix : "test/fetch/json"
+        , data: testJson
+      }).then(function(){
+        return handle.node.fetch({
+          mustBeFresh: false
+          , prefix: "test/fetch/json"
+        }).then(function(json){
+          assert(json.length)
+          done()
+        }).catch(function(er){
+          console.log(er, er.stack)
+        })
+      })
+    })
   })
 
   describe("get(params)",function(){
