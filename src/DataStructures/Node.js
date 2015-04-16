@@ -350,6 +350,7 @@ Node.prototype.fetch = function Node_fetch(params){
                  prefix : data.name
                  , rtt  : rtt
                  , mustBeFresh : mustBeFresh
+                 , finalBlock  : Name.Component.toNumberWithMarker( data.getMetaInfo().getFinalBlockID(),0x00) 
                });
              })
 };
