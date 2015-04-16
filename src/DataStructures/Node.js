@@ -3,6 +3,7 @@ var Repository = require("./Repository.js")
   , PIT = require("./PIT.js")
   , FIB = require("./FIB.js")
   , getFileChunks = require("./util/get-file-chunks.js")
+  , assembleFile = require("./util/assemble-file.js")
   , Name = require("ndn-js/js/name.js").Name
   , Data = require("ndn-js/js/data.js").Data
   , Interest = require("ndn-js/js/interest").Interest;
@@ -25,6 +26,54 @@ Node.create = function Node_create(path){
     return new Promise(function Node_create_no_repository(){
       resolve(new Node());
     })
+}
+
+Node.getStringChunks = function getStringChunks(string){
+  return new Promise(function getStringChunks_Promise(resolve,reject){
+    var chunks = [];
+
+
+    chunks[Symbol.iterator] = chunkIterator.bind(chunks)
+    while (string.length > 0){
+      chunks.push(string.substr(0,8000));
+      string = string.substr(8000, string.length);
+    }
+
+    resolve(chunks);
+  })
+}
+
+Node.getBufferChunks = function getBufferChunks(buffer){
+  return new Promise(function getBufferChunks_Promise(resolve,reject){
+    var chunks = [];
+    var i = 0;
+
+    chunks.numberOfChunks = MatH.ceil(buffer.length / 8000)
+
+    chunks[Symbol.iterator] = chunkIterator.bind(chunks);
+
+    while (i*8000 < buffer.length)
+      chunks.push(buffer.slice(i*8000, (i+1)*8000))
+    resolve(chunks);
+  })
+}
+
+Node.assemble = function Node_assemble(datas){
+  var meta = JSON.parse(datas.shift().content.toString());
+
+  if (meta.type === "string" || meta.type === "json"){
+    var str = "";
+    while(datas.length)
+      str += datas.shift().content.toString();
+    if (meta.type === "json")
+      str = JSON.parse(str);
+    return str;
+  } else if (meta.type === "buffer"){
+    return Buffer.concat(datas.map(function(data){return data.content}));
+  } else if (meta.type === "file"){
+    return assembleFile(datas.map(function(data){return data.content}));
+  }
+
 }
 
 Node.prototype.onData = function Node_onData(data, face){
@@ -96,35 +145,7 @@ chunkIterator.prototype.next = function chunkIterator_next(){
   }
 }
 
-Node.getStringChunks = function getStringChunks(string){
-  return new Promise(function getStringChunks_Promise(resolve,reject){
-    var chunks = [];
 
-
-    chunks[Symbol.iterator] = chunkIterator.bind(chunks)
-    while (string.length > 0){
-      chunks.push(string.substr(0,8000));
-      string = string.substr(8000, string.length);
-    }
-
-    resolve(chunks);
-  })
-}
-
-Node.getBufferChunks = function getBufferChunks(buffer){
-  return new Promise(function getBufferChunks_Promise(resolve,reject){
-    var chunks = [];
-    var i = 0;
-
-    chunks.numberOfChunks = MatH.ceil(buffer.length / 8000)
-
-    chunks[Symbol.iterator] = chunkIterator.bind(chunks);
-
-    while (i*8000 < buffer.length)
-      chunks.push(buffer.slice(i*8000, (i+1)*8000))
-    resolve(chunks);
-  })
-}
 
 Node.prototype.putPacket = function Node_putPacket(data, store){
   var self = this;
