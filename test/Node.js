@@ -154,8 +154,18 @@ describe("Node", function(){
       create(handle,done);
     })
 
-    it("should return a promise",function(){
-
+    it("should return a promise",function(done){
+      handle.node.put(
+        {
+          type: "string"
+          , data : "Hello world n stuff"
+          , prefix : "test/insert/string"
+        }
+      ).then(function(){
+        done();
+      }).catch(function(){
+        done();
+      })
     });
   })
 
