@@ -312,6 +312,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
     pipe[i].setMustBeFresh(params.mustBeFresh)
     pipe[i] = this.expressInterest(pipe[i])
                   .then(function(response){
+                    console.log("!!!!!!!!!!!!!?????")
                     return response.data;
                   });
   }
