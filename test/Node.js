@@ -334,17 +334,6 @@ describe("Node", function(){
     })
   })
 
-  describe("steward(params)",function(){
-    var handle = {}
-    before(function(done){
-      create(handle,done);
-    })
-
-    it("should return a promise",function(){
-
-    });
-  })
-
   describe("pipelineFetch(data, roundTripTime)",function(){
     var handle = {}
     before(function(done){
@@ -356,13 +345,38 @@ describe("Node", function(){
       data.name.appendSegment(0)
       data.getMetaInfo().setFinalBlockId(data.name.get(-1))
 
-      handle.node.pipelineFetch(data, 100)
-            .then(function(){
+      handle.node.pipelineFetch({
+        prefix: data.name.getPrefix(-1)
+        , rtt : 100
+        , mustBeFresh: false
+      }).then(function(){
               done()
-            }).catch(function(){
-              done()
-            })
+      }).catch(function(){
+        done()
+      })
     });
+
+    it("should fetch data from seeded via put", function(done){
+      handle.node.put({
+        type: "json"
+        , prefix: "test/store/json3"
+        , data: testJson
+        , mustBeFresh : false
+      }).then(function(puts){
+        console.log(puts)
+        return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/store/json3")))
+      }).then(function(response){
+        console.log(response)
+        return handle.node.pipelineFetch({
+          prefix: response.data.name.getPrefix(-1)
+          , rtt : 100
+          , mustBeFresh: false
+        })
+      }).then(function(parts){
+        console.log(parts)
+        done()
+      })
+    })
   })
 
   describe("fetch(params)",function(){
@@ -385,6 +399,23 @@ describe("Node", function(){
 
     });
   })
+
+  describe("steward(params)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+
+    it("should return a promise",function(){
+
+    });
+  })
+
+
+
+
+
+
 
   describe("putStream",function(){
 

@@ -234,8 +234,8 @@ Node.prototype.put = function Node_put(param, store){
       }
 
       Promise.all(proms)
-             .then(function Node_put_Promise_Resolve(){
-               resolve();
+             .then(function Node_put_Promise_Resolve(puts){
+               resolve(puts);
              })
              .catch(function Node_put_Promise_Reject(err){
                reject(err);
@@ -248,6 +248,7 @@ Node.prototype.put = function Node_put(param, store){
 Node.prototype.expressInterest = function Node_expressInterest(interest){
   var self = this;
   var t = Date.now()
+  console.log(interest.name.toUri())
   return new Promise(function Node_expressInterest_Promise(resolve,reject){
     var nexthops;
     self._contentStore
@@ -296,17 +297,19 @@ Node.prototype.getMaximumPacketSendTime = function Node_getMaximumPacketSendTime
   return undefined;
 }
 
-Node.prototype.pipelineFetch = function Node_pipelineFetch(data0, roundtriptime){
+Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
+  var name = params.prefix.append("prototype")
   var pipe = [];
-  var numberOfPackets = data0.getMetaInfo().getFinalBlockID().toSegment() + 1;
+  var numberOfPackets = params.finalBlock + 1;
   var millisecondsPerPacket = this.getMaximumPacketSendTime() || 200;
-  var timeToExpectedLastPacket = (millisecondsPerPacket * numberOfPackets) + roundtriptime;
+  var timeToExpectedLastPacket = (millisecondsPerPacket * numberOfPackets) + params.rtt;
 
   for (var i = 0; i < numberOfPackets; i++  ){
-    pipe[i] = new Interest(data0.name.getPrefix(-1).appendSegment(0));
+    pipe[i] = new Interest(name.getPrefix(-1).appendSegment(i));
     pipe[i].setInterestLifetimeMilliseconds(timeToExpectedLastPacket);
     pipe[i].setMinSuffixComponents(1);
     pipe[i].setMaxSuffixComponents(1);
+    pipe[i].setMustBeFresh(params.mustBeFresh)
     pipe[i] = this.expressInterest(pipe[i])
                   .then(function(data, face, rtt){
                     return data;
@@ -321,7 +324,8 @@ Node.prototype.fetch = function Node_fetch(params){
     , versioned = params.versioned
     , chained = params.chained
     , onProgress = params.onProgress
-    , self = this;
+    , self = this
+    , mustBeFresh = params.mustBeFresh || true;
 
   var firstInterest = new Interest(prefix);
   firstInterest.setInterestLifetimeMilliseconds(4000);
@@ -334,8 +338,12 @@ Node.prototype.fetch = function Node_fetch(params){
   firstInterest.setChildSelector(childSelector);
 
   return self.expressInterest(firstInterest )
-             .then(function(data, face, roundTripTime){
-               return self.pipelineFetch(data, roundTripTime);
+             .then(function(data, face, rtt){
+               return self.pipelineFetch({
+                 prefix : data.name
+                 , rtt  : rtt
+                 , mustBeFresh : mustBeFresh
+               });
              })
 };
 
