@@ -116,11 +116,14 @@ describe("Node", function(){
             .putData(new ndn.Data(new ndn.Name("putData/interest/test"), "hello world" ))
             .then(function(arr){
               assert(arr[0])
+              console.log(arr[0])
               assert(arr[1] === false, "should not have gotten a forwarding entry");
             }).catch(function (err){
               console.log(err, err.stack)
             })
     })
+
+
   })
 
   describe("put(params)",function(){
