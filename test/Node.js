@@ -357,6 +357,7 @@ describe("Node", function(){
     });
 
     it("should fetch data from seeded via put", function(done){
+      var finalBlock
       handle.node.put({
         type: "json"
         , prefix: "test/store/json3"
@@ -367,7 +368,7 @@ describe("Node", function(){
         return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/store/json3")))
       }).then(function(response){
         console.log(response)
-        var finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00)
+        finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00)
         console.log("",finalBlock)
         return handle.node.pipelineFetch({
           prefix: response.data.name.getPrefix(-1)
@@ -376,7 +377,7 @@ describe("Node", function(){
           , finalBlock : finalBlock
         })
       }).then(function(parts){
-        console.log(parts)
+        assert(parts.length - 1 === finalBlock)
         done()
       })
     })
