@@ -318,6 +318,7 @@ describe("Node", function(){
     });
 
     it("should resolve for json", function(done){
+      console.log(JSON.stringify(testJson).length)
       handle.node.store({
         type: "json"
         , prefix: "test/store/json2"
