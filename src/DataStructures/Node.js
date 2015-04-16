@@ -311,8 +311,8 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
     pipe[i].setMaxSuffixComponents(1);
     pipe[i].setMustBeFresh(params.mustBeFresh)
     pipe[i] = this.expressInterest(pipe[i])
-                  .then(function(data, face, rtt){
-                    return data;
+                  .then(function(response){
+                    return response.data;
                   });
   }
 
