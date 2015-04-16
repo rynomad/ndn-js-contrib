@@ -74,16 +74,16 @@ Node.getBufferChunks = function getBufferChunks(buffer){
     var i = 0;
 
     chunks.numberOfChunks = Math.ceil((buffer.length / 8000));
-    console.log("numberOfChunks", buffer.length)
+
     chunks[Symbol.iterator] = function(){
       return new chunkIterator(chunks);
     };
-    console.log("loop begin")
+
     while (i*8000 < buffer.length){
       chunks.push(buffer.slice(i*8000, (i+1)*8000));
       i++;
     }
-    console.log("loop end")
+
     resolve(chunks);
   })
 };
@@ -203,7 +203,6 @@ Node.prototype.put = function Node_put(param, store){
     } else if (type === "file"){
       chunkify = Node.getFileChunks(data);
     } else if (type === "buffer"){
-      console.log("type === buff")
       chunkify = Node.getBufferChunks(data);
     } else {
       return reject(new Error("Node.put(param): param.type must be json, string, file, or buffer"))
