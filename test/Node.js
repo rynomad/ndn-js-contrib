@@ -71,6 +71,11 @@ describe("Node", function(){
         handle.onData = function(){
           handle.done()
         }
+        handle.face = {
+          putData: function(data){
+            handle.done(data)
+          }
+        }
         var interest = new ndn.Interest(new ndn.Name("putData/interest"))
         interest.setInterestLifetimeMilliseconds(100000)
         handle.node
@@ -121,6 +126,25 @@ describe("Node", function(){
             })
     })
 
+    it("should send to matching entries in the PIT", function(done){
+      handle.done = done()
+      var interest = new ndn.Interest(new ndn.Name("putData/face"))
+      interest.setInterestLifetimeMilliseconds(100000)
+      handle.node
+            ._pit
+            .insert(interest, function(dat, face){
+              return handle.face;
+            }).then(function(){
+              return handle.node
+                      .putData(new ndn.Data(new ndn.Name("putData/face/interest/test"), "insertSUCCESS" ))
+            })
+            .then(function(arr){
+              assert(arr[0]._data.content.toString() === "insertSUCCESS")
+              assert(arr[1] === false, "should not have gotten a returned face value");
+            }).catch(function (err){
+              console.log(err, err.stack)
+            })
+    })
 
   })
 
@@ -141,7 +165,8 @@ describe("Node", function(){
       create(handle,done);
     })
     it("should return a promise",function(){
-
+      handle.node
+            .expressInterest(new ndn.Interest(new ndn.Name("express/interest")))
     });
   })
 
