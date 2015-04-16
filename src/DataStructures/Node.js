@@ -317,6 +317,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
                     console.log("!!!!!!!!!!!!!?????")
                     return response.data;
                   }).catch(function(er){
+                    console.log("errrr!")
                     console.log(er)
                   }));
   }
