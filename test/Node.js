@@ -247,9 +247,15 @@ describe("Node", function(){
     before(function(done){
       create(handle,done);
     })
-    it("should return a promise",function(){
+    it("should return a promise",function(done){
       handle.node
             .expressInterest(new ndn.Interest(new ndn.Name("express/interest")))
+            .then(function(data, face, rtt){
+              done()
+            })
+            .catch(function(er){
+              done()
+            })
     });
   })
 
