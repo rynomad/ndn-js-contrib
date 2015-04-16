@@ -323,3 +323,5 @@ Node.prototype.steward = function Node_steward(params){
 };
 
 Node.prototype.listen = require("./util/server.js");
+
+module.exports = Node;
