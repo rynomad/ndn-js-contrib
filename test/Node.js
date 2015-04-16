@@ -445,10 +445,10 @@ describe("Node", function(){
           , prefix: "test/fetch/json"
         }).then(function(datas){
           console.log(datas.length)
-          assert(datas.length)
+          assert(datas.length === 33)
           done()
         }).catch(function(er){
-          console.log(er, er.stack)
+          console.log("er",er, er.stack)
         })
       })
     })
