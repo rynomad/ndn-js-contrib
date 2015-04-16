@@ -355,6 +355,8 @@ Node.prototype.fetch = function Node_fetch(params){
                  , mustBeFresh : mustBeFresh
                  , finalBlock  :  response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00)
                });
+             }).catch(function(er){
+               console.log(er)
              })
 };
 
