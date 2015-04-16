@@ -162,6 +162,7 @@ Node.prototype.putData = function Node_putData(data, store){
           .then(function Node_putPacket_PIT_Hit(faces){
             for (var i in faces)
               faces[i].putData(data);
+            return true;
           })
           .catch(function Node_putPacket_PIT_Miss(er){
             return false;
