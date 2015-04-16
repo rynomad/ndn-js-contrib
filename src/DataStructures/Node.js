@@ -267,13 +267,16 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
           resolve({
             data: data
             , from : "repo"
-            , rtt : Date.now() - 1
-          })
+            , rtt : Date.now() - t
+          });
+          return "STOP"
         })
         .catch(function Node_onInterest_Repository_Miss(){
           return self._fib.lookup(interest);
         })
         .then(function Node_expressInterest_FIB_Hit(res){
+          if (res === "STOP")
+            return res;
           nexthops = res
           return self._pit.insert(interest, function Node_expressInterest_onData(data, respondFace){
             if (data === interest)
@@ -288,6 +291,8 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
         }).catch(function Node_expressInterest_FIB_Miss(err){
           reject(err, interest);
         }).then(function Node_expressInterest_PitInsert(pit){
+          if (pit === "STOP")
+            return;
           for (var i in nexthops)
             nexthops[i].face.putData(interest);
         });
