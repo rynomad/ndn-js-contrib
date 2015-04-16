@@ -319,8 +319,8 @@ describe("Node", function(){
         , data: testJson
       }).then(function(){
         done()
-      }).catch(function(){
-        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
       })
     })
 
