@@ -69,7 +69,6 @@ describe("Node", function(){
     before(function(done){
       create(handle,function(){
         handle.onData = function(){
-          console.log("!!!!!!!!!!!!!!!!!!!!")
           handle.done()
         }
         var interest = new ndn.Interest(new ndn.Name("putData/interest"))
