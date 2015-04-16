@@ -257,6 +257,19 @@ describe("Node", function(){
               done()
             })
     });
+
+    it("should return data from local contentStore", function(){
+      var data = new ndn.Data(new ndn.Name("test/express/interest"), "SUCCESS")
+      handle.node
+            .putData(data)
+            .then(function(){
+              return handle.node.expressInterest(new ndn.Interest(data.name))
+            })
+            .then(function(data, face, rtt){
+              assert(typeof rtt === number, "roundTripTime not a number")
+              assert(data.content.toString() === "SUCCESS")
+            })
+    })
   })
 
   describe("pipelineFetch(data, roundTripTime)",function(){
