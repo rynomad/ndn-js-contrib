@@ -1,5 +1,6 @@
 var assert = require('assert')
 var Node = require("../src/DataStructures/Node.js")
+var ContentStore = require("../src/DataStructures/ContentStore.js")
 var testFile = require("./env/file-chunk-test.js")
 var testJson = require("./env/test-json.js")
 var serverConfigs = require("./env/server-test.js")
@@ -504,15 +505,35 @@ describe("Node", function(){
     it("should return a promise",function(done){
       handle.node.steward({
         prefix: "fail"
-        
-      })
-            .then(function(){
-              done()
-            })
-            .catch(function(){
-              done()
-            })
+      }).then(function(){
+          done()
+        })
+        .catch(function(){
+          done()
+        })
     });
+
+    it("should store data in repo from contentStore",function(done){
+      handle.node.put({
+        type: "json"
+        , data: testJson
+        , prefix: "test/steward"
+      }).then(function(){
+        return handle.node.steward({
+          prefix: "test/steward"
+          , mustBeFresh: false
+        })
+      }).then(function(){
+        handle.node._contentStore = new ContentStore();
+        return handle.node.get({
+          prefix: "test/steward"
+          , mustBeFresh : false
+        })
+      }).then(function(json){
+        assert.deepEqual(json, testJson)
+        done()
+      })
+    })
 
     after(function(done){
       handle.node._repository.close()
