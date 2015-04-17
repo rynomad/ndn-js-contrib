@@ -277,6 +277,7 @@ NameTree.Node.prototype.getItem  = function NameTree_Node_getItem (){
   return this.item;
 };
 
+
 NameTree.Node.prototype.setItem  = function NameTree_Node_setItem (item){
   this.item = item;
 };
