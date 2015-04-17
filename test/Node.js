@@ -24,7 +24,30 @@ describe("Node", function(){
     })
 
     describe("assemble(dataArray)",function(){
+      it("should assemble json",function(){
+        var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
+          type: "json"
+        }))];
+        var str = JSON.stringify(testJson);
+        while(str.length > 0){
+          datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.substring(0, 8000)));
+          str = str.substring(8000);
+        }
+        assert.deepEqual(testJson, Node.assemble(datas))
 
+      })
+
+      it("should assemble string", function(){
+
+      })
+
+      it("should assemble buffer", function(){
+
+      })
+
+      it("should assemble file", function(){
+
+      })
     })
 
     describe("getFileChunks",function(){
