@@ -38,6 +38,15 @@ describe("Node", function(){
       })
 
       it("should assemble string", function(){
+        var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
+          type: "string"
+        }))];
+        var str = JSON.stringify(testJson);
+        while(str.length > 0){
+          datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.substring(0, 8000)));
+          str = str.substring(8000);
+        }
+        assert.deepEqual(JSON.stringify(testJson), Node.assemble(datas))
 
       })
 
