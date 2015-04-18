@@ -234,7 +234,9 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
         face.putData(data);
         return true;
       })
-      .catch(self.forwardInterest)
+      .catch(function Node_onInterest_fulfill_Miss(){
+        return self.forwardInterest(interest, face);
+      })
       .then(function Node_onInterest_FIB_Hit(nextHops){
         //TODO: turn this into a call to strategy
         self._pit
