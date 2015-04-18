@@ -66,7 +66,8 @@ describe("Node", function(){
 
       it("should assemble file", function(){
         var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
-          type: "file"
+          type: "file",
+          mime: "test/type"
         }))];
         var str = testFileBuffer.buffer;
         console.log(str)
