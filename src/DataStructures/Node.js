@@ -204,9 +204,6 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
 Node.prototype.fulfillInterest = function Node_fulfillInterest(interest){
   return self._contentStore
              .lookup(interest)
-             .then(function Node_onInterest_ContentStore_Hit(data){
-               return data;
-             })
              .catch(self._repository.lookup)
              .catch(function(){
                return Promise.reject(interest);
@@ -240,9 +237,7 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
         face.putData(data);
         return true;
       })
-      .catch(function Node_onInterest_fulfill_Miss(){
-        return self.forwardInterest(interest, face);
-      })
+      .catch(self.forwardInterest)
       .then(function Node_onInterest_FIB_Hit(nextHops){
         //TODO: turn this into a call to strategy
         self._pit
