@@ -131,13 +131,11 @@ describe("Node", function(){
         interest.setInterestLifetimeMilliseconds(100000)
         handle.node
               ._pit
-              .insert(interest, handle.onData)
+              .insert(interest, handle.face)
               .then(function(){
-                done();
+                handle.done();
               })
-              .catch(function (err){
-                console.log(err, err.stack)
-              })
+        done();
       });
     })
 
@@ -172,6 +170,7 @@ describe("Node", function(){
             .then(function(arr){
               assert(arr[0]._data.content.toString() === "insertSUCCESS")
               assert(arr[1] === false, "should not have gotten a returned face value");
+
             }).catch(function (err){
               console.log(err, err.stack)
             })
@@ -291,7 +290,7 @@ describe("Node", function(){
     })
   })
 
-  describe("expressInterest(interest, onData)",function(){
+  describe("expressInterest(interest)",function(){
     var han = {};
     han.face = {
       putData: function(data){
@@ -308,7 +307,7 @@ describe("Node", function(){
     it("should return a promise",function(done){
       han.node
             .expressInterest(new ndn.Interest(new ndn.Name("express/interest")))
-            .then(function(data, face, rtt){
+            .then(function(res){
               done()
             })
             .catch(function(er){
@@ -324,7 +323,6 @@ describe("Node", function(){
               return han.node.expressInterest(new ndn.Interest(data.name))
             })
             .then(function(response){
-              assert(typeof response.rtt === "number", "roundTripTime not a number")
               assert(response.data.content.toString() === "SUCCESS", "")
               done()
             })
@@ -332,9 +330,7 @@ describe("Node", function(){
 
     it("should putData to matching fib face", function(done){
       han.done = function(data){
-        assert(data.name.get(-1).toEscapedString = "interest")
-        var er = new Error()
-        console.log("dfadfa", data.name.toUri(), er.stack)
+        assert(data.name.get(-1).toEscapedString = "interest");
         //handle.done = function(){}
         done();
 
@@ -460,10 +456,11 @@ describe("Node", function(){
           , finalBlock : finalBlock
         })
       }).then(function(parts){
+
         assert(parts.length - 1 === finalBlock)
         done()
       }).catch(function(er){
-        console.log(er)
+        assert(er, er.stack)
       })
     })
 

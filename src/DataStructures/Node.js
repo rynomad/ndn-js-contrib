@@ -134,134 +134,75 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
   var t = Date.now();
 
 
-  return new Promise(function Node_expressInterest_Promise(resolve,reject){
-    var nexthops;
-    /*
-    var face = {
-      time: Date.now()
-      , putData : function(data){
-        resolve({
-          data   : data
-          , rtt  : Date.now() - this.time
-        })
-      }
-      , reject : function(){
-        reject(d)
-      }
-    };
-    self.onInterest(interest, face);
-    /**/
-    self._contentStore
-        .lookup(interest)
-        .then(function Node_expressInterest_ContentStore_Hit(data){
-          resolve({
-            data: data
-            , from: "cache"
-            , rtt : Date.now() - t
-          });
-        })
-        .catch(function Node_onInterest_ContentStore_Miss(interest){
-          return self._repository.lookup(interest);
-        })
-        .then(function Node_onInterest_Repository_Hit(data){
-          resolve({
-            data: data
-            , from : "repo"
-            , rtt : Date.now() - t
-          });
-          return "STOP"
-        })
-        .catch(function Node_onInterest_Repository_Miss(){
-          return self._fib.lookup(interest);
-        })
-        .then(function Node_expressInterest_FIB_Hit(res){
-          if (res === "STOP")
-            return res;
-          nexthops = res
-          return self._pit.insert(interest, function Node_expressInterest_onData(data, respondFace){
-            if (data === interest)
-              reject(new Error("Node.expressInterest timeoout"), interest);
-            else
-              resolve({
+  return self.fulfillInterest(interest)
+            .then(function Node_onInterest_fulfill_Hit(data){
+              return Promise.resolve({
                 data: data
-                , from: respondFace
-                , rtt : Date.now() - t
+                , face: "local"
+                , rtt: Date.now() -t
               });
-
-            return {};
-          });
-        }).catch(function Node_expressInterest_FIB_Miss(err){
-          reject(err, interest);
-        }).then(function Node_expressInterest_PitInsert(pit){
-          if (pit === "STOP")
-            return;
-          for (var i in nexthops)
-            nexthops[i].face.putData(interest);
-        });
-  });
+            })
+            .catch(function Node_onInterest_fulfill_Miss(){
+              return self.forwardInterest(interest);
+            });
 }
 
 Node.prototype.fulfillInterest = function Node_fulfillInterest(interest){
-  return self._contentStore
+  var self = this;
+  return this._contentStore
              .lookup(interest)
-             .catch(self._repository.lookup);
+             .then(function (data){
+               return data;
+             })
+             .catch(function(){
+               return self._repository.lookup(interest);
+             }).then(function(data){
+               return data;
+             }).catch(function(er){
+               return Promise.reject()
+             });
 }
 
-Node.prototype.forwardInterest = function Node_forwardInterest(interest){
-  Promise.all([
+Node.prototype.forwardInterest = function Node_forwardInterest(interest, face){
+  var self = this;
+  return Promise.all([
     self._fib.lookup(interest)
     , self._strategy.lookup(interest)
-  ]).then(function forwardInterest_on_FIB_Hit(results){
+  ])
+  .then(function forwardInterest_on_FIB_Hit(results){
     var strategy = results[1]
-      , nextHops = results[0];
+      , nextHops = results[0]
+      , choices = strategy.choose(nextHops);
 
-    return strategy(interest, nextHops, self._pit);
+    for (var i in choices)
+      choices[i].face.putData(interest)
+
+    return self._pit
+                .insert(interest, face)
+                .then(function(res){
+                  strategy.log(choices, res);
+                  return res;
+                })
+                .catch(function(res){
+                  strategy.log(choices, null);
+                  return Promise.reject("interest timeout");
+                });
+
   });
-}
+};
 
 
 Node.prototype.onInterest = function Node_onInterest(interest, face){
-  var self = this;/*
-  self.fulfillInterest(interest)
-      .then(function onInterestFulfillable(data){
-        face.putData(response.data);
-      })
-      .catch(function onInterest_onTimeout(err){
+  var self = this;
 
-    })*/
   self.fulfillInterest(interest)
       .then(function Node_onInterest_fulfill_Hit(data){
         face.putData(data);
         return true;
       })
       .catch(function Node_onInterest_fulfill_Miss(){
-        return self.forwardInterest(interest, face);
+        self.forwardInterest(interest, face);
       })
-      .then(function Node_onInterest_FIB_Hit(nextHops){
-        //TODO: turn this into a call to strategy
-        self._pit
-            .insert(interest, function PITonData(packet, responderFace){
-              for (var i in nextHops)
-                if (nextHops[i].face === responderFace){
-                  if (packet === interest)
-                    nextHops[i].measurements.timeouts++;
-                  else
-                    nextHops[i].measurements.fulfilled++;
-                  break;
-                }
-
-              return face;
-            })
-            .then(function Node_onInterest_PIT_inserted(interest){
-              return self._strategy.lookup(interest);
-            })
-            .then(function Node_onInterest_Strategy_loaded(choose){
-              return choose(interest, nextHops);
-            })
-      })
-      .catch(function Node_onInterest_FIB_Miss(err){
-        //TODO: NACK
-      });
 }
 
 
@@ -371,7 +312,7 @@ Node.prototype.pipelineFetch = function Node_pipelineFetch(params){
                   .then(function(response){
                     return response.data;
                   }).catch(function(er){
-                    console.log(er)
+                    console.log("pipeline error",er)
                   }));
   }
 

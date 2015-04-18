@@ -9,7 +9,7 @@ describe("PIT", function(){
     })
   })
 
-  describe("insert(interest, onData)",function(){
+  describe("insert(interest)",function(){
     var pit = new PIT()
      ,  onD = function(){};
     it("should return a Promise", function(done){
@@ -23,48 +23,34 @@ describe("PIT", function(){
         })
     })
 
-    it("should resolve with interest", function(done){
-      var interest = new ndn.Interest(new ndn.Name("test/pit/insert/resolve"));
+    it("should resolve on lookup(matchingData)", function(done){
+      var interest = new ndn.Interest(new ndn.Name("test/pit/insert/match/data"));
+      interest.setNonce([1,2,3,4])
       interest.setInterestLifetimeMilliseconds(1000);
-      pit.insert(interest, onD)
-         .then(function(intd){
-           assert(interest.name.equals(intd.name))
+      interest.setMustBeFresh(false)
+      pit.insert(interest)
+         .then(function(res){
+           assert(res.data.content.toString() === "Success")
            done()
          })
-        .catch(function(){
-          assert(false, "rejected for some reason")
-        })
+
+      pit.lookup(new ndn.Data(interest.name, "Success"))
     })
 
     it("should reject if duplicate", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/duplicate"));
       interest.setNonce([1,2,3,4])
       interest.setInterestLifetimeMilliseconds(1000);
-      pit.insert(interest, onD)
-         .then(function(intd){
-           assert(interest.name.equals(intd.name))
-           return pit.insert(interest, onD)
-         })
-         .then(function(interest){
-           assert(false, "this should have rejected")
-         })
+      pit.insert(interest)
+      pit.insert(interest)
          .catch(function(er){
-           done();
+           done()
          })
     })
 
-    it("should reject if typeof onData !== function",function(done){
+    it("should reject after timeout",function(done){
       var inst = new ndn.Interest(new ndn.Name("dfa/adfad/adf"))
       pit.insert(inst)
-         .then(function(res){
-           assert(false, "promise resolved with undefined onData")
-         })
-         .catch(function(er){
-           return pit.insert(inst, 5)
-         })
-         .then(function(res){
-           assert(false, "promise resolved with integer onData")
-         })
          .catch(function(er){
            done()
          })
@@ -73,16 +59,18 @@ describe("PIT", function(){
     it("should autoremove after timeout", function(done){
       var interest = new ndn.Interest(new ndn.Name("test/pit/insert/timeout"));
       interest.setNonce([1,2,3,4])
-      this.timeout(600);
       interest.setInterestLifetimeMilliseconds(500);
-      pit.insert(interest, onD)
-         .then(function(intd){
-           assert(pit._nameTree.get(intd.name).getItem()._entries.length === 1);
-           setTimeout(function(){
-             assert(pit._nameTree.get(intd.name).getItem()._entries.length === 0, "failed to remove interest after timeout")
-             done();
-           }, 500)
-         });
+      var t1 = Date.now()
+      pit.insert(interest)
+         .catch(function interestTimeout(){
+           assert(Date.now() - t1 >= 500)
+           assert(pit._nameTree.get(interest.name).getItem()._entries.length === 0, "failed to remove interest after timeout")
+           done();
+         })
+      setTimeout(function(){
+        assert(pit._nameTree.get(interest.name).getItem()._entries.length === 1);
+      },3)
+
     })
   })
 
@@ -101,22 +89,22 @@ describe("PIT", function(){
     it("should resolve with all matching   entries", function(done){
       var name = new ndn.Name("")
       var proms = [];
-      for (var i = 0; i < 5; i++)
-        proms.push(pit.insert(new ndn.Interest(name.append("comp")), function(){ return Math.random()}))
+      for (var i = 0; i < 5; i++){
+        proms[i] = new ndn.Interest(name.append("comp"))
+        proms[i].setInterestLifetimeMilliseconds(1000)
+        proms[i] = pit.insert(proms[i])
+      }
       Promise.all(proms)
-        .then(function(res){
-          var data = new ndn.Data(name, "test")
-          return pit.lookup(data)
-        })
         .then(function(res){
           assert(res.length === 5)
           done()
         })
-        .catch(function(er){
-          console.log(er)
-          assert(false)
+        .catch(function(){
+          console.log("timeout?")
         })
-      })
+      var data = new ndn.Data(name.append("comp"), "test")
+      return pit.lookup(data);
+    })
 
     it("should reject if no matching face returning entries", function(done){
       var data = new ndn.Data(new ndn.Name("no/matches/at/all"), "fail")
@@ -141,8 +129,9 @@ describe("PIT", function(){
 
       Promise.all(proms)
         .then(function(){
-          return pit.lookup(new ndn.Data(name, "test"))
+          console.log("pit matched")
         })
+      pit.lookup(new ndn.Data(name, "test"))
         .then(function(res){
           assert(res.length === 5)
           return pit.lookup(new ndn.Data(name, "fail"))
@@ -153,21 +142,6 @@ describe("PIT", function(){
         .catch(function(){
           done()
         })
-    })
-
-    it("should execute onData(data, face)", function(done){
-      var inst = new ndn.Interest(new ndn.Name("test/onData/callback"))
-      inst.setInterestLifetimeMilliseconds(1000)
-      function onData (data, face){
-        done()
-      }
-      pit.insert(inst, onData)
-         .then(function(interest){
-           return pit.lookup(new ndn.Data(new ndn.Name("test/onData/callback"), "SUCCESS"));
-         })
-         .then(function(results){
-           assert(false)
-         });
     })
 
 
@@ -182,13 +156,8 @@ describe("PIT", function(){
       }
       var data = new ndn.Data(name, "test")
       interest.setInterestLifetimeMilliseconds(10000)
-      pit.insert(interest, function(){})
-         .then(function(){
-           return pit.lookup(data);
-         }).catch(function(er){
-           //console.log(er)
-           
-         })
+      pit.insert(interest)
+      pit.lookup(data)
     })
   })
 })

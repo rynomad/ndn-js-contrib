@@ -3,24 +3,37 @@ var NameTree = require("./NameTree.js")
 
 function Strategy (){
   this._nameTree = new NameTree();
-  this._nameTree.insert(new NameTree.Node(new Name(), this.default));
+  this._nameTree.insert(new NameTree.Node(new Name(), new Strategy.Default()));
   return this;
 }
 
-Strategy.prototype.default = function Strategy_default(interest, fibEntries){
-  for (var i in fibEntries)
-    fibEntries[i].putData(interest);
+Strategy.Default = function Strategy_default(){
+  return this;
 }
 
-Strategy.prototype.insert = function Strategy_insert(prefix, chooser){
-  this._nameTree.get(prefix).setItem(chooser);
+Strategy.Default.prototype.choose = function Strategy_Default_choose(nexthops){
+  return nexthops;
+}
+
+Strategy.Default.prototype.log = function Strategy_Default_log(nexthops, response){
+  return;
+}
+
+Strategy.prototype.insert = function Strategy_insert(prefix, strategy){
+  this._nameTree.get(prefix).setItem(strategy);
 }
 
 Strategy.prototype.lookup = function Strategy_lookup(interest){
   this._nameTree.up(interest.name)
-  this.skip(function(node){
-    return node.isEmpty();
+  var self = this;
+  this._nameTree.skip(function(node){
+    if (node.isEmpty()){
+      return true;
+    } else {
+      return false;
+    }
   })
+
 
   for (var node of this._nameTree)
     return node.getItem();

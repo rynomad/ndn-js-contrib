@@ -7,7 +7,7 @@ function PIT(){
   this._nameTree = new NameTree();
 }
 
-PIT.prototype.insert = function PIT_insert(interest, onData){
+PIT.prototype.insert = function PIT_insert(interest, face){
   var self = this;
   return new Promise(function PIT_insert_Promise(resolve,reject){
     var nameTreeNode = self._nameTree.get(interest.name);
@@ -15,11 +15,9 @@ PIT.prototype.insert = function PIT_insert(interest, onData){
       nameTreeNode.setItem(new PIT.Node());
 
     var pitNode = nameTreeNode.getItem();
-    var result = pitNode.addEntry(interest, onData );
-    if (result)
-      resolve(interest);
-    else
-      reject(new Error("PIT.insert(interest, onData): interest is duplicate"));
+
+    if (!pitNode.addEntry(interest, face, resolve, reject))
+      reject(new Error("PIT.insert(interest): interest is duplicate"));
   });
 };
 
@@ -44,17 +42,22 @@ PIT.prototype.lookup = function PIT_lookup(data, face){
     for(var ntnode of self._nameTree){
       var pitNode = ntnode.getItem();
       for(var entry in pitNode._entries){
+        console.log(pitNode._entries[entry].interest.toUri())
         if (pitNode._entries[entry].interest.matchesName(data.name)){
 
           var ent = pitNode._entries.splice(entry, 1)[0];
           clearTimeout(ent.timeID);
 
-          var inface = ent.onData(data, face);
+          ent.resolve({
+            data   : data
+            , face : face
+            , rtt  : Date.now() - ent.inserted
+          });
 
-          if (inface){
+          if (ent.face){
             var dup = false;
             for (var face in results){
-              if (results[face] === inface){
+              if (results[face] === ent.face){
                 dup = true;
                 break;
               }
@@ -81,28 +84,27 @@ PIT.Node = function PIT_Node(){
 
 PIT.Node.prototype.timeout = function PIT_Node_timeout(interest){
   for (var index in this._entries)
-    if (this._entries[index].interest === interest)
+    if (this._entries[index].interest === interest){
+      this._entries[index].reject();
       return this._entries.splice(index, 1)[0];
+    }
 }
 
-PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
-  console.log(onData)
-  if (!onData || typeof onData !== "function")
-    throw new Error("PIT.Node.addEntry(interest, onData) : missing required argument function onData(data, face)")
-
+PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, face, resolve, reject){
   var self = this;
   for (var entry of this._entries)
     if (entry.interest.getNonce().equals(interest.getNonce()))
       return false;
 
   this._entries.push({
-    interest: interest
-    , onData: onData
-    , timeID: setTimeout(function PIT_Node_entry_timeout(){
-        var face = self.timeout(interest).onData(interest, null);
-        if (face && face.reject)
-          face.reject(interest);
-      }, interest.getInterestLifetimeMilliseconds())
+    interest  : interest
+    , resolve : resolve
+    , reject  : reject
+    , face    : face
+    , inserted : Date.now()
+    , timeID  : setTimeout(function PIT_Node_entry_timeout(){
+        self.timeout(interest);
+      }, interest.getInterestLifetimeMilliseconds() || 1)
   });
   return true;
 }

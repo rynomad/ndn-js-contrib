@@ -145,22 +145,18 @@ ContentStore.prototype.createNode = function ContentStore_createNode(data, store
 ContentStore.prototype.insert = function ContentStore_insert(data, store){
   var self = this;
   store = store || self;
-  return new Promise(function ContentStore_insert_Promise (resolve, reject){
-    store.createNode(data, store)
-        .then(function ContentStore_nameTree_insert(node){
-          self._nameTree.insert(node);
+  return store.createNode(data, store)
+              .then(function ContentStore_nameTree_insert(node){
+                self._nameTree.insert(node);
 
-          if (self._packetCount + 1 === self.getMaxPackets())
-            self.onMaxPackets();
+                if (self._packetCount + 1 === self.getMaxPackets())
+                  self.onMaxPackets();
 
-          ++self._packetCount;
+                ++self._packetCount;
 
-          resolve(node.getItem())
-        })
-        .catch(function ContentStore_insert_reject(err){
-          reject(err);
-        });
-  });
+                return node.getItem();
+              });
+
 };
 
 ContentStore.prototype.removeNode = function ContentStore_removeNode(node){
