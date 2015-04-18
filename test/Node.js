@@ -20,10 +20,6 @@ function create(handle, done){
 
 describe("Node", function(){
   describe("Static Methods", function(){
-    describe("create()",function(){
-
-    })
-
     describe("assemble(dataArray)",function(){
       it("should assemble json",function(){
         var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({

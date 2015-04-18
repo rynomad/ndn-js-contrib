@@ -1,5 +1,5 @@
 var NameTree = require("./NameTree.js")
-  , Name = require("ndn-js/js/name.js"); 
+  , Name = require("ndn-js/js/name.js").Name; 
 
 function Strategy (){
   this._nameTree = new NameTree()
