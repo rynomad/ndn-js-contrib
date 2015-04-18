@@ -130,8 +130,11 @@ Node.prototype.onData = function Node_onData(data, face){
 }
 
 Node.prototype.onInterest = function Node_onInterest(interest, face){
-  var self = this;
-
+  var self = this;/*
+  self.expressInterest(interest)
+      .then(function(response){
+        face.putData(response.data);
+      })*/
   self._contentStore
       .lookup(interest)
       .then(function Node_onInterest_ContentStore_Hit(data){
@@ -141,7 +144,7 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
         return self._repository.lookup(interest);
       })
       .then(function Node_onInterest_Repository_Hit(data){
-        face.putData();
+        face.putData(data);
       })
       .catch(function Node_onInterest_Repository_Miss(){
         return self._fib.lookup(interest);
@@ -155,7 +158,7 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
                   if (packet === interest)
                     nextHops[i].measurements.timeouts++;
                   else
-                    nextHOps[i].measurements.fulfilled++;
+                    nextHops[i].measurements.fulfilled++;
                   break;
                 }
 
@@ -263,8 +266,24 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
   var self = this;
   var t = Date.now();
 
+
   return new Promise(function Node_expressInterest_Promise(resolve,reject){
     var nexthops;
+    /*
+    var face = {
+      time: Date.now()
+      , putData : function(data){
+        resolve({
+          data   : data
+          , rtt  : Date.now() - this.time
+        })
+      }
+      , reject : function(){
+        reject(d)
+      }
+    };
+    self.onInterest(interest, face);
+    /**/
     self._contentStore
         .lookup(interest)
         .then(function Node_expressInterest_ContentStore_Hit(data){
@@ -301,6 +320,8 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
                 , from: respondFace
                 , rtt : Date.now() - t
               });
+
+            return {};
           });
         }).catch(function Node_expressInterest_FIB_Miss(err){
           reject(err, interest);

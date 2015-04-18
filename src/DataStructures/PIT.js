@@ -82,7 +82,7 @@ PIT.Node = function PIT_Node(){
 PIT.Node.prototype.timeout = function PIT_Node_timeout(interest){
   for (var index in this._entries)
     if (this._entries[index].interest === interest)
-      return this._entries.splice(index, 1);
+      return this._entries.splice(index, 1)[0];
 }
 
 PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
@@ -99,7 +99,9 @@ PIT.Node.prototype.addEntry = function PIT_Node_addEntry(interest, onData){
     interest: interest
     , onData: onData
     , timeID: setTimeout(function PIT_Node_entry_timeout(){
-        self.timeout(interest)[0].onData(interest, null);
+        var face = self.timeout(interest).onData(interest, null);
+        if (face && face.reject)
+          face.reject(interest);
       }, interest.getInterestLifetimeMilliseconds())
   });
   return true;
