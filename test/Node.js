@@ -68,13 +68,14 @@ describe("Node", function(){
         var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
           type: "file"
         }))];
-        var str = testFileBuffer;
+        var str = testFileBuffer.buffer;
         console.log(str)
         while(str.length > 0){
           datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.slice(0, 8000)));
           str = str.slice(8000);
         }
-        assert.deepEqual(testFileBuffer, Node.assemble(datas))
+
+        assert.deepEqual(testFileBuffer.file, Node.assemble(datas))
       })
     })
 
