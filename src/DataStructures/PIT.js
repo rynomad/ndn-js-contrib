@@ -42,7 +42,6 @@ PIT.prototype.lookup = function PIT_lookup(data, face){
     for(var ntnode of self._nameTree){
       var pitNode = ntnode.getItem();
       for(var entry in pitNode._entries){
-        console.log(pitNode._entries[entry].interest.toUri())
         if (pitNode._entries[entry].interest.matchesName(data.name)){
 
           var ent = pitNode._entries.splice(entry, 1)[0];

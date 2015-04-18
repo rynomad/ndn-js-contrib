@@ -112,7 +112,6 @@ Repository.prototype.createNode = function Repository_createNode(data, repositor
       entry._repository
            ._dataDB
            .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
-             console.log(nameWithDigest.toUri(), "put", err)
              if (err)
                reject(err);
              else{
