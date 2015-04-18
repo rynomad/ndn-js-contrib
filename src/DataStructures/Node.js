@@ -204,10 +204,7 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
 Node.prototype.fulfillInterest = function Node_fulfillInterest(interest){
   return self._contentStore
              .lookup(interest)
-             .catch(self._repository.lookup)
-             .catch(function(){
-               return Promise.reject(interest);
-             });
+             .catch(self._repository.lookup);
 }
 
 Node.prototype.forwardInterest = function Node_forwardInterest(interest){
