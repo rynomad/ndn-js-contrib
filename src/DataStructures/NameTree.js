@@ -250,7 +250,6 @@ NameTree.Node = function NameTree_Node(prefix, item) {
   this.depth = 0;
   var self = this;
 
-
   this[Symbol.iterator] = function NameTree_Node_Iterator(){
     var iter = new Child_Iterator(self, self._traversal_direction, self._skipper());
 
