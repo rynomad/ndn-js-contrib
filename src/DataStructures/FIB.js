@@ -71,7 +71,10 @@ FIB.Entry.prototype.addNextHop = function FIB_Entry_addNextHop(face){
 
   this._nextHops.push({
     face: face
-    , measurements: {}
+    , measurements: {
+      Fulfilled  : 0
+      , timeouts : 0
+    }
   });
 
   return true;
