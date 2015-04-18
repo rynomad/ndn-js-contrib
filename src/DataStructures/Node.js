@@ -149,7 +149,16 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
       .then(function Node_onInterest_FIB_Hit(nextHops){
         //TODO: turn this into a call to strategy
         self._pit
-            .insert(interest, function PITonData(data, responderFace){
+            .insert(interest, function PITonData(packet, responderFace){
+              for (var i in nextHops)
+                if (nextHops[i].face === responderFace){
+                  if (packet === interest)
+                    nextHops[i].measurements.timeouts++;
+                  else
+                    nextHOps[i].measurements.fulfilled++;
+                  break;
+                }
+
               return face;
             })
             .then(function Node_onInterest_PIT_inserted(interest){
@@ -253,8 +262,8 @@ Node.prototype.put = function Node_put(param, store){
 Node.prototype.expressInterest = function Node_expressInterest(interest){
   var self = this;
   var t = Date.now();
+
   return new Promise(function Node_expressInterest_Promise(resolve,reject){
-    var nexthops;
     self._contentStore
         .lookup(interest)
         .then(function Node_expressInterest_ContentStore_Hit(data){

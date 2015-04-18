@@ -329,7 +329,11 @@ describe("Node", function(){
     it("should putData to matching fib face", function(done){
       handle.done = function(data){
         assert(data.name.get(-1).toEscapedString = "interest")
+        var er = new Error()
+        console.log("dfadfa",er.stack)
+        handle.done = function(){}
         done();
+
       }
       handle.node
             ._fib
