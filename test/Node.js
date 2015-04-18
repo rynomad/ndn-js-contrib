@@ -292,17 +292,21 @@ describe("Node", function(){
   })
 
   describe("expressInterest(interest, onData)",function(){
-    var handle = {}
-    handle.face = {
+    var han = {};
+    han.face = {
       putData: function(data){
-        handle.done(data)
+        han.done(data);
       }
     }
     before(function(done){
-      create(handle,done);
+      Node.create()
+          .then(function(node){
+            han.node = node;
+            done()
+          })
     })
     it("should return a promise",function(done){
-      handle.node
+      han.node
             .expressInterest(new ndn.Interest(new ndn.Name("express/interest")))
             .then(function(data, face, rtt){
               done()
@@ -314,10 +318,10 @@ describe("Node", function(){
 
     it("should return data from local contentStore", function(done){
       var data = new ndn.Data(new ndn.Name("test/express/interest"), "SUCCESS")
-      handle.node
+      han.node
             .putData(data)
             .then(function(){
-              return handle.node.expressInterest(new ndn.Interest(data.name))
+              return han.node.expressInterest(new ndn.Interest(data.name))
             })
             .then(function(response){
               assert(typeof response.rtt === "number", "roundTripTime not a number")
@@ -327,19 +331,19 @@ describe("Node", function(){
     })
 
     it("should putData to matching fib face", function(done){
-      handle.done = function(data){
+      han.done = function(data){
         assert(data.name.get(-1).toEscapedString = "interest")
         var er = new Error()
-        console.log("dfadfa",er.stack)
-        handle.done = function(){}
+        console.log("dfadfa", data.name.toUri(), er.stack)
+        //handle.done = function(){}
         done();
 
       }
-      handle.node
+      han.node
             ._fib
-            .insert(new ndn.Name("test/express/interest/fib"), handle.face)
+            .insert(new ndn.Name("test/express/interest/fib"), han.face)
             .then(function(){
-              return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/express/interest/fib/interest")))
+              return han.node.expressInterest(new ndn.Interest(new ndn.Name("test/express/interest/fib/interest")))
             })
     })
   })

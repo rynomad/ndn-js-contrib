@@ -264,6 +264,7 @@ Node.prototype.expressInterest = function Node_expressInterest(interest){
   var t = Date.now();
 
   return new Promise(function Node_expressInterest_Promise(resolve,reject){
+    var nexthops;
     self._contentStore
         .lookup(interest)
         .then(function Node_expressInterest_ContentStore_Hit(data){
