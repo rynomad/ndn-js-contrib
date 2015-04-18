@@ -3,7 +3,7 @@ var Node = require("../src/DataStructures/Node.js")
 var ContentStore = require("../src/DataStructures/ContentStore.js")
 var testFile = require("./env/file-chunk-test.js")
 var testJson = require("./env/test-json.js")
-var testFileNode = require("./env/test-file-node.js")
+var testFileBuffer = require("./env/test-file-node.js")
 var serverConfigs = require("./env/server-test.js")
 var ndn = require("ndn-js");
 
@@ -68,13 +68,13 @@ describe("Node", function(){
         var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
           type: "file"
         }))];
-        var str = testFileNode;
+        var str = testFileBuffer;
         console.log(str)
         while(str.length > 0){
           datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.slice(0, 8000)));
           str = str.slice(8000);
         }
-        assert.deepEqual(testFileNode, Node.assemble(datas))
+        assert.deepEqual(testFileBuffer, Node.assemble(datas))
       })
     })
 
