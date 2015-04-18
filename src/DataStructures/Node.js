@@ -2,6 +2,7 @@ var Repository = require("./Repository.js")
   , ContentStore = require("./ContentStore.js")
   , PIT = require("./PIT.js")
   , FIB = require("./FIB.js")
+  , Strategy = require("./Strategy.js")
   , getFileChunks = require("./util/get-file-chunks.js")
   , assembleFile = require("./util/assemble-file.js")
   , Name = require("ndn-js/js/name.js").Name
@@ -12,6 +13,7 @@ function Node (){
   this._contentStore = new ContentStore();
   this._pit = new PIT();
   this._fib = new FIB();
+  this._strategy = new Strategy();
 }
 
 Node.create = function Node_create(path){
@@ -151,9 +153,11 @@ Node.prototype.onInterest = function Node_onInterest(interest, face){
               return face;
             })
             .then(function Node_onInterest_PIT_inserted(interest){
-              for (var i in nextHops)
-                nextHops[i].putData(interest);
-            });
+              return self._strategy.lookup(interest);
+            })
+            .then(function Node_onInterest_Strategy_loaded(choose){
+              return choose(interest, nextHops);
+            })
       })
       .catch(function Node_onInterest_FIB_Miss(err){
         //TODO: NACK

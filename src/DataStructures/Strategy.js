@@ -1,9 +1,9 @@
 var NameTree = require("./NameTree.js")
-  , Name = require("ndn-js/js/name.js").Name; 
+  , Name = require("ndn-js/js/name.js").Name;
 
 function Strategy (){
-  this._nameTree = new NameTree()
-  this._nameTree.insert(new NameTree.Node(new Name(), this.default)
+  this._nameTree = new NameTree();
+  this._nameTree.insert(new NameTree.Node(new Name(), this.default));
   return this;
 }
 
