@@ -1,6 +1,6 @@
 var Face = require("ndn-js/js/face.js");
 
-Face.Create = function Face_create(transport){
+Face.Create = function Face_create(transport, onElement){
   return new Promise(function Face_create_Promise(){
     if (!(transport && transport.getConnectionInfo()))
       return reject(new Error("Face.create(transport): must pass a transport"));
@@ -19,23 +19,28 @@ Face.Create = function Face_create(transport){
           , onclose: function Face_create_onclose(){
             console.log("face closed");
           }
-        }
+        };
 
     var face = new Face(settings)
 
+    if (onElement)
+      face.set_onReceivedElement(onElement);
+
     face.transport.connect
      (face.connectionInfo, face,
-      function Face_create_transport_connectCallback() {
+      function Face_create_transport_connect_Callback() {
         face.readyStatus = Face.OPENED;
 
         if (thisFace.onopen)
           // Call Face.onopen after success
           thisFace.onopen();
       },
-      function Face_create_closeByTransportCallback() {
+      function Face_create_transport_close_Callback() {
         thisFace.closeByTransport();
       }
     );
+
+
 
   });
 }

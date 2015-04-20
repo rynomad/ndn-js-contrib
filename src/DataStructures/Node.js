@@ -443,6 +443,10 @@ Node.prototype.onRecievedElement = function Node_onRecievedElement(element, face
 
 Node.prototype.listen = require("./util/server.js");
 
+Node.prototype.onInboundFace = function Node_onInboundFace (face){
+
+};
+
 Node.prototype.connect = require("./util/connect.js");
 
 module.exports = Node;
