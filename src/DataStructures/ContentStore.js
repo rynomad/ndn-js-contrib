@@ -149,13 +149,12 @@ ContentStore.prototype.insert = function ContentStore_insert(data, store){
               .then(function ContentStore_nameTree_insert(node){
                 self._nameTree.insert(node);
 
-                if (self._packetCount + 1 === self.getMaxPackets())
-                  self.onMaxPackets();
-
-                ++self._packetCount;
-
-                return node.getItem();
+                if (++self._packetCount >= self.getMaxPackets())
+                  return [node.getItem(),self.onMaxPackets()];
+                else
+                  return [node.getItem()]
               });
+
 
 };
 

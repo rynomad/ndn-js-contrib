@@ -7,7 +7,9 @@ var Repository = require("./Repository.js")
   , assembleFile = require("./util/assemble-file.js")
   , Name = require("ndn-js/js/name.js").Name
   , Data = require("ndn-js/js/data.js").Data
-  , Interest = require("ndn-js/js/interest").Interest;
+  , Interest = require("ndn-js/js/interest").Interest
+  , Tlv = require('ndn-js/js/encoding/tlv/tlv.js').Tlv
+  , TlvDecoder = require('ndn-js/js/encoding/tlv/tlv-decoder.js').TlvDecoder;
 
 function Node (){
   this._contentStore = new ContentStore();
@@ -123,8 +125,11 @@ Node.prototype.onData = function Node_onData(data, face){
 
         return self._contentStore.insert(data);
       })
+      .then(function Node_onContentStoreDataEvicted(data){
+        return data;
+      })
       .catch(function(err){
-        console.log("error in Node data path:", err, err.stack)
+        return data;
       })
 
 }
@@ -195,14 +200,20 @@ Node.prototype.forwardInterest = function Node_forwardInterest(interest, face){
 Node.prototype.onInterest = function Node_onInterest(interest, face){
   var self = this;
 
-  self.fulfillInterest(interest)
-      .then(function Node_onInterest_fulfill_Hit(data){
-        face.putData(data);
-        return true;
-      })
-      .catch(function Node_onInterest_fulfill_Miss(){
-        self.forwardInterest(interest, face);
-      })
+  return self.fulfillInterest(interest)
+             .then(function Node_onInterest_fulfill_Hit(data){
+               face.putData(data);
+               return true;
+             })
+             .catch(function Node_onInterest_fulfill_Miss(){
+               return self.forwardInterest(interest, face);
+             })
+             .then(function Node_onInterest_forward_Response(res){
+               return interest;
+             })
+             .catch(function Node_onInterest_forward_Timeout(message){
+               return interest;
+             });
 }
 
 
@@ -388,6 +399,47 @@ Node.prototype.setProfile = function Node_setProfile(){
 Node.prototype.advertiseRoute = function Node_advertiseRoute(){
 
 }
+
+Node.prototype._interest_pool = [];
+Node.prototype._data_pool = [];
+
+
+Node.prototype.createInterest = function Node_createInterest(element){
+  var interest = this._interest_pool.pop() || new Interest();
+  interest.wireDecode(element, TlvWireFormat.get());
+  return interest;
+};
+
+Node.prototype.recycleInterest = function Node_recycleInterest(interest){
+  this._interest_pool.push(interest)
+}
+
+Node.prototype.createData = function Node_createData(element){
+  var data = this._data_pool.pop() || new Data();
+  data.wireDecode(element, TlvWireFormat.get());
+  return data;
+};
+
+Node.prototype.recycleData = function Node_recycleData(data){
+  this._data_pool.push(data);
+}
+
+Node.prototype.onRecievedElement = function Node_onRecievedElement(element, face){
+  var self
+  if (element[0] == Tlv.Interest || element[0] == Tlv.Data) {
+    var decoder = new TlvDecoder (element);
+    if (decoder.peekType(Tlv.Interest, element.length)) {
+      var interest = this.createInterest(element);
+      this.onInterest(interest, face)
+          .then(this.recycleInterest);
+    }
+    else if (decoder.peekType(Tlv.Data, element.length)) {
+      var data = this.createData(element);
+      this.onData(data, face)
+          .then(this.recycleData);
+    }
+  }
+};
 
 Node.prototype.listen = require("./util/server.js");
 

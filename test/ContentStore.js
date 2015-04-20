@@ -90,7 +90,7 @@ describe("ContentStore", function(){
 
       cs.insert(dat)
         .then(function(entr){
-          entr.onDataStale = function(){
+          entr[0].onDataStale = function(){
             done();
           }
         })
