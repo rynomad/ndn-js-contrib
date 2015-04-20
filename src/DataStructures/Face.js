@@ -41,5 +41,5 @@ Face.Create = function Face_create(transport){
 }
 
 Face.prototype.set_onReceivedElement = function Face_set_onReceivedElement(onReceivedElement){
-  this.onReceivedElement = onReceivedElement;
+  this.onReceivedElement = onReceivedElement.bind(this);
 }

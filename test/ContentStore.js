@@ -1,7 +1,6 @@
 var ContentStore = require("../src/DataStructures/ContentStore.js")
 var assert = require("assert");
 ndn = require('ndn-js');
-var certificateName = require("./setup/key-chain.js").certificateName
 
 
 
