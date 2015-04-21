@@ -19,7 +19,11 @@
   "browser": {
     "./src/Transports/node/export.js": "./src/Transports/browser/export.js",
     "leveldown": "level-js",
-    "./dist/src/Transports/node/export.js": "./dist/src/Transports/browser/export.js"
+    "./src/DataStructures/util/get-file-chunks.js": "./src/DataStructures/util/browser-get-file-chunks.js",
+    "./src/DataStructures/util/assemble-file.js": "./src/DataStructures/util/browser-assemble-file.js",
+    "./src/DataStructures/util/server.js": "./src/DataStructures/util/browser-server.js",
+    "./test/env/file-chunk-test.js": "./test/env/browser-file-chunk-test.js",
+    "./test/env/test-file-node.js": "./test/env/browser-test-file.js"
   },
   "author": "Ryan Bennett, Colorado State University",
   "license": "LGPLv3",
@@ -28,30 +32,29 @@
   },
   "homepage": "https://github.com/rynomad/ndn-contrib",
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-jsdoc": "^0.5.6",
-    "npm": "^1.4.21",
-    "grunt-mocha-test": "^0.11.0",
-    "install": "^0.1.7",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-contrib-jshint": "^0.10.0",
-    "grunt-browserify": "^2.1.3",
-    "browserify": "^4.2.1",
+    "browserify": "^9.0.7",
+    "gulp": "^3.8.11",
+    "gulp-connect": "^2.2.0",
+    "gulp-git": "^1.1.0",
+    "gulp-jsdoc": "^0.1.4",
+    "gulp-jshint": "^1.10.0",
+    "gulp-mocha": "^2.0.1",
+    "gulp-sourcemaps": "^1.5.1",
+    "gulp-uglify": "^1.1.0",
+    "gulp-util": "^3.0.4",
     "mocha": "^1.21.3",
-    "grunt-contrib-uglify": "^0.5.1",
-    "grunt-plato": "^1.3.0",
-    "grunt-strip": "^0.2.1",
-    "grunt-contrib-copy": "^0.7.0",
-    "grunt-remove-logging": "^0.2.0",
-    "workerify": "^0.3.0"
+    "npm": "^1.4.21",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "ndn-js": "^0.6.0",
-    "leveldown": "*",
+    "debug": "*",
     "level-js": "*",
+    "leveldown": "*",
     "levelup": "*",
-    "debug":"*",
-    "ws": "*",
-    "lru-cache": "*"
+    "ndn-js": "^0.6.0",
+    "peer": "^0.2.8",
+    "peerjs": "^0.3.14",
+    "ws": "*"
   }
 }

@@ -2,18 +2,19 @@ var git_branch = "next"
 
 
 var gulp = require('gulp');
-var mocha = require('gulp-mocha');
 var gutil = require('gulp-util');
 var jshint = require('gulp-jshint');
 var git = require('gulp-git');
 var connect = require('gulp-connect');
 var browserify = require('browserify');
-
+var leveldown = require("leveldown")
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var jsdoc = require("gulp-jsdoc");
+
+var mocha = require('gulp-mocha');
 
 
 
@@ -24,7 +25,9 @@ gulp.task('browserify-tests',['mocha'], function () {
   b.add('./test/NameTree.js')
    .add('./test/ContentStore.js')
    .add('./test/PIT.js')
-   .add('./test/FIB.js');
+   .add('./test/FIB.js')
+   .add('./test/Repository.js')
+   .add('./test/Node.js');
 
   var stream = b.bundle()
     .pipe(source('tests.js'))
@@ -59,9 +62,12 @@ gulp.task('live',['browserify-tests'], function () {
 });
 
 gulp.task('jsdoc', function(){
-  gulp.src("./src/*.js")
-    .pipe(jsdoc('./doc'))
-})
+  gulp.src("./src/DataStructures/ContentStore.js")
+        .pipe(jsdoc.parser({plugins: ['plugins/commentsOnly.js']}))
+        .pipe(jsdoc.generator('./doc'))
+
+});
+
 
 gulp.task('dev-auto-commit', ['browserify-tests','mocha','live', 'jsdoc'], function(){
   return gulp.src(['./src/DataStructures/*.js','./test/*.js'])
