@@ -1,4 +1,4 @@
-var Face = require("ndn-js/js/face.js");
+var Face = require("ndn-js/js/face.js").Face;
 
 Face.Create = function Face_create(transport, onElement){
   return new Promise(function Face_create_Promise(){
