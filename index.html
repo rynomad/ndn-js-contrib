@@ -1,4 +1,46 @@
-<html><body><a href="doc/index.html">documentation</a>
-<a href="test/browser/DataStructures.html">Test DataStructures</a>
-<a href="test/browser/Transports.html">Test Transports</a>
-</body></html>
+<html>
+
+    <script src="test/browser/lib/chai.js"></script>
+    <script src="test/browser/lib/mocha.js"></script>
+    <script>  mocha.setup('bdd')
+    </script>
+    <script src="test/browser/tests.js"></script>
+
+    <link rel="stylesheet" href="test/browser/lib/mocha.css" />
+    <div id="mocha"><p><a href=".">Index</a></p></div>
+    <script>
+        onload = function(){
+Object.defineProperty(global, "stale", {
+    set : function(value) {
+        throw new Error("");
+    }
+})
+            mocha.checkLeaks();
+            mocha.globals(['mochaResults', 'ndn','v' , "ListenerActive", "result"]);
+            var runner = mocha.run();
+
+            var failedTests = [];
+            runner.on('end', function(){
+                window.mochaResults = runner.stats;
+                window.mochaResults.reports = failedTests;
+            });
+
+            runner.on('fail', logFailure);
+
+            function logFailure(test, err){
+
+                var flattenTitles = function(test){
+                    var titles = [];
+                    while (test.parent.title){
+                        titles.push(test.parent.title);
+                        test = test.parent;
+                    }
+                    return titles.reverse();
+                };
+
+                failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
+            };
+        };
+    </script>
+    
+</html>
