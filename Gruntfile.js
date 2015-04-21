@@ -3,9 +3,7 @@ module.exports = function(grunt){
   grunt.initConfig({
     uglify: {
       build: {
-        files: {
-          'build/ndn-contrib.min.js' : ["build/ndn-contrib.js"]
-        }
+        files: {"build/ndn-js-contrib.min.js":["build/ndn-js-contrib.js"]}
       }
     },
     plato: {
@@ -34,13 +32,23 @@ module.exports = function(grunt){
       },
       build: {
         src: "index.js",
-        dest: "build/ndn-contrib.js",
+        dest: "build/ndn-js-contrib.js",
+        options: {
+          bundleOptions: {
+            standalone: 'NDN'
+          }
+        }
+      },
+      buildBig: {
+        src: "index.js",
+        dest: "build/ndn-js-contrib.js",
         options: {
           bundleOptions: {
             standalone: 'NDN'
           }
         }
       }
+
     },
     jsdoc : {
       dist : {
@@ -118,6 +126,11 @@ module.exports = function(grunt){
         files:[
           {expand: true, src: ['src/**'], dest: 'dist/'}
         ]
+      },
+      postUg:{
+        files:[
+          {expand: true, src: ['dest/**'], dest: 'dist/'}
+        ]
       }
     }
   })
@@ -133,6 +146,6 @@ module.exports = function(grunt){
   grunt.loadNpmTasks('grunt-contrib-copy');
 
   grunt.registerTask("stripDebug", ["copy:toDist","removelogging" ])
-  grunt.registerTask("build", ["browserify:build", "uglify:build"])
+  grunt.registerTask("build", ["stripDebug","browserify:build","uglify:build"])
   grunt.registerTask("suite", ["jshint", "browserify:testDataStructures", "browserify:testTransports", "mochaTest"])
 };

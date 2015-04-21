@@ -1,0 +1,629 @@
+var assert = require('assert')
+var Node = require("../src/DataStructures/Node.js")
+var ContentStore = require("../src/DataStructures/ContentStore.js")
+var testFile = require("./env/file-chunk-test.js")
+var testJson = require("./env/test-json.js")
+var testFileBuffer = require("./env/test-file-node.js")
+var serverConfigs = require("./env/server-test.js")
+var ndn = require("ndn-js");
+
+function create(handle, done){
+  Node.create()
+      .then(function(node){
+        handle.node = node;
+        done()
+      }).catch(function(err){
+        console.log(err)
+        done()
+      })
+}
+
+describe("Node", function(){
+  describe("Static Methods", function(){
+    describe("assemble(dataArray)",function(){
+      it("should assemble json",function(){
+        var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
+          type: "json"
+        }))];
+        var str = JSON.stringify(testJson);
+        while(str.length > 0){
+          datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.substring(0, 8000)));
+          str = str.substring(8000);
+        }
+        assert.deepEqual(testJson, Node.assemble(datas))
+
+      })
+
+      it("should assemble string", function(){
+        var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
+          type: "string"
+        }))];
+        var str = JSON.stringify(testJson);
+        while(str.length > 0){
+          datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.substring(0, 8000)));
+          str = str.substring(8000);
+        }
+        assert.deepEqual(JSON.stringify(testJson), Node.assemble(datas))
+
+      })
+
+      it("should assemble buffer", function(){
+        var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
+          type: "buffer"
+        }))];
+        var str = JSON.stringify(testJson);
+        while(str.length > 0){
+          datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.substring(0, 8000)));
+          str = str.substring(8000);
+        }
+        assert.deepEqual(new Buffer(JSON.stringify(testJson)), Node.assemble(datas))
+
+      })
+
+      it("should assemble file", function(){
+        var datas = [new ndn.Data(new ndn.Name("test/assemble/json"), JSON.stringify({
+          type: "file",
+          mime: "test/type"
+        }))];
+        var str = testFileBuffer.buffer;
+        console.log(str)
+        while(str.length > 0){
+          datas.push(new ndn.Data(new ndn.Name("test/assemble/json"),str.slice(0, 8000)));
+          str = str.slice(8000);
+        }
+
+        assert.deepEqual(testFileBuffer.file, Node.assemble(datas))
+      })
+    })
+
+    describe("getFileChunks",function(){
+      it("should return a promise",function(){
+
+      })
+
+      it("should resolve to an object with an Iterator",function(){
+
+      })
+
+      it("Iterator should return promises with chunk, segmentnumber arguments",function(){
+
+      })
+    })
+
+    describe("getBufferChunks(Buffer)",function(){
+
+    })
+
+    describe("getStringChunks(string)",function(){
+
+    })
+  })
+
+  describe("onData(data, face)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+  })
+
+  describe("onInterest(interest, face)",function(){
+
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+
+  })
+
+  describe("putData(data, store)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,function(){
+        handle.onData = function(){
+          handle.done()
+        }
+        handle.face = {
+          putData: function(data){
+            handle.done(data)
+          }
+        }
+        var interest = new ndn.Interest(new ndn.Name("putData/interest"))
+        interest.setInterestLifetimeMilliseconds(100000)
+        handle.node
+              ._pit
+              .insert(interest, handle.face)
+              .then(function(){
+                handle.done();
+              })
+        done();
+      });
+    })
+
+    it("should return a promise",function(done){
+      handle.node.putData(new ndn.Data(new ndn.Name("putData/promise"), "helloworld"))
+            .then(function(){
+              done();
+            })
+            .catch(function(err){
+              done();
+            })
+    });
+
+    it("should resolve with an array [insertResult, forwardResult]",function(done){
+
+      handle.node
+            .putData(new ndn.Data(new ndn.Name("putData/promise/test"), "hello world" ))
+            .then(function(arr){
+              assert(arr[0])
+              assert(arr[1] === false, "should not have gotten a forwarding entry");
+              done()
+            }).catch(function (err){
+              console.log(err, err.stack)
+            })
+
+    } )
+
+    it("should trigger matching entries in the PIT", function(done){
+      handle.done = done;
+      handle.node
+            .putData(new ndn.Data(new ndn.Name("putData/interest/test"), "insertSUCCESS" ))
+            .then(function(arr){
+              assert(arr[0]._data.content.toString() === "insertSUCCESS")
+              assert(arr[1] === false, "should not have gotten a returned face value");
+
+            }).catch(function (err){
+              console.log(err, err.stack)
+            })
+    })
+
+    it("should send to matching entries in the PIT", function(done){
+      handle.done = done()
+      var interest = new ndn.Interest(new ndn.Name("putData/face"))
+      interest.setInterestLifetimeMilliseconds(100000)
+      handle.node
+            ._pit
+            .insert(interest, function(dat, face){
+              return handle.face;
+            }).then(function(){
+              return handle.node
+                      .putData(new ndn.Data(new ndn.Name("putData/face/interest/test"), "insertSUCCESS" ))
+            })
+            .then(function(arr){
+              assert(arr[0]._data.content.toString() === "insertSUCCESS")
+              assert(arr[1] === false, "should not have gotten a returned face value");
+            }).catch(function (err){
+              console.log(err, err.stack)
+            })
+    })
+
+  })
+
+  describe("put(params)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+
+    it("should return a promise",function(done){
+      handle.node.put(
+        {
+          type: "string"
+          , data : "Hello world n stuff"
+          , prefix : "test/insert/string"
+        }
+      ).then(function(){
+        done();
+      }).catch(function(){
+        done();
+      })
+    });
+
+    it("should only resolve if  type, data, or prefix fields in params", function(done){
+      handle.node.put(
+        {
+          type: "string"
+          , prefix : "test/no/data"
+        }
+      ).then(function(){
+        assert(false, "resolved with missing data ")
+      }).catch(function(){
+       return handle.node.put({
+         type: "string"
+         , data: "somedata"
+       })
+     }).then(function(){
+       assert(false, "resolved with missing prefix")
+     }).catch(function(err){
+       return handle.node.put({
+         data:"dfsadfafads"
+         , prefix: "test/no/type"
+       })
+     }).then(function(){
+       assert(false, "resolved with missing type")
+     }).catch(function(res){
+       return handle.node.put({
+         data:"dfsadfafads"
+         , prefix: "test/no/type"
+         , type: "string"
+       })
+     }).then(function(){
+       done();
+     }).catch(function(err){
+       console.log(err)
+     })
+    })
+
+    it("should resolve for file",function(done){
+      handle.node.put({
+        type: "file"
+        , prefix: "test/put/file"
+        , data: testFile
+      }).then(function(){
+        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
+      })
+    })
+
+    it("should resolve for json",function(done){
+      handle.node.put({
+        type: "json"
+        , prefix: "test/p/json"
+        , data: testJson
+      }).then(function(){
+        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
+      })
+    })
+
+    it("should resolve for buffer", function(done){
+      handle.node.put({
+        type: "buffer"
+        , prefix: "test/p/json"
+        , data: new Buffer(10000)
+      }).then(function(){
+        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
+      })
+    })
+  })
+
+  describe("expressInterest(interest)",function(){
+    var han = {};
+    han.face = {
+      putData: function(data){
+        han.done(data);
+      }
+    }
+    before(function(done){
+      Node.create()
+          .then(function(node){
+            han.node = node;
+            done()
+          })
+    })
+    it("should return a promise",function(done){
+      han.node
+            .expressInterest(new ndn.Interest(new ndn.Name("express/interest")))
+            .then(function(res){
+              done()
+            })
+            .catch(function(er){
+              done()
+            })
+    });
+
+    it("should return data from local contentStore", function(done){
+      var data = new ndn.Data(new ndn.Name("test/express/interest"), "SUCCESS")
+      han.node
+            .putData(data)
+            .then(function(){
+              return han.node.expressInterest(new ndn.Interest(data.name))
+            })
+            .then(function(response){
+              assert(response.data.content.toString() === "SUCCESS", "")
+              done()
+            })
+    })
+
+    it("should putData to matching fib face", function(done){
+      han.done = function(data){
+        assert(data.name.get(-1).toEscapedString = "interest");
+        //handle.done = function(){}
+        done();
+
+      }
+      han.node
+            ._fib
+            .insert(new ndn.Name("test/express/interest/fib"), han.face)
+            .then(function(){
+              return han.node.expressInterest(new ndn.Interest(new ndn.Name("test/express/interest/fib/interest")))
+            })
+    })
+  })
+
+  describe("store(params)",function(){
+    var handle = {}
+    before(function(done){
+      Node.create("trash/n_repo")
+          .then(function(node){
+            handle.node = node;
+            done();
+          })
+    })
+
+    it("should return a promise",function(done){
+      handle.node.store({
+        type: "json"
+        , prefix: "test/store/json"
+        , data: testJson
+      }).then(function(){
+        done()
+      }).catch(function(){
+        done()
+      })
+    });
+
+    it("should resolve for json", function(done){
+      handle.node.store({
+        type: "json"
+        , prefix: "test/store/json2"
+        , data: testJson
+      }).then(function(){
+        done()
+      }).catch(function(er){
+        console.log(er, er.stack)
+      })
+    })
+
+    after(function(done){
+      handle.node._repository.close()
+      .then(function(){
+        return handle.node._repository.destroy()
+      }).then(function(){
+        done()
+      })
+    })
+  })
+
+  describe("pipelineFetch(params)",function(){
+    var handle = {}
+    before(function(done){
+      Node.create("trash/n_put")
+          .then(function(node){
+            handle.node = node;
+            done();
+          })
+    })
+
+    it("should return a promise",function(done){
+      var data = new ndn.Data(new ndn.Name("test/pipeline"), "SUCCESS")
+      data.name.appendSegment(0)
+      data.getMetaInfo().setFinalBlockId(data.name.get(-1))
+
+      handle.node.pipelineFetch({
+        prefix: data.name.getPrefix(-1)
+        , rtt : 100
+        , mustBeFresh: false
+      }).then(function(){
+              done()
+      }).catch(function(){
+        done()
+      })
+    });
+
+    it("should fetch data from seeded via put", function(done){
+      var finalBlock
+      handle.node.put({
+        type: "json"
+        , prefix: "test/store/json3"
+        , data: testJson
+        , mustBeFresh : false
+      }).then(function(puts){
+        return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/store/json3")))
+      }).then(function(response){
+        finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00);
+
+        return handle.node.pipelineFetch({
+          prefix: response.data.name.getPrefix(-1)
+          , rtt : 100
+          , mustBeFresh: false
+          , finalBlock : finalBlock
+        });
+      }).then(function(parts){
+        assert(parts.length - 1 === finalBlock);
+        done();
+      })
+    })
+
+    it("should fetch data stored in repo", function(done){
+      var finalBlock
+      handle.node.store({
+        type: "json"
+        , prefix: "test/store/json4"
+        , data: testJson
+      }).then(function(puts){
+        return handle.node.expressInterest(new ndn.Interest(new ndn.Name("test/store/json4")))
+      }).then(function(response){
+        finalBlock = response.data.getMetaInfo().getFinalBlockID().toNumberWithMarker(0x00);
+
+        return handle.node.pipelineFetch({
+          prefix: response.data.name.getPrefix(-1)
+          , rtt : 100
+          , mustBeFresh: false
+          , finalBlock : finalBlock
+        })
+      }).then(function(parts){
+
+        assert(parts.length - 1 === finalBlock)
+        done()
+      }).catch(function(er){
+        assert(er, er.stack)
+      })
+    })
+
+    after(function (done){
+      handle.node._repository.close()
+            .then(function(){
+              return handle.node._repository.destroy()
+            }).then(function(){
+              done()
+            })
+    })
+  })
+
+  describe("fetch(params)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+    it("should return a promise",function(done){
+      handle.node.fetch({
+
+      }).then(function(){
+        done();
+      }).catch(function(){
+        done();
+      })
+    });
+
+    it("should resolve with data array stored via put", function(done){
+      handle.node.put({
+        type: "json"
+        , prefix : "test/fetch/json"
+        , data: testJson
+      }).then(function(){
+        return handle.node.fetch({
+          mustBeFresh: false
+          , prefix: "test/fetch/json"
+        }).then(function(datas){
+          console.log(datas.length)
+          assert(datas.length === 33)
+          done()
+        }).catch(function(er){
+          console.log("er",er, er.stack)
+        })
+      })
+    })
+  })
+
+  describe("get(params)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    });
+
+    it("should return a promise",function(done){
+      handle.node.get({
+        mustBeFresh: false
+        , prefix: "test/get/json"
+      }).then(function(){
+        done()
+      }).catch(function(){
+        done()
+      })
+    });
+
+    it("should resolve with json stored via put", function(done){
+      handle.node.put({
+        type: "json"
+        , prefix : "test/get/json"
+        , data: testJson
+      }).then(function(){
+        return handle.node.get({
+          mustBeFresh: false
+          , prefix: "test/get/json"
+        }).then(function(json){
+          console.log("testfetchjson")
+          assert.deepEqual(json, testJson)
+          done()
+        }).catch(function(er){
+          console.log("er",er, er.stack)
+        })
+      })
+    })
+  })
+
+  describe("steward(params)",function(){
+    var handle = {}
+    before(function(done){
+      Node.create("trash/n_steward")
+          .then(function(node){
+            handle.node = node;
+            done()
+          })
+    })
+
+    it("should return a promise",function(done){
+      handle.node.steward({
+        prefix: "fail"
+      }).then(function(){
+          done()
+        })
+        .catch(function(){
+          done()
+        })
+    });
+
+    it("should store data in repo from contentStore",function(done){
+      handle.node.put({
+        type: "json"
+        , data: testJson
+        , prefix: "test/steward"
+      }).then(function(){
+        return handle.node.steward({
+          prefix: "test/steward"
+          , mustBeFresh: false
+        })
+      }).then(function(){
+        handle.node._contentStore = new ContentStore();
+        return handle.node.get({
+          prefix: "test/steward"
+          , mustBeFresh : false
+        })
+      }).then(function(json){
+        assert.deepEqual(json, testJson)
+        done()
+      })
+    })
+
+    after(function(done){
+      handle.node._repository.close()
+            .then(function(){
+              return handle.node._repository.destroy()
+            })
+            .then(function(){
+              done()
+            })
+    })
+  })
+
+
+
+
+
+
+
+  describe("putStream",function(){
+
+  })
+
+  describe("getStream",function(){
+
+  })
+
+  describe("listen(param)",function(){
+    var handle = {}
+    before(function(done){
+      create(handle,done);
+    })
+    it("should return a promise",function(){
+
+    });
+  })
+
+
+
+})

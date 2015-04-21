@@ -1,22 +1,22 @@
 <html>
 
-    <script src="http://chaijs.com/chai.js"></script>
-    <script src="lib/mocha.js"></script>
+    <script src="browser/lib/chai.js"></script>
+    <script src="browser/lib/mocha.js"></script>
     <script>  mocha.setup('bdd')
     </script>
-    <script src="DataStructures/suite.js"></script>
+    <script src="browser/tests.js"></script>
 
-    <link rel="stylesheet" href="lib/mocha.css" />
+    <link rel="stylesheet" href="browser/lib/mocha.css" />
     <div id="mocha"><p><a href=".">Index</a></p></div>
     <script>
         onload = function(){
-Object.defineProperty(global, "result", {
+Object.defineProperty(global, "stale", {
     set : function(value) {
         throw new Error("SHIT!");
     }
 })
             mocha.checkLeaks();
-            mocha.globals(['mochaResults', 'v' , "ListenerActive", "result"]);
+            mocha.globals(['mochaResults', 'ndn','v' , "ListenerActive", "result"]);
             var runner = mocha.run();
 
             var failedTests = [];
@@ -42,5 +42,5 @@ Object.defineProperty(global, "result", {
             };
         };
     </script>
-    <script src="http://localhost:35729/livereload.js"></script>
+    
 </html>

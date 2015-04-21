@@ -4,6 +4,8 @@ exports.PIT = require("./dist/src/DataStructures/PIT.js").installNDN(exports.ndn
 exports.FIB = require("./dist/src/DataStructures/FIB.js").installNDN(exports.ndn);
 exports.ContentStore = require("./dist/src/DataStructures/ContentStore.js");
 exports.Interfaces = require("./dist/src/DataStructures/Interfaces.js").installNDN(exports.ndn);
-exports.Transports = require("./dist/src/Transports/node/export.js");
-
+exports.Transports = require("./dist/src/Transports/node/export.js")
+exports.Repository = require("./dist/src/DataStructures/Repository.js").installNDN(exports.ndn);
+exports.Repository.RepoEntry = require("./dist/src/DataStructures/repoEntry.js");
+exports.Buffer = Buffer;
 module.exports = exports;

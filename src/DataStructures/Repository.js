@@ -5,114 +5,198 @@
  *
  */
 
-var leveldown = require("leveldown"),
-    levelup = require("levelup"),
-    path = (process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || "") + "/.NDN-Repo",
-    ndn;
-var debug = true;
+var leveldown = require("leveldown")
+  , levelup = require("levelup")
+  , Name   = require("ndn-js/js/name.js").Name
+  , crypto = require("ndn-js/js/crypto.js")
+  , Data   = require("ndn-js/js/data.js").Data
+  , NameTree = require("./NameTree.js")
+  , ContentStore = require("./ContentStore.js")
 
-/**NDN Repository
- *@constructor
- *@param {ContentStore} index - the in-memory {@link http://rynomad.github.io/ndn-javascript-data-structures/doc/ContentStore.html|ContentStore} to do lookups on the underlying key-value store
- *@param {Object} - policy an parameter option for deciding on policies for accepting/rejecting storage requests
- *@returns {Repository}
- */
-function Repository (index, policy, onopen){
+
+function Repository (path){
   var self = this;
-  this.index = index;
-  this.nameTree = index.nameTree;
-  this.ndn = index.ndn;
-  this.db = levelup(policy.path || path, {db: leveldown,
-                                          valueEncoding: "json"
-                                         }, function(){
-    self.populateNameTree(onopen);
+  this._dataPath = path;
+  this._contentStore = new ContentStore();
+  this._contentStore.setEntryClass(Repository.Entry);
+
+  return new Promise(function Repository_Constructor_Promise(resolve,reject){
+    levelup( self._dataPath
+           , {db:leveldown, valueEncoding: "json"}
+           , function Repository_Contstructor_Promise_levelup(err, db){
+             if (err)
+               return reject(err);
+
+             self._dataDB = db;
+             self.populateContentStoreNodes()
+                 .then(function(){
+                   resolve(self)
+                 })
+                 .catch(reject);
+
+           });
   });
-  return this;
 }
 
-/** Install the NDN-lib Object
- *@param {Object} NDN NDN-lib as object
- */
-Repository.installNDN = function(NDN){
-  ndn = NDN;
+
+Repository.Open = function Repository_Open(path){
+  return new Repository(path);
+};
+
+
+
+Repository.Entry = function Repository_Entry(data, repository){
+  var self = this;
+  this._repository = repository;
+
   return this;
 };
 
-/**get an element from a {RepoEntry}
- *@param {RepoEntry} repoEntry the entry for the desired element
- *@param {function} callback function receiving (err, element) as arguments, asyncronously
- *@returns {this} for chaining
- */
-Repository.prototype.getElement = function(repoEntry, callback){
-  this.db.get(repoEntry.uri, function(err, data){
-   if (!Buffer.isBuffer(data)){
-     data = new Buffer(data);
-   }
-   callback(err, data);
+function Repository_getNameWithDigest(name, packet){
+  var name = new Name(name)
+  name.append("sha256digest=" + crypto.createHash('sha256')
+                                      .update(packet)
+                                      .digest()
+                                      .toString('hex'));
+  return name;
+}
+
+Repository.Entry.prototype.getData = function Repository_Entry_getData(){
+  var self = this;
+  return new Promise(function Repository_Entry_getData_Promise(resolve, reject){
+    self._repository
+        ._dataDB
+        .get(self.prefix.toUri(), function(err, packet){
+          if (err)
+            return reject(err);
+
+          var data = new Data()
+          data.wireDecode(new Buffer(packet));
+          resolve(data);
+        });
   });
-  return this;
 };
 
-/**Insert an element into the DB and a corresponding RepoEntry into the index
- *@param {Buffer} element - raw data packet
- *@param {Object=} data - the NDN.Data object of the packet
- *@param {function=} callback - called with no arguments on success, with err if fail
- *@returns {this} for chaining
- */
-Repository.prototype.insert = function(element, data, callback){
-  var db = this.db,
-      self = this;
-  callback = callback || function(){};
-
-  if (typeof data == "function"){
-    callback = data
-    data = new ndn.Data()
-    data.wireDecode(element);
-  }
-
-  db.put(data.name.toUri(), element, function(err){
-    self.index.insert(element,data);
-    callback(err);
+Repository.Entry.prototype.delete = function Repository_Entry_delete(){
+  var self = this;
+  return new Promise(function Repository_Entry_delete_Promise(resolve, reject){
+    self._repository
+        ._dataDB
+        .del(self.prefix.toUri(), function(err){
+          if (err)
+            return reject(err);
+          resolve(self);
+        });
   });
-
-  return this;
 };
 
-/**Populate the index with keys from the db, called once on startup
- *@private
- *@param {function} callback called with err if one occurs
- */
-Repository.prototype.populateNameTree = function(callback){
-  var self = this
-    , db = self.db;
-  callback = callback || function(){return;};
+Repository.Entry.prototype.fulfillsInterest = function Repository_Entry_fulfillsInterest(interest){
+  return (!!this.prefix && interest.matchesName(this.prefix));
+};
 
-  db.createKeyStream()
-    .on("data",function(key){
-      self.index.insert(null, new ndn.Data(new ndn.Name(key)));
-    })
-    .on("error", function(err){
-      callback(err);
-    })
-    .on("close", function(){
-      self.spun = true;
-      callback();
+Repository.prototype.createNode = function Repository_createNode(data, repository){
+  var self = this;
+  return new Promise(function Repository_createNode_Promise(resolve,reject){
+    var entry = new Repository.Entry(data, repository)
+    entry._repository = self;
+
+    if (!data.content){                       // this is a dataShim from populateContentStoreNodes, name should
+      if (data.name.get(-1).toEscapedString().substr(0, 12) !== "sha256digest") // already have a digest, but check anyway...
+        reject(new Error("new Repository.Entry(data, contentStore) : no content to digest or digest component on name" + data.name.toUri()))
+      resolve(new NameTree.Node(data.name, self));
+    } else {                                  // we're actually inserting new data
+      var packet = data.wireEncode().buffer
+        , nameWithDigest = Repository_getNameWithDigest(data.name, packet);
+
+
+      entry._repository
+           ._dataDB
+           .put(nameWithDigest.toUri(), data.wireEncode().buffer, function(err){
+             if (err)
+               reject(err);
+             else{
+               entry.prefix = nameWithDigest;
+               resolve(new NameTree.Node(entry.prefix, entry));
+             }
+           });
+    }
+  })
+};
+
+Repository.prototype.insert = function Repository_insert(data){
+  return this._contentStore.insert(data, this);
+};
+
+Repository.prototype.remove = function Repository_remove(entry){
+  var self = this;
+  return new Promise(function Repository_remove_Promise(resolve,reject){
+    self._contentStore.nameTree.remove(entry.prefix);
+    entry.delete()
+         .then(resolve)
+         .catch(reject);
+  });
+};
+
+Repository.prototype.lookup = function Repository_lookup(interest){
+  return this._contentStore.lookup(interest);
+};
+
+
+Repository.prototype.populateContentStoreNodes = function Repository_populateContentStoreNodes(){
+  var self = this;
+  return new Promise(function Repository_populateContentStoreNodes_Promise(resolve,reject){
+    var proms = [];
+    self._dataDB
+        .createKeyStream()
+        .on("data",function(key){
+          proms.push(self.createNode({name:new Name(key)}, self)
+                         .then(function(node){
+                           return self._contentStore._nameTree.insert(node);
+                         }))
+        })
+        .on("error", function(err){
+          reject(err);
+        })
+        .on("close", function(){
+
+        })
+        .on("end", function(){
+          Promise.all(proms)
+                 .then(resolve)
+                 .catch(function(err){
+                   self.close()
+                       .then(function(){
+                         reject(err);
+                       })
+                 })
+        });
+  });
+};
+
+Repository.prototype.close = function Repository_close(){
+  var self = this;
+  return new Promise(function Repository_close_Promise(resolve,reject){
+    self._dataDB.close(function Repository_close_Promise_level(err){
+      if (err)
+        return reject(err)
+      resolve(self);
     });
+  })
 };
 
-/**Check the Repository for data matching an interest
- *@param {Object} interest and NDN.Interest object
- *@param {function} callback recieves (err, element) err is null if everything is OK, element is a Buffer with the raw data packet
- *@returns {this} for chaining
- */
-Repository.prototype.check = function(interest, callback, db) {
-  db = db || this;
-  if (!db.spun){
-    setTimeout(db.check, 200, interest, callback, db);
-  } else {
-    db.index.check(interest, callback);
-  }
-  return this;
+Repository.prototype.destroy = function Repository_destroy(){
+  var self = this;
+  return new Promise(function Repository_destroy_Promise(resolve,reject){
+    if (self._dataDB.isOpen())
+      return reject(new Error("Repository.destroy(): Repository must call Repository.close() prior to destruction"))
+
+    leveldown.destroy(self._dataPath, function Repository_destroy_level(err){
+      if (!err)
+        return resolve();
+
+      reject(err);
+    });
+  });
 };
 
 module.exports = Repository;

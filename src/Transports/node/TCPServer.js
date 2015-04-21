@@ -67,7 +67,8 @@ TCPServerTransport.defineListener = function(Subject, port){
       });
       interfaces.newFace("TCPServerTransport", socket, function(id){
         debug.debug("got newface callback from interfaces with face ID: %s", id);
-        interfaces.Faces[id].transport.connect({}, interfaces.Faces[id], function(){}, function(){});
+        var toConnect = interfaces.Faces.get(id);
+        toConnect.transport.connect({}, toConnect, function(){}, function(){});
       }, function(){
 
       });
