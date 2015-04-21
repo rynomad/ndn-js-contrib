@@ -21,7 +21,7 @@ Face.Create = function Face_create(transport, onElement){
           }
         };
 
-    var face = new Face(settings)
+    var face = new Face(settings);
 
     if (onElement)
       face.set_onReceivedElement(onElement);
